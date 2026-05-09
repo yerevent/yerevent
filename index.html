@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>yer.events</title>
-  <link rel="icon" href="/favicon.png" type="image/png">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 
@@ -217,23 +216,6 @@ body {
 .btn-more { background: var(--surface) !important; color: var(--text-soft) !important; border: 1px solid var(--border) !important; }
 .btn-more:hover { border-color: var(--accent) !important; color: var(--accent) !important; background: var(--surface) !important; transform: none !important; }
 
-/* ── MAP EMBED ── */
-.detail-map {
-  width: 100%;
-  height: 200px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  margin-bottom: 18px;
-  overflow: hidden;
-  background: var(--surface);
-}
-.detail-map iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  display: block;
-}
-
 /* ── RESPONSIVE ── */
 @media (max-width: 640px) {
   .cal-cell { min-height: 62px; padding: 4px 3px 3px; }
@@ -359,6 +341,7 @@ const MONTHS_LONG  = ['January','February','March','April','May','June','July','
 let allEvents = [], filteredEvents = [];
 let activeFilters = { type: 'all', city: 'all' };
 let calYear, calMonth;
+let currentEvent = null; // stores the currently open event safely
 
 const TYPE_STYLE = {
   festival:    { color: '#c0392b', bg: 'rgba(192,57,43,0.12)'  },
@@ -660,9 +643,10 @@ function renderList() {
           </div>
         </div>
         <div class="event-action">
-          <button class="gcal-btn" onclick="event.stopPropagation();addToGCal(${JSON.stringify(JSON.stringify(ev))})">+ GCal</button>
+          <button class="gcal-btn">+ GCal</button>
         </div>
       `;
+      card.querySelector('.gcal-btn').addEventListener('click', e => { e.stopPropagation(); addToGCal(ev); });
       card.addEventListener('click', () => openDetail(ev));
       group.appendChild(card);
     });
@@ -678,18 +662,15 @@ function switchView(v) {
 }
 
 function openDetail(ev) {
+  currentEvent = ev;
   const [y,m,d] = ev.date.split('-');
   const displayDate = ev.rawDate || `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
 
-  // ── Google Maps embed (no API key needed) ──
   const mapHTML = ev.location
     ? `<div class="detail-map">
-        <iframe
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
+        <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
           src="https://www.google.com/maps?q=${encodeURIComponent(ev.location + (ev.city ? ', ' + ev.city : '') + ', Armenia')}&output=embed"
-          allowfullscreen>
-        </iframe>
+          allowfullscreen></iframe>
       </div>`
     : '';
 
@@ -708,22 +689,26 @@ function openDetail(ev) {
     ${ev.description ? `<div class="detail-desc">${esc(ev.description)}</div>` : ''}
     ${mapHTML}
     <div class="detail-actions">
-      <button class="btn-gcal-big" onclick="addToGCal(${JSON.stringify(JSON.stringify(ev))})">📆 Add to Google Calendar</button>
+      <button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>
       ${ev.link ? `<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>` : ''}
     </div>
   `;
+
+  document.getElementById('gcalBtn').addEventListener('click', () => addToGCal(currentEvent));
   document.getElementById('detailOverlay').classList.add('open');
 }
-function closeDetail() { document.getElementById('detailOverlay').classList.remove('open'); }
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  currentEvent = null;
+}
 
-function addToGCal(evJson) {
-  const ev = typeof evJson === 'string' ? JSON.parse(evJson) : evJson;
+function addToGCal(ev) {
+  if (!ev) return;
   const dateCompact = ev.date.replace(/-/g, '');
 
-  // Try to parse start/end times from the time string e.g. "7:00 PM – 10:00 PM"
   let dates = `${dateCompact}/${dateCompact}`;
   if (ev.time) {
-    const parts = ev.time.split(/[–—-]/).map(s => s.trim());
+    const parts = ev.time.split(/[–—]/).map(s => s.trim());
     const toISO = (dateStr, timeStr) => {
       const d = new Date(`${dateStr} ${timeStr}`);
       if (isNaN(d)) return null;
@@ -735,9 +720,9 @@ function addToGCal(evJson) {
   }
 
   const details = [
-    ev.time        ? `🕐 ${ev.time}`            : '',
-    ev.description ? ev.description              : '',
-    ev.link        ? `🔗 More info: ${ev.link}`  : '',
+    ev.time        ? `🕐 ${ev.time}`           : '',
+    ev.description ? ev.description             : '',
+    ev.link        ? `🔗 More info: ${ev.link}` : '',
   ].filter(Boolean).join('\n\n');
 
   const params = new URLSearchParams({
