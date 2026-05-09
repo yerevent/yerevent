@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.png" type="image/png">
 <title>yer.events</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -71,6 +72,13 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-weekday{font-size:0.62rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);padding:8px 0;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .cal-cell{min-height:96px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s;}
+.cal-cell.weekend{background:var(--surface2);}
+.cal-cell.public-holiday{background:rgba(192,57,43,0.08);border-color:rgba(192,57,43,0.2);}
+.cal-cell.public-holiday.weekend{background:rgba(192,57,43,0.13);}
+.cal-cell.public-holiday:hover{border-color:rgba(192,57,43,0.4);}
+.holiday-label{display:block;font-size:0.58rem;font-weight:700;color:#c0392b;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;}
+.holiday-legend{display:flex;align-items:center;gap:7px;font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;}
+.holiday-legend-swatch{width:14px;height:14px;border-radius:4px;background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.3);flex-shrink:0;}
 .cal-cell:hover{border-color:rgba(100,9,12,0.25);}
 .cal-cell.other-month{opacity:0.3;}
 .cal-cell.today{border-color:var(--accent);}
@@ -191,16 +199,20 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
   </div>
 
   <div id="calendarView">
+    <div class="holiday-legend">
+      <span class="holiday-legend-swatch"></span>
+      <span>Official non-working public holidays of the Republic of Armenia</span>
+    </div>
     <div class="cal-nav">
       <button class="cal-nav-btn" onclick="prevMonth()">←</button>
       <div class="cal-month-label" id="calMonthLabel"></div>
       <button class="cal-nav-btn" onclick="nextMonth()">→</button>
     </div>
     <div class="cal-weekdays">
-      <div class="cal-weekday">Sun</div><div class="cal-weekday">Mon</div>
-      <div class="cal-weekday">Tue</div><div class="cal-weekday">Wed</div>
-      <div class="cal-weekday">Thu</div><div class="cal-weekday">Fri</div>
-      <div class="cal-weekday">Sat</div>
+      <div class="cal-weekday">Mon</div><div class="cal-weekday">Tue</div>
+      <div class="cal-weekday">Wed</div><div class="cal-weekday">Thu</div>
+      <div class="cal-weekday">Fri</div><div class="cal-weekday">Sat</div>
+      <div class="cal-weekday">Sun</div>
     </div>
     <div class="cal-grid" id="calGrid"></div>
   </div>
@@ -227,7 +239,7 @@ const REFRESH_INTERVAL_SECONDS = 60;
 let refreshTimer = null, countdownTimer = null;
 let secondsUntilRefresh = REFRESH_INTERVAL_SECONDS;
 let lastFetchedAt = null;
-let currentEvent = null; // holds the open event safely — avoids inline JSON in onclick
+let currentEvent = null;
 
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -418,29 +430,80 @@ function applyFilters() {
   renderList();
 }
 
+
+// Official non-working public holidays in the Republic of Armenia (fixed annual dates)
+// Source: RA Law on Holidays and Memorial Days
+const AM_PUBLIC_HOLIDAYS = {
+  '01-01': "New Year's Day",
+  '01-02': "New Year's Day",
+  '01-06': "Christmas & Epiphany",
+  '01-27': "Memorial Day",
+  '01-28': "Army Day",
+  '03-08': "International Women's Day",
+  '04-24': "Genocide Remembrance Day",
+  '05-01': "Labour Day",
+  '05-09': "Victory and Peace Day",
+  '05-28': "Republic Day",
+  '07-05': "Constitution Day",
+  '09-21': "Independence Day",
+  '12-31': "New Year's Eve",
+};
+
+function getHoliday(dateStr) {
+  // dateStr is YYYY-MM-DD
+  const mmdd = dateStr.slice(5); // MM-DD
+  return AM_PUBLIC_HOLIDAYS[mmdd] || null;
+}
+
 function renderCalendar() {
   document.getElementById('calMonthLabel').textContent = `${MONTHS_LONG[calMonth]} ${calYear}`;
   const grid = document.getElementById('calGrid');
   grid.innerHTML = '';
-  const firstDay    = new Date(calYear, calMonth, 1).getDay();
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
   const prevDays    = new Date(calYear, calMonth, 0).getDate();
   const today       = new Date();
-  const totalCells  = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+  // Monday-first: getDay() returns 0=Sun,1=Mon,...,6=Sat
+  // We remap so Monday=0, Tuesday=1, ..., Sunday=6
+  const rawFirstDay = new Date(calYear, calMonth, 1).getDay();
+  const firstDay    = (rawFirstDay + 6) % 7; // Mon=0 … Sun=6
+
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
   for (let i = 0; i < totalCells; i++) {
     let date, isOther = false;
-    if (i < firstDay) { date = new Date(calYear, calMonth - 1, prevDays - firstDay + i + 1); isOther = true; }
-    else if (i >= firstDay + daysInMonth) { date = new Date(calYear, calMonth + 1, i - firstDay - daysInMonth + 1); isOther = true; }
-    else { date = new Date(calYear, calMonth, i - firstDay + 1); }
+    if (i < firstDay) {
+      date = new Date(calYear, calMonth - 1, prevDays - firstDay + i + 1);
+      isOther = true;
+    } else if (i >= firstDay + daysInMonth) {
+      date = new Date(calYear, calMonth + 1, i - firstDay - daysInMonth + 1);
+      isOther = true;
+    } else {
+      date = new Date(calYear, calMonth, i - firstDay + 1);
+    }
+
     const dateStr = toDateStr(date);
-    const isToday = date.toDateString() === today.toDateString();
-    const dayEvs  = filteredEvents.filter(e => e.date === dateStr);
+    const isToday   = date.toDateString() === today.toDateString();
+    const isWeekend = (i % 7) >= 5; // columns 5=Sat, 6=Sun in Mon-first grid
+    const holiday   = getHoliday(dateStr);
+    const dayEvs    = filteredEvents.filter(e => e.date === dateStr);
     const cell = document.createElement('div');
-    cell.className = 'cal-cell' + (isOther ? ' other-month' : '') + (isToday ? ' today' : '');
+    cell.className = 'cal-cell'
+      + (isOther        ? ' other-month'    : '')
+      + (isToday        ? ' today'          : '')
+      + (isWeekend      ? ' weekend'        : '')
+      + (holiday        ? ' public-holiday' : '');
     const numEl = document.createElement('span');
     numEl.className = 'day-num';
     numEl.textContent = date.getDate();
     cell.appendChild(numEl);
+    if (holiday) {
+      const hlabel = document.createElement('span');
+      hlabel.className = 'holiday-label';
+      hlabel.title = 'Official non-working public holiday in the Republic of Armenia';
+      hlabel.textContent = holiday;
+      cell.appendChild(hlabel);
+    }
     dayEvs.slice(0,3).forEach(ev => {
       const chip = document.createElement('span');
       chip.className = 'cal-event-chip';
@@ -509,7 +572,6 @@ function renderList() {
           <button class="gcal-btn">+ GCal</button>
         </div>
       `;
-      // Safe listeners — no data embedded in HTML attributes
       card.querySelector('.gcal-btn').addEventListener('click', e => { e.stopPropagation(); addToGCal(ev); });
       card.addEventListener('click', () => openDetail(ev));
       group.appendChild(card);
@@ -526,7 +588,7 @@ function switchView(v) {
 }
 
 function openDetail(ev) {
-  currentEvent = ev; // store reference safely
+  currentEvent = ev;
   const [y,m,d] = ev.date.split('-');
   const displayDate = ev.rawDate || `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
   const mapHTML = ev.location
@@ -555,9 +617,7 @@ function openDetail(ev) {
     </div>
   `;
 
-  // Attach listener after rendering — reads from currentEvent, never from HTML attributes
   document.getElementById('gcalBtn').addEventListener('click', () => addToGCal(currentEvent));
-
   document.getElementById('detailOverlay').classList.add('open');
 }
 
@@ -569,8 +629,6 @@ function closeDetail() {
 function addToGCal(ev) {
   if (!ev) return;
   const dateCompact = ev.date.replace(/-/g, '');
-
-  // Build date/time string for Google Calendar
   let dates = `${dateCompact}/${dateCompact}`;
   if (ev.time) {
     const parts = ev.time.split(/[–—]/).map(s => s.trim());
