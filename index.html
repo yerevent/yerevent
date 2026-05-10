@@ -78,7 +78,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;text-align:center;}
 .cal-weekday{font-size:0.62rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);padding:8px 0;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.cal-cell{min-height:96px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s;}
+.cal-cell{min-height:96px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s;cursor:pointer;}
 .cal-cell.weekend{background:#150a10;}
 .cal-cell.public-holiday{background:rgba(201,82,108,0.1);border-color:rgba(201,82,108,0.25);}
 .cal-cell.public-holiday.weekend{background:rgba(201,82,108,0.15);}
@@ -87,7 +87,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .holiday-legend{display:flex;align-items:center;gap:7px;font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;}
 .holiday-legend-swatch{width:14px;height:14px;border-radius:4px;background:rgba(201,82,108,0.15);border:1px solid rgba(201,82,108,0.3);flex-shrink:0;}
 .cal-cell:hover{border-color:rgba(252,204,132,0.25);}
-.cal-cell.other-month{opacity:0.2;}
+.cal-cell.other-month{opacity:0.2;cursor:default;}
 .cal-cell.today{border-color:var(--accent);}
 .cal-cell.today .day-num{color:var(--gold);font-weight:700;}
 .day-num{font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;}
@@ -138,27 +138,24 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .btn-more{background:var(--surface)!important;color:var(--text-soft)!important;border:1px solid var(--border)!important;}
 .btn-more:hover{border-color:var(--accent)!important;color:var(--accent)!important;background:var(--surface)!important;transform:none!important;}
 
-/* ── DAY MODAL ── */
-.day-overlay{display:none;position:fixed;inset:0;background:rgba(20,5,15,0.7);backdrop-filter:blur(6px);z-index:190;align-items:center;justify-content:center;padding:16px;}
+/* ── DAY POPUP ── */
+.day-overlay{display:none;position:fixed;inset:0;background:rgba(20,5,15,0.75);backdrop-filter:blur(6px);z-index:190;align-items:center;justify-content:center;padding:16px;}
 .day-overlay.open{display:flex;}
-.day-modal{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:480px;max-height:85vh;overflow-y:auto;animation:modalIn 0.25s cubic-bezier(0.34,1.2,0.64,1);}
-.day-modal-header{padding:18px 20px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg);z-index:1;}
-.day-modal-date{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--gold);}
-.day-modal-count{font-size:0.75rem;color:var(--text-muted);margin-top:2px;}
-.day-modal-close{background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;transition:color 0.15s;line-height:1;}
-.day-modal-close:hover{color:var(--gold);}
-.day-modal-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
-.day-event-row{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;cursor:pointer;transition:border-color 0.15s,transform 0.15s;display:flex;align-items:center;gap:12px;}
-.day-event-row:hover{border-color:rgba(201,82,108,0.45);transform:translateX(3px);}
-.day-event-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.day-popup{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:420px;max-height:80vh;overflow-y:auto;animation:modalIn 0.22s cubic-bezier(0.34,1.2,0.64,1);}
+.day-popup-header{padding:16px 18px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg);z-index:1;}
+.day-popup-date{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--gold);}
+.day-popup-sub{font-size:0.72rem;color:var(--text-muted);margin-top:3px;}
+.day-popup-close{background:none;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer;line-height:1;padding:2px 4px;transition:color 0.15s;}
+.day-popup-close:hover{color:var(--gold);}
+.day-popup-body{padding:12px 14px;display:flex;flex-direction:column;gap:7px;}
+.day-event-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:border-color 0.15s,transform 0.12s;}
+.day-event-row:hover{border-color:rgba(201,82,108,0.5);transform:translateX(3px);}
+.day-event-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .day-event-info{min-width:0;flex:1;}
-.day-event-name{font-size:0.92rem;font-weight:600;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.day-event-time{font-size:0.75rem;color:var(--text-muted);}
-.day-event-arrow{color:var(--text-muted);font-size:0.9rem;flex-shrink:0;}
-.day-empty{padding:32px 16px;text-align:center;color:var(--text-muted);font-size:0.88rem;}
-
-/* make calendar cells clickable */
-.cal-cell{cursor:pointer;}
+.day-event-name{font-size:0.88rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.day-event-time{font-size:0.72rem;color:var(--text-muted);margin-top:2px;}
+.day-event-arrow{color:var(--text-muted);font-size:0.85rem;flex-shrink:0;}
+.day-empty{padding:28px 14px;text-align:center;color:var(--text-muted);font-size:0.85rem;font-style:italic;}
 
 /* ── FOOTER ── */
 footer {
@@ -340,17 +337,17 @@ footer {
   </div>
 </div>
 
-<!-- ── DAY MODAL ── -->
+<!-- ── DAY POPUP ── -->
 <div class="day-overlay" id="dayOverlay">
-  <div class="day-modal">
-    <div class="day-modal-header">
+  <div class="day-popup">
+    <div class="day-popup-header">
       <div>
-        <div class="day-modal-date" id="dayModalDate"></div>
-        <div class="day-modal-count" id="dayModalCount"></div>
+        <div class="day-popup-date" id="dayPopupDate"></div>
+        <div class="day-popup-sub" id="dayPopupSub"></div>
       </div>
-      <button class="day-modal-close" onclick="closeDayModal()">&times;</button>
+      <button class="day-popup-close" onclick="closeDayModal()">&times;</button>
     </div>
-    <div class="day-modal-body" id="dayModalBody"></div>
+    <div class="day-popup-body" id="dayPopupBody"></div>
   </div>
 </div>
 
@@ -655,7 +652,7 @@ function renderCalendar() {
 
     // clicking the cell opens day modal (only for current month cells)
     if (!isOther) {
-      cell.addEventListener('click', () => openDayModal(date, dateStr));
+      cell.addEventListener('click', () => openDayModal(cell, date, dateStr));
     }
 
     const numEl = document.createElement('span');
@@ -677,8 +674,7 @@ function renderCalendar() {
       const s = TYPE_STYLE[ev.type] || { color:'#888', bg:'rgba(136,136,136,0.15)' };
       chip.style.cssText = `color:${s.color};background:${s.bg};`;
       chip.textContent = ev.name;
-      // chip click opens day modal too (stops propagation not needed — cell handles it)
-      chip.addEventListener('click', e => { e.stopPropagation(); openDayModal(date, dateStr); });
+      chip.addEventListener('click', e => { e.stopPropagation(); openDayModal(cell, date, dateStr); });
       cell.appendChild(chip);
     });
 
@@ -756,28 +752,29 @@ function switchView(v) {
   document.getElementById('tabList').classList.toggle('active', v === 'list');
 }
 
-// ── DAY MODAL ──
-function openDayModal(date, dateStr) {
+// ── DAY POPUP ──
+function openDayModal(cell, date, dateStr) {
   const dayEvs = filteredEvents.filter(e => e.date === dateStr);
   const [y,m,d] = dateStr.split('-');
   const displayDate = `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
   const holiday = getHoliday(dateStr);
-
-  document.getElementById('dayModalDate').textContent = displayDate;
   const n = dayEvs.length;
-  document.getElementById('dayModalCount').textContent =
-    holiday ? `${holiday} · ${n} event${n !== 1 ? 's' : ''}` :
+
+  document.getElementById('dayPopupDate').textContent = displayDate;
+  document.getElementById('dayPopupSub').textContent =
+    holiday ? `${holiday}${n ? ' · ' + n + ' event' + (n !== 1 ? 's' : '') : ''}` :
     n === 0 ? 'No events' : `${n} event${n !== 1 ? 's' : ''}`;
 
-  const body = document.getElementById('dayModalBody');
+  const body = document.getElementById('dayPopupBody');
+  body.innerHTML = '';
+
   if (!n) {
     body.innerHTML = `<div class="day-empty">No events on this day.</div>`;
   } else {
-    body.innerHTML = '';
     dayEvs.forEach(ev => {
       const row = document.createElement('div');
       row.className = 'day-event-row';
-      const s = TYPE_STYLE[ev.type] || { color:'#888', bg:'rgba(136,136,136,0.15)' };
+      const s = TYPE_STYLE[ev.type] || { color:'#888' };
       row.innerHTML = `
         <span class="day-event-dot" style="background:${s.color};"></span>
         <div class="day-event-info">
@@ -788,7 +785,7 @@ function openDayModal(date, dateStr) {
       `;
       row.addEventListener('click', () => {
         closeDayModal();
-        setTimeout(() => openDetail(ev), 150);
+        setTimeout(() => openDetail(ev), 120);
       });
       body.appendChild(row);
     });
