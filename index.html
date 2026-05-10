@@ -3,23 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="icon" href="favicon.png" type="image/png">
 <title>yer.events</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f1eee7; --surface: #e8e4dc; --surface2: #dedad1;
-  --border: rgba(100,9,12,0.1); --text: #2a1a1b;
-  --text-soft: #64090c; --text-muted: #a07070; --accent: #64090c; --radius: 14px;
-  --festival:#c0392b; --concert:#7c5cbf; --educational:#1a7a4a;
-  --nightlife:#b5006e; --sports:#0070a8; --art:#9a6800; --expo:#6b3fa0;
+  --bg: #2b101a;
+  --surface: #1f0d15;
+  --surface2: #2a1020;
+  --border: rgba(252,204,132,0.12);
+  --text: #fdf5ec;
+  --text-soft: #fccc84;
+  --text-muted: rgba(252,204,132,0.45);
+  --accent: #c9526c;
+  --gold: #fccc84;
+  --radius: 14px;
+  --festival:#e8604a; --concert:#a78bfa; --educational:#34d399;
+  --nightlife:#f472b6; --sports:#60a5fa; --art:#fccc84; --expo:#c084fc;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-.hero{padding:56px 24px 44px;text-align:center;background:var(--bg);}
-.hero-logo{width:100%;max-width:700px;height:auto;display:block;margin:0 auto 16px;border:none;background:none;}
-.hero p{font-family:'Futura','Century Gothic','Trebuchet MS',sans-serif;color:#64090c;font-size:0.95rem;font-weight:400;max-width:480px;margin:0 auto;line-height:1.6;letter-spacing:0.3px;}
+.hero{padding:0 0 32px;text-align:center;background:var(--bg);}
+.hero-logo{width:100%;max-width:900px;height:auto;display:block;margin:0 auto 20px;border:none;background:none;}
+.hero p{font-family:'Futura','Century Gothic','Trebuchet MS',sans-serif;color:var(--gold);font-size:0.95rem;font-weight:400;max-width:480px;margin:0 auto;line-height:1.6;letter-spacing:0.3px;opacity:0.75;}
 .wrapper{max-width:1100px;margin:0 auto;padding:0 20px 80px;}
 .filters-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:24px;}
 .filters-row{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;}
@@ -36,21 +43,21 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .pill[data-type="sports"].active{background:var(--sports);}
 .pill[data-type="art"].active{background:var(--art);}
 .pill[data-type="expo"].active{background:var(--expo);}
-.pill[data-city="Yerevan"].active{background:#c0392b;}
-.pill[data-city="Gyumri"].active{background:#7c5cbf;}
-.pill[data-city="Vanadzor"].active{background:#1a7a4a;}
-.pill[data-city="Meghri"].active{background:#9a6800;}
-.pill[data-city="Kapan"].active{background:#b5006e;}
-.pill[data-city="Near Yerevan"].active{background:#0070a8;}
+.pill[data-city="Yerevan"].active{background:#c9526c;}
+.pill[data-city="Gyumri"].active{background:#a78bfa;}
+.pill[data-city="Vanadzor"].active{background:#34d399;color:#1a1a1a!important;}
+.pill[data-city="Meghri"].active{background:#fccc84;color:#1a1a1a!important;}
+.pill[data-city="Kapan"].active{background:#f472b6;}
+.pill[data-city="Near Yerevan"].active{background:#60a5fa;color:#1a1a1a!important;}
 .pill[data-city="Other"].active{background:#888;}
 .pill.all-pill.active{background:var(--accent);}
 .filter-clear{font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;padding:0;margin-top:12px;text-decoration:underline;display:block;}
 .filter-clear:hover{color:var(--accent);}
 .sync-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:7px 14px;margin-bottom:16px;font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;gap:8px;}
 .sync-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--text-muted);margin-right:6px;vertical-align:middle;transition:background 0.3s;}
-.sync-dot.live{background:#1a7a4a;box-shadow:0 0 0 3px rgba(26,122,74,0.2);animation:pulse 2s infinite;}
-.sync-dot.error{background:#c0392b;}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(26,122,74,0.2);}50%{box-shadow:0 0 0 6px rgba(26,122,74,0.05);}}
+.sync-dot.live{background:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,0.2);animation:pulse 2s infinite;}
+.sync-dot.error{background:#c9526c;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(52,211,153,0.2);}50%{box-shadow:0 0 0 6px rgba(52,211,153,0.05);}}
 .sync-left{display:flex;align-items:center;gap:4px;}
 .sync-right{display:flex;align-items:center;gap:10px;}
 .sync-refresh-btn{font-family:'Outfit',sans-serif;font-size:0.72rem;font-weight:600;padding:4px 12px;border-radius:100px;border:1px solid var(--border);background:var(--bg);color:var(--text-soft);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
@@ -72,17 +79,17 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-weekday{font-size:0.62rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);padding:8px 0;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .cal-cell{min-height:96px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s;}
-.cal-cell.weekend{background:var(--surface2);}
-.cal-cell.public-holiday{background:rgba(192,57,43,0.08);border-color:rgba(192,57,43,0.2);}
-.cal-cell.public-holiday.weekend{background:rgba(192,57,43,0.13);}
-.cal-cell.public-holiday:hover{border-color:rgba(192,57,43,0.4);}
-.holiday-label{display:block;font-size:0.58rem;font-weight:700;color:#c0392b;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;}
+.cal-cell.weekend{background:#150a10;}
+.cal-cell.public-holiday{background:rgba(201,82,108,0.1);border-color:rgba(201,82,108,0.25);}
+.cal-cell.public-holiday.weekend{background:rgba(201,82,108,0.15);}
+.cal-cell.public-holiday:hover{border-color:rgba(201,82,108,0.5);}
+.holiday-label{display:block;font-size:0.58rem;font-weight:700;color:#c9526c;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;}
 .holiday-legend{display:flex;align-items:center;gap:7px;font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;}
-.holiday-legend-swatch{width:14px;height:14px;border-radius:4px;background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.3);flex-shrink:0;}
-.cal-cell:hover{border-color:rgba(100,9,12,0.25);}
-.cal-cell.other-month{opacity:0.3;}
+.holiday-legend-swatch{width:14px;height:14px;border-radius:4px;background:rgba(201,82,108,0.15);border:1px solid rgba(201,82,108,0.3);flex-shrink:0;}
+.cal-cell:hover{border-color:rgba(252,204,132,0.25);}
+.cal-cell.other-month{opacity:0.2;}
 .cal-cell.today{border-color:var(--accent);}
-.cal-cell.today .day-num{color:var(--accent);font-weight:700;}
+.cal-cell.today .day-num{color:var(--gold);font-weight:700;}
 .day-num{font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;}
 .cal-event-chip{display:block;font-size:0.62rem;font-weight:500;padding:2px 5px;border-radius:4px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s;}
 .cal-event-chip:hover{opacity:0.75;}
@@ -90,7 +97,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .list-month-group{margin-bottom:32px;}
 .list-month-heading{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--text-soft);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
 .event-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:start;cursor:pointer;transition:border-color 0.2s,transform 0.15s;animation:fadeIn 0.3s ease both;}
-.event-card:hover{border-color:rgba(100,9,12,0.3);transform:translateX(3px);}
+.event-card:hover{border-color:rgba(201,82,108,0.4);transform:translateX(3px);}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 .event-date-block{min-width:50px;text-align:center;background:var(--bg);border-radius:10px;padding:8px 6px;}
 .event-date-day{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;line-height:1;color:var(--accent);}
@@ -133,8 +140,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 
 /* ── FOOTER ── */
 footer {
-  background: #1e1010;
-  color: rgba(255,255,255,0.55);
+  background: #1f0d15;
+  color: rgba(252,204,132,0.45);
   margin-top: 0;
   font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
   font-size: 0.85rem;
@@ -145,7 +152,7 @@ footer {
   padding: 52px 24px 28px;
 }
 .footer-blurb-section {
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(252,204,132,0.1);
   padding-bottom: 48px;
   margin-bottom: 48px;
   text-align: center;
@@ -154,14 +161,14 @@ footer {
   font-size: clamp(1.3rem, 3vw, 2rem);
   font-weight: 400;
   line-height: 1.5;
-  color: rgba(255,255,255,0.9);
+  color: rgba(252,204,132,0.85);
   max-width: 720px;
   margin: 0 auto;
   letter-spacing: 0.3px;
 }
 .footer-blurb-text em {
   font-style: italic;
-  color: #e8a090;
+  color: #c9526c;
 }
 .footer-top {
   display: flex;
@@ -179,41 +186,41 @@ footer {
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
+  color: rgba(252,204,132,0.3);
   margin-bottom: 14px;
 }
 .footer-link {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(255,255,255,0.7);
+  color: rgba(252,204,132,0.65);
   text-decoration: none;
   font-size: 0.87rem;
   font-weight: 500;
   transition: color 0.15s;
 }
-.footer-link:hover { color: #fff; }
+.footer-link:hover { color: #fccc84; }
 .footer-nudge {
   font-size: 0.87rem;
   line-height: 1.6;
-  color: rgba(255,255,255,0.5);
+  color: rgba(252,204,132,0.45);
 }
 .footer-tell {
   display: inline-flex;
   margin-top: 6px;
-  color: #e8a090;
+  color: #c9526c;
   font-weight: 600;
 }
-.footer-tell:hover { color: #fff; }
+.footer-tell:hover { color: #fccc84; }
 .footer-bottom {
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(252,204,132,0.08);
   padding-top: 20px;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.25);
+  color: rgba(252,204,132,0.2);
 }
 
 @media(max-width:640px){
@@ -231,7 +238,7 @@ footer {
 <body>
 
 <div class="hero">
-  <img src="Untitled_design__4_.png" alt="yer.event" class="hero-logo">
+  <img src="logo.png" alt="yer.event" class="hero-logo">
   <p>Discover concerts, festivals, art shows and more across Armenia — all in one place.</p>
 </div>
 
@@ -375,27 +382,27 @@ let activeFilters = { type: 'all', city: 'all' };
 let calYear, calMonth;
 
 const TYPE_STYLE = {
-  festival:    { color:'#c0392b', bg:'rgba(192,57,43,0.12)'  },
-  concert:     { color:'#7c5cbf', bg:'rgba(124,92,191,0.12)' },
-  educational: { color:'#1a7a4a', bg:'rgba(26,122,74,0.12)'  },
-  nightlife:   { color:'#b5006e', bg:'rgba(181,0,110,0.12)'  },
-  sports:      { color:'#0070a8', bg:'rgba(0,112,168,0.12)'  },
-  art:         { color:'#9a6800', bg:'rgba(154,104,0,0.12)'  },
-  expo:        { color:'#6b3fa0', bg:'rgba(107,63,160,0.12)' },
+  festival:    { color:'#e8604a', bg:'rgba(232,96,74,0.15)'   },
+  concert:     { color:'#a78bfa', bg:'rgba(167,139,250,0.15)' },
+  educational: { color:'#34d399', bg:'rgba(52,211,153,0.15)'  },
+  nightlife:   { color:'#f472b6', bg:'rgba(244,114,182,0.15)' },
+  sports:      { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'  },
+  art:         { color:'#fccc84', bg:'rgba(252,204,132,0.15)' },
+  expo:        { color:'#c084fc', bg:'rgba(192,132,252,0.15)' },
 };
 const PRICE_STYLE = {
-  'free':                  { color:'#1a7a4a', bg:'rgba(26,122,74,0.12)'   },
-  'n/a':                   { color:'#888',    bg:'rgba(136,136,136,0.12)' },
-  'check website':         { color:'#0070a8', bg:'rgba(0,112,168,0.12)'  },
-  'registration required': { color:'#9a6800', bg:'rgba(154,104,0,0.12)'  },
+  'free':                  { color:'#34d399', bg:'rgba(52,211,153,0.15)'   },
+  'n/a':                   { color:'#888',    bg:'rgba(136,136,136,0.12)'  },
+  'check website':         { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'   },
+  'registration required': { color:'#fccc84', bg:'rgba(252,204,132,0.15)'  },
 };
 const CITY_STYLE = {
-  'Yerevan':      { color:'#c0392b', bg:'rgba(192,57,43,0.12)'  },
-  'Gyumri':       { color:'#7c5cbf', bg:'rgba(124,92,191,0.12)' },
-  'Vanadzor':     { color:'#1a7a4a', bg:'rgba(26,122,74,0.12)'  },
-  'Meghri':       { color:'#9a6800', bg:'rgba(154,104,0,0.12)'  },
-  'Kapan':        { color:'#b5006e', bg:'rgba(181,0,110,0.12)'  },
-  'Near Yerevan': { color:'#0070a8', bg:'rgba(0,112,168,0.12)'  },
+  'Yerevan':      { color:'#c9526c', bg:'rgba(201,82,108,0.15)'  },
+  'Gyumri':       { color:'#a78bfa', bg:'rgba(167,139,250,0.15)' },
+  'Vanadzor':     { color:'#34d399', bg:'rgba(52,211,153,0.15)'  },
+  'Meghri':       { color:'#fccc84', bg:'rgba(252,204,132,0.15)' },
+  'Kapan':        { color:'#f472b6', bg:'rgba(244,114,182,0.15)' },
+  'Near Yerevan': { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'  },
   'Other':        { color:'#888',    bg:'rgba(136,136,136,0.12)' },
 };
 
