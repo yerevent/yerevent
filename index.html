@@ -20,6 +20,7 @@
   --radius: 14px;
   --festival:#e8604a; --concert:#a78bfa; --educational:#34d399;
   --nightlife:#f472b6; --sports:#60a5fa; --art:#fccc84; --expo:#c084fc;
+  --social:#fb923c; --dining:#e879f9; --film:#94a3b8;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -36,20 +37,23 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .pill{font-size:0.73rem;font-weight:500;padding:5px 12px;border-radius:100px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text-soft);font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
 .pill:hover{border-color:var(--accent);color:var(--accent);}
 .pill.active{color:#fff!important;border-color:transparent;}
-.pill[data-type="festival"].active{background:var(--festival);}
-.pill[data-type="concert"].active{background:var(--concert);}
-.pill[data-type="educational"].active{background:var(--educational);}
-.pill[data-type="nightlife"].active{background:var(--nightlife);}
-.pill[data-type="sports"].active{background:var(--sports);}
-.pill[data-type="art"].active{background:var(--art);}
-.pill[data-type="expo"].active{background:var(--expo);}
-.pill[data-city="Yerevan"].active{background:#c9526c;}
-.pill[data-city="Gyumri"].active{background:#a78bfa;}
-.pill[data-city="Vanadzor"].active{background:#34d399;color:#1a1a1a!important;}
-.pill[data-city="Meghri"].active{background:#fccc84;color:#1a1a1a!important;}
-.pill[data-city="Kapan"].active{background:#f472b6;}
+.pill[data-type="festival"].active   {background:#e8604a;}
+.pill[data-type="concert"].active    {background:#a78bfa;}
+.pill[data-type="educational"].active{background:#34d399;color:#1a1a1a!important;}
+.pill[data-type="nightlife"].active  {background:#f472b6;}
+.pill[data-type="sports"].active     {background:#60a5fa;color:#1a1a1a!important;}
+.pill[data-type="art"].active        {background:#fccc84;color:#1a1a1a!important;}
+.pill[data-type="expo"].active       {background:#c084fc;}
+.pill[data-type="social"].active     {background:#fb923c;color:#1a1a1a!important;}
+.pill[data-type="dining"].active     {background:#e879f9;}
+.pill[data-type="film"].active       {background:#94a3b8;color:#1a1a1a!important;}
+.pill[data-city="Yerevan"].active    {background:#c9526c;}
+.pill[data-city="Gyumri"].active     {background:#a78bfa;}
+.pill[data-city="Vanadzor"].active   {background:#34d399;color:#1a1a1a!important;}
+.pill[data-city="Meghri"].active     {background:#fccc84;color:#1a1a1a!important;}
+.pill[data-city="Kapan"].active      {background:#f472b6;}
 .pill[data-city="Near Yerevan"].active{background:#60a5fa;color:#1a1a1a!important;}
-.pill[data-city="Other"].active{background:#888;}
+.pill[data-city="Other"].active      {background:#888;}
 .pill.all-pill.active{background:var(--accent);}
 .filter-clear{font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;padding:0;margin-top:12px;text-decoration:underline;display:block;}
 .filter-clear:hover{color:var(--accent);}
@@ -78,7 +82,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;text-align:center;}
 .cal-weekday{font-size:0.62rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);padding:8px 0;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.cal-cell{min-height:96px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s;}
+.cal-cell{min-height:96px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s;cursor:pointer;}
 .cal-cell.weekend{background:#150a10;}
 .cal-cell.public-holiday{background:rgba(201,82,108,0.1);border-color:rgba(201,82,108,0.25);}
 .cal-cell.public-holiday.weekend{background:rgba(201,82,108,0.15);}
@@ -87,7 +91,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .holiday-legend{display:flex;align-items:center;gap:7px;font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;}
 .holiday-legend-swatch{width:14px;height:14px;border-radius:4px;background:rgba(201,82,108,0.15);border:1px solid rgba(201,82,108,0.3);flex-shrink:0;}
 .cal-cell:hover{border-color:rgba(252,204,132,0.25);}
-.cal-cell.other-month{opacity:0.2;}
+.cal-cell.other-month{opacity:0.2;cursor:default;}
 .cal-cell.today{border-color:var(--accent);}
 .cal-cell.today .day-num{color:var(--gold);font-weight:700;}
 .day-num{font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;}
@@ -115,6 +119,27 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .state-box .icon{font-size:2.5rem;margin-bottom:14px;display:block;}
 .state-box h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text-soft);margin-bottom:8px;}
 .state-box p{font-size:0.88rem;}
+
+/* ── DAY POPUP ── */
+.day-overlay{display:none;position:fixed;inset:0;background:rgba(20,5,15,0.75);backdrop-filter:blur(6px);z-index:190;align-items:center;justify-content:center;padding:16px;}
+.day-overlay.open{display:flex;}
+.day-popup{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:420px;max-height:80vh;overflow-y:auto;animation:modalIn 0.22s cubic-bezier(0.34,1.2,0.64,1);}
+.day-popup-header{padding:16px 18px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg);z-index:1;}
+.day-popup-date{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--gold);}
+.day-popup-sub{font-size:0.72rem;color:var(--text-muted);margin-top:3px;}
+.day-popup-close{background:none;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer;line-height:1;padding:2px 4px;transition:color 0.15s;}
+.day-popup-close:hover{color:var(--gold);}
+.day-popup-body{padding:12px 14px;display:flex;flex-direction:column;gap:7px;}
+.day-event-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:border-color 0.15s,transform 0.12s;}
+.day-event-row:hover{border-color:rgba(201,82,108,0.5);transform:translateX(3px);}
+.day-event-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.day-event-info{min-width:0;flex:1;}
+.day-event-name{font-size:0.88rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.day-event-time{font-size:0.72rem;color:var(--text-muted);margin-top:2px;}
+.day-event-arrow{color:var(--text-muted);font-size:0.85rem;flex-shrink:0;}
+.day-empty{padding:28px 14px;text-align:center;color:var(--text-muted);font-size:0.85rem;font-style:italic;}
+
+/* ── DETAIL MODAL ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(30,10,10,0.45);backdrop-filter:blur(5px);z-index:200;align-items:center;justify-content:center;padding:16px;}
 .overlay.open{display:flex;}
 .modal{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:modalIn 0.25s cubic-bezier(0.34,1.2,0.64,1);}
@@ -134,94 +159,26 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .detail-map iframe{width:100%;height:100%;border:none;display:block;}
 .detail-actions{display:flex;gap:10px;flex-wrap:wrap;}
 .btn-gcal-big{flex:1;background:var(--accent);color:#fff;font-family:'Outfit',sans-serif;font-size:0.87rem;font-weight:600;padding:11px 18px;border-radius:100px;border:none;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;}
-.btn-gcal-big:hover{background:#8a0b0f;transform:translateY(-1px);}
+.btn-gcal-big:hover{background:#a33d56;transform:translateY(-1px);}
 .btn-more{background:var(--surface)!important;color:var(--text-soft)!important;border:1px solid var(--border)!important;}
 .btn-more:hover{border-color:var(--accent)!important;color:var(--accent)!important;background:var(--surface)!important;transform:none!important;}
 
 /* ── FOOTER ── */
-footer {
-  background: #1f0d15;
-  color: rgba(252,204,132,0.45);
-  margin-top: 0;
-  font-family: 'Futura', 'Century Gothic', 'Trebuchet MS', sans-serif;
-  font-size: 0.85rem;
-}
-.footer-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 52px 24px 28px;
-}
-.footer-blurb-section {
-  border-bottom: 1px solid rgba(252,204,132,0.1);
-  padding-bottom: 48px;
-  margin-bottom: 48px;
-  text-align: center;
-}
-.footer-blurb-text {
-  font-size: clamp(1.3rem, 3vw, 2rem);
-  font-weight: 400;
-  line-height: 1.5;
-  color: rgba(252,204,132,0.85);
-  max-width: 720px;
-  margin: 0 auto;
-  letter-spacing: 0.3px;
-}
-.footer-blurb-text em {
-  font-style: italic;
-  color: #c9526c;
-}
-.footer-top {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 40px;
-}
-.footer-links {
-  display: flex;
-  gap: 48px;
-  align-items: flex-start;
-}
-.footer-col { min-width: 140px; }
-.footer-col-title {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(252,204,132,0.3);
-  margin-bottom: 14px;
-}
-.footer-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: rgba(252,204,132,0.65);
-  text-decoration: none;
-  font-size: 0.87rem;
-  font-weight: 500;
-  transition: color 0.15s;
-}
-.footer-link:hover { color: #fccc84; }
-.footer-nudge {
-  font-size: 0.87rem;
-  line-height: 1.6;
-  color: rgba(252,204,132,0.45);
-}
-.footer-tell {
-  display: inline-flex;
-  margin-top: 6px;
-  color: #c9526c;
-  font-weight: 600;
-}
-.footer-tell:hover { color: #fccc84; }
-.footer-bottom {
-  border-top: 1px solid rgba(252,204,132,0.08);
-  padding-top: 20px;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 0.75rem;
-  color: rgba(252,204,132,0.2);
-}
+footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:'Futura','Century Gothic','Trebuchet MS',sans-serif;font-size:0.85rem;}
+.footer-inner{max-width:1100px;margin:0 auto;padding:52px 24px 28px;}
+.footer-blurb-section{border-bottom:1px solid rgba(252,204,132,0.1);padding-bottom:48px;margin-bottom:48px;text-align:center;}
+.footer-blurb-text{font-size:clamp(1.3rem,3vw,2rem);font-weight:400;line-height:1.5;color:rgba(252,204,132,0.85);max-width:720px;margin:0 auto;letter-spacing:0.3px;}
+.footer-blurb-text em{font-style:italic;color:#c9526c;}
+.footer-top{display:flex;justify-content:flex-end;margin-bottom:40px;}
+.footer-links{display:flex;gap:48px;align-items:flex-start;}
+.footer-col{min-width:140px;}
+.footer-col-title{font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(252,204,132,0.3);margin-bottom:14px;}
+.footer-link{display:flex;align-items:center;gap:8px;color:rgba(252,204,132,0.65);text-decoration:none;font-size:0.87rem;font-weight:500;transition:color 0.15s;}
+.footer-link:hover{color:#fccc84;}
+.footer-nudge{font-size:0.87rem;line-height:1.6;color:rgba(252,204,132,0.45);}
+.footer-tell{display:inline-flex;margin-top:6px;color:#c9526c;font-weight:600;}
+.footer-tell:hover{color:#fccc84;}
+.footer-bottom{border-top:1px solid rgba(252,204,132,0.08);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:0.75rem;color:rgba(252,204,132,0.2);}
 
 @media(max-width:640px){
   .cal-cell{min-height:62px;padding:4px 3px 3px;}
@@ -251,10 +208,13 @@ footer {
           <button class="pill all-pill active" data-group="type" data-value="all">All</button>
           <button class="pill" data-group="type" data-type="festival"    data-value="festival">🎪 Festival</button>
           <button class="pill" data-group="type" data-type="concert"     data-value="concert">🎵 Concert</button>
-          <button class="pill" data-group="type" data-type="educational" data-value="educational">📚 Educational</button>
           <button class="pill" data-group="type" data-type="nightlife"   data-value="nightlife">🌙 Nightlife</button>
-          <button class="pill" data-group="type" data-type="sports"      data-value="sports">⚽ Sports</button>
+          <button class="pill" data-group="type" data-type="social"      data-value="social">🤝 Social</button>
+          <button class="pill" data-group="type" data-type="dining"      data-value="dining">🍽️ Dining</button>
+          <button class="pill" data-group="type" data-type="educational" data-value="educational">📚 Educational</button>
           <button class="pill" data-group="type" data-type="art"         data-value="art">🎨 Art</button>
+          <button class="pill" data-group="type" data-type="film"        data-value="film">🎬 Film</button>
+          <button class="pill" data-group="type" data-type="sports"      data-value="sports">⚽ Sports</button>
           <button class="pill" data-group="type" data-type="expo"        data-value="expo">🏛 Expo</button>
         </div>
       </div>
@@ -318,6 +278,21 @@ footer {
   </div>
 </div>
 
+<!-- ── DAY POPUP ── -->
+<div class="day-overlay" id="dayOverlay">
+  <div class="day-popup">
+    <div class="day-popup-header">
+      <div>
+        <div class="day-popup-date" id="dayPopupDate"></div>
+        <div class="day-popup-sub" id="dayPopupSub"></div>
+      </div>
+      <button class="day-popup-close" onclick="closeDayModal()">&times;</button>
+    </div>
+    <div class="day-popup-body" id="dayPopupBody"></div>
+  </div>
+</div>
+
+<!-- ── EVENT DETAIL MODAL ── -->
 <div class="overlay" id="detailOverlay">
   <div class="modal">
     <div class="modal-header">
@@ -331,7 +306,6 @@ footer {
 <!-- ── FOOTER ── -->
 <footer>
   <div class="footer-inner">
-
     <div class="footer-blurb-section">
       <p class="footer-blurb-text">
         Tired of finding out about the best events after they've already happened?
@@ -339,7 +313,6 @@ footer {
         <em>so you don't have to.</em>
       </p>
     </div>
-
     <div class="footer-top">
       <div class="footer-links">
         <div class="footer-col">
@@ -357,12 +330,10 @@ footer {
         </div>
       </div>
     </div>
-
     <div class="footer-bottom">
       <span>© 2025 yer.event</span>
       <span>Made with love in Yerevan 🇦🇲</span>
     </div>
-
   </div>
 </footer>
 
@@ -389,12 +360,15 @@ const TYPE_STYLE = {
   sports:      { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'  },
   art:         { color:'#fccc84', bg:'rgba(252,204,132,0.15)' },
   expo:        { color:'#c084fc', bg:'rgba(192,132,252,0.15)' },
+  social:      { color:'#fb923c', bg:'rgba(251,146,60,0.15)'  },
+  dining:      { color:'#e879f9', bg:'rgba(232,121,249,0.15)' },
+  film:        { color:'#94a3b8', bg:'rgba(148,163,184,0.15)' },
 };
 const PRICE_STYLE = {
-  'free':                  { color:'#34d399', bg:'rgba(52,211,153,0.15)'   },
-  'n/a':                   { color:'#888',    bg:'rgba(136,136,136,0.12)'  },
-  'check website':         { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'   },
-  'registration required': { color:'#fccc84', bg:'rgba(252,204,132,0.15)'  },
+  'free':                  { color:'#34d399', bg:'rgba(52,211,153,0.15)'  },
+  'n/a':                   { color:'#888',    bg:'rgba(136,136,136,0.12)' },
+  'check website':         { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'  },
+  'registration required': { color:'#fccc84', bg:'rgba(252,204,132,0.15)' },
 };
 const CITY_STYLE = {
   'Yerevan':      { color:'#c9526c', bg:'rgba(201,82,108,0.15)'  },
@@ -470,7 +444,12 @@ function normaliseEvent(raw) {
 }
 
 async function fetchEvents(isRefresh = false) {
-  if (!isRefresh) showLoading();
+  if (!isRefresh) {
+    const now = new Date();
+    calYear = now.getFullYear();
+    calMonth = now.getMonth();
+    showLoading();
+  }
   setSyncStatus('loading');
   try {
     const res = await fetch(API_URL + '?t=' + Date.now());
@@ -481,12 +460,7 @@ async function fetchEvents(isRefresh = false) {
   } catch(e) {
     allEvents = [];
     setSyncStatus('error');
-    if (!isRefresh) {
-      document.getElementById('calGrid').innerHTML =
-        `<div style="grid-column:1/-1"><div class="state-box"><span class="icon">⚠️</span><h3>Could not load events</h3><p>Please try refreshing.</p></div></div>`;
-    }
   }
-  if (!isRefresh) { const now = new Date(); calYear = now.getFullYear(); calMonth = now.getMonth(); }
   applyFilters();
   scheduleNextRefresh();
 }
@@ -604,7 +578,7 @@ function renderCalendar() {
     } else {
       date = new Date(calYear, calMonth, i - firstDay + 1);
     }
-    const dateStr  = toDateStr(date);
+    const dateStr   = toDateStr(date);
     const isToday   = date.toDateString() === today.toDateString();
     const isWeekend = (i % 7) >= 5;
     const holiday   = getHoliday(dateStr);
@@ -616,6 +590,8 @@ function renderCalendar() {
       + (isToday   ? ' today'          : '')
       + (isWeekend ? ' weekend'        : '')
       + (holiday   ? ' public-holiday' : '');
+
+    if (!isOther) cell.addEventListener('click', () => openDayModal(dateStr));
 
     const numEl = document.createElement('span');
     numEl.className = 'day-num';
@@ -636,7 +612,7 @@ function renderCalendar() {
       const s = TYPE_STYLE[ev.type] || { color:'#888', bg:'rgba(136,136,136,0.15)' };
       chip.style.cssText = `color:${s.color};background:${s.bg};`;
       chip.textContent = ev.name;
-      chip.addEventListener('click', () => openDetail(ev));
+      chip.addEventListener('click', e => { e.stopPropagation(); openDayModal(dateStr); });
       cell.appendChild(chip);
     });
 
@@ -652,6 +628,48 @@ function renderCalendar() {
 
 function prevMonth() { calMonth--; if (calMonth < 0)  { calMonth = 11; calYear--; } renderCalendar(); }
 function nextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0;  calYear++; } renderCalendar(); }
+
+// ── DAY POPUP ──
+function openDayModal(dateStr) {
+  const dayEvs = filteredEvents.filter(e => e.date === dateStr);
+  const [y,m,d] = dateStr.split('-');
+  const displayDate = `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
+  const holiday = getHoliday(dateStr);
+  const n = dayEvs.length;
+
+  document.getElementById('dayPopupDate').textContent = displayDate;
+  document.getElementById('dayPopupSub').textContent =
+    holiday ? `${holiday}${n ? ' · ' + n + ' event' + (n !== 1 ? 's' : '') : ''}` :
+    n === 0 ? 'No events' : `${n} event${n !== 1 ? 's' : ''}`;
+
+  const body = document.getElementById('dayPopupBody');
+  body.innerHTML = '';
+
+  if (!n) {
+    body.innerHTML = `<div class="day-empty">No events on this day.</div>`;
+  } else {
+    dayEvs.forEach(ev => {
+      const row = document.createElement('div');
+      row.className = 'day-event-row';
+      const s = TYPE_STYLE[ev.type] || { color:'#888' };
+      row.innerHTML = `
+        <span class="day-event-dot" style="background:${s.color};"></span>
+        <div class="day-event-info">
+          <div class="day-event-name">${esc(ev.name)}</div>
+          <div class="day-event-time">${ev.time ? esc(ev.time) : 'Time TBA'}${ev.location ? ' · ' + esc(ev.location) : ''}</div>
+        </div>
+        <span class="day-event-arrow">→</span>
+      `;
+      row.addEventListener('click', () => { closeDayModal(); setTimeout(() => openDetail(ev), 120); });
+      body.appendChild(row);
+    });
+  }
+  document.getElementById('dayOverlay').classList.add('open');
+}
+
+function closeDayModal() {
+  document.getElementById('dayOverlay').classList.remove('open');
+}
 
 function renderList() {
   const section = document.getElementById('listSection');
@@ -723,7 +741,6 @@ function openDetail(ev) {
         src="https://www.google.com/maps?q=${encodeURIComponent(ev.location + (ev.city ? ', ' + ev.city : '') + ', Armenia')}&output=embed"
         allowfullscreen></iframe></div>`
     : '';
-
   document.getElementById('detailBody').innerHTML = `
     <div class="detail-event-name">${esc(ev.name)}</div>
     <div class="detail-tags">
@@ -743,7 +760,6 @@ function openDetail(ev) {
       ${ev.link ? `<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>` : ''}
     </div>
   `;
-
   document.getElementById('gcalBtn').addEventListener('click', () => addToGCal(currentEvent));
   document.getElementById('detailOverlay').classList.add('open');
 }
@@ -789,7 +805,8 @@ function esc(str) {
 }
 
 document.getElementById('detailOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDetail(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+document.getElementById('dayOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDayModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDetail(); closeDayModal(); } });
 
 fetchEvents();
 </script>
