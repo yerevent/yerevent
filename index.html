@@ -773,8 +773,8 @@ function openDetail(ev) {
       ${ev.time     ? `<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>` : ''}
       ${ev.location ? `<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> ${esc(ev.location)}</div>` : ''}
     </div>
-    ${ev.description ? `<div class="detail-desc">${esc(ev.description)}</div>` : ''}
-    ${mapHTML}
+${ev.description ? `<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : ''}
+${mapHTML}
     <div class="detail-actions">
       <button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>
       ${ev.link ? `<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>` : ''}
