@@ -18,9 +18,30 @@
   --accent: #c9526c;
   --gold: #fccc84;
   --radius: 14px;
-  --festival:#e8604a; --concert:#a78bfa; --educational:#34d399;
-  --nightlife:#f472b6; --sports:#60a5fa; --art:#fccc84; --expo:#c084fc;
-  --social:#fb923c; --dining:#e879f9; --film:#94a3b8;
+
+  /* TYPE — full rainbow, all unique */
+  --festival:    #ff6b6b;
+  --concert:     #a78bfa;
+  --nightlife:   #f472b6;
+  --social:      #fb923c;
+  --dining:      #facc15;
+  --educational: #34d399;
+  --art:         #2dd4bf;
+  --film:        #60a5fa;
+  --sports:      #38bdf8;
+  --expo:        #c084fc;
+
+  /* CITY — warm/earthy tones, all unique */
+  --city-yerevan:     #e05c5c;
+  --city-gyumri:      #d97706;
+  --city-vanadzor:    #16a34a;
+  --city-meghri:      #0891b2;
+  --city-kapan:       #7c3aed;
+  --city-nearyerevan: #db2777;
+  --city-other:       #6b7280;
+
+  /* PRICE — one bold coral */
+  --price-color: #ff9966;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -37,23 +58,23 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .pill{font-size:0.73rem;font-weight:500;padding:5px 12px;border-radius:100px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text-soft);font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
 .pill:hover{border-color:var(--accent);color:var(--accent);}
 .pill.active{color:#fff!important;border-color:transparent;}
-.pill[data-type="festival"].active   {background:#e8604a;}
-.pill[data-type="concert"].active    {background:#a78bfa;}
-.pill[data-type="educational"].active{background:#34d399;color:#1a1a1a!important;}
+.pill[data-type="festival"].active   {background:#ff6b6b;}
+.pill[data-type="concert"].active    {background:#75FF73;color:#1a1a1a!important;}
 .pill[data-type="nightlife"].active  {background:#f472b6;}
-.pill[data-type="sports"].active     {background:#60a5fa;color:#1a1a1a!important;}
-.pill[data-type="art"].active        {background:#fccc84;color:#1a1a1a!important;}
-.pill[data-type="expo"].active       {background:#c084fc;}
 .pill[data-type="social"].active     {background:#fb923c;color:#1a1a1a!important;}
-.pill[data-type="dining"].active     {background:#e879f9;}
-.pill[data-type="film"].active       {background:#94a3b8;color:#1a1a1a!important;}
-.pill[data-city="Yerevan"].active    {background:#c9526c;}
-.pill[data-city="Gyumri"].active     {background:#a78bfa;}
-.pill[data-city="Vanadzor"].active   {background:#34d399;color:#1a1a1a!important;}
-.pill[data-city="Meghri"].active     {background:#fccc84;color:#1a1a1a!important;}
-.pill[data-city="Kapan"].active      {background:#f472b6;}
-.pill[data-city="Near Yerevan"].active{background:#60a5fa;color:#1a1a1a!important;}
-.pill[data-city="Other"].active      {background:#888;}
+.pill[data-type="dining"].active     {background:#facc15;color:#1a1a1a!important;}
+.pill[data-type="educational"].active{background:#60a5fa;color:#1a1a1a!important;}
+.pill[data-type="art"].active        {background:#a78bfa;}
+.pill[data-type="film"].active       {background:#60a5fa;color:#1a1a1a!important;}
+.pill[data-type="sports"].active     {background:#38bdf8;color:#1a1a1a!important;}
+.pill[data-type="expo"].active       {background:#c084fc;}
+.pill[data-city="Yerevan"].active    {background:#e05c5c;}
+.pill[data-city="Gyumri"].active     {background:#d97706;color:#1a1a1a!important;}
+.pill[data-city="Vanadzor"].active   {background:#16a34a;}
+.pill[data-city="Meghri"].active     {background:#0891b2;}
+.pill[data-city="Kapan"].active      {background:#7c3aed;}
+.pill[data-city="Near Yerevan"].active{background:#db2777;}
+.pill[data-city="Other"].active      {background:#6b7280;}
 .pill.all-pill.active{background:var(--accent);}
 .filter-clear{font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;padding:0;margin-top:12px;text-decoration:underline;display:block;}
 .filter-clear:hover{color:var(--accent);}
@@ -353,37 +374,36 @@ let activeFilters = { type: 'all', city: 'all' };
 let calYear, calMonth;
 
 const TYPE_STYLE = {
-  festival:    { color:'#e8604a', bg:'rgba(232,96,74,0.15)'   },
-  concert:     { color:'#a78bfa', bg:'rgba(167,139,250,0.15)' },
-  educational: { color:'#34d399', bg:'rgba(52,211,153,0.15)'  },
+  festival:    { color:'#ff6b6b', bg:'rgba(255,107,107,0.15)' },
+  concert:     { color:'#75FF73', bg:'rgba(117,255,115,0.15)'  },
   nightlife:   { color:'#f472b6', bg:'rgba(244,114,182,0.15)' },
-  sports:      { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'  },
-  art:         { color:'#fccc84', bg:'rgba(252,204,132,0.15)' },
-  expo:        { color:'#c084fc', bg:'rgba(192,132,252,0.15)' },
   social:      { color:'#fb923c', bg:'rgba(251,146,60,0.15)'  },
-  dining:      { color:'#e879f9', bg:'rgba(232,121,249,0.15)' },
-  film:        { color:'#94a3b8', bg:'rgba(148,163,184,0.15)' },
+  dining:      { color:'#facc15', bg:'rgba(250,204,21,0.15)'  },
+  educational: { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'  },
+  art:         { color:'#a78bfa', bg:'rgba(167,139,250,0.15)' },
+  film:        { color:'#2dd4bf', bg:'rgba(45,212,191,0.15)'  },
+  sports:      { color:'#38bdf8', bg:'rgba(56,189,248,0.15)'  },
+  expo:        { color:'#c084fc', bg:'rgba(192,132,252,0.15)' },
 };
 const PRICE_STYLE = {
-  'free':                  { color:'#34d399', bg:'rgba(52,211,153,0.15)'  },
-  'n/a':                   { color:'#888',    bg:'rgba(136,136,136,0.12)' },
-  'check website':         { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'  },
-  'registration required': { color:'#fccc84', bg:'rgba(252,204,132,0.15)' },
+  // all prices get the same coral color — bright and consistent
+  _default: { color:'#ff9966', bg:'rgba(255,153,102,0.15)' },
 };
 const CITY_STYLE = {
-  'Yerevan':      { color:'#c9526c', bg:'rgba(201,82,108,0.15)'  },
-  'Gyumri':       { color:'#a78bfa', bg:'rgba(167,139,250,0.15)' },
-  'Vanadzor':     { color:'#34d399', bg:'rgba(52,211,153,0.15)'  },
-  'Meghri':       { color:'#fccc84', bg:'rgba(252,204,132,0.15)' },
-  'Kapan':        { color:'#f472b6', bg:'rgba(244,114,182,0.15)' },
-  'Near Yerevan': { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'  },
-  'Other':        { color:'#888',    bg:'rgba(136,136,136,0.12)' },
+  'Yerevan':      { color:'#e05c5c', bg:'rgba(224,92,92,0.15)'   },
+  'Gyumri':       { color:'#d97706', bg:'rgba(217,119,6,0.15)'   },
+  'Vanadzor':     { color:'#16a34a', bg:'rgba(22,163,74,0.15)'   },
+  'Meghri':       { color:'#0891b2', bg:'rgba(8,145,178,0.15)'   },
+  'Kapan':        { color:'#7c3aed', bg:'rgba(124,58,237,0.15)'  },
+  'Near Yerevan': { color:'#db2777', bg:'rgba(219,39,119,0.15)'  },
+  'Other':        { color:'#6b7280', bg:'rgba(107,114,128,0.15)' },
 };
 
 function tagHTML(value, styleMap) {
   if (!value) return '';
   const key = String(value).toLowerCase();
-  const s = styleMap[key] || styleMap[value] || { color:'#888', bg:'rgba(136,136,136,0.12)' };
+  // For price: any value gets the same coral color
+  const s = styleMap[key] || styleMap[value] || styleMap['_default'] || { color:'#6b7280', bg:'rgba(107,114,128,0.15)' };
   const display = String(value).charAt(0).toUpperCase() + String(value).slice(1);
   return `<span class="tag" style="color:${s.color};background:${s.bg};">${display}</span>`;
 }
