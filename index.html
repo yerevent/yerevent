@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="yerevent.png" type="image/png">
 <title> yerevent </title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C998B8RD5Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-C998B8RD5Z');
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -21,13 +29,13 @@
 
   /* TYPE — full rainbow, all unique */
   --festival:    #ff6b6b;
-  --concert:     #a78bfa;
+  --concert:     #75FF73;
   --nightlife:   #f472b6;
   --social:      #fb923c;
   --dining:      #facc15;
-  --educational: #34d399;
-  --art:         #2dd4bf;
-  --film:        #60a5fa;
+  --educational: #60a5fa;
+  --art:         #a78bfa;
+  --film:        #2dd4bf;
   --sports:      #38bdf8;
   --expo:        #c084fc;
 
@@ -65,7 +73,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .pill[data-type="dining"].active     {background:#facc15;color:#1a1a1a!important;}
 .pill[data-type="educational"].active{background:#60a5fa;color:#1a1a1a!important;}
 .pill[data-type="art"].active        {background:#a78bfa;}
-.pill[data-type="film"].active       {background:#60a5fa;color:#1a1a1a!important;}
+.pill[data-type="film"].active       {background:#2dd4bf;color:#1a1a1a!important;}
 .pill[data-type="sports"].active     {background:#38bdf8;color:#1a1a1a!important;}
 .pill[data-type="expo"].active       {background:#c084fc;}
 .pill[data-city="Yerevan"].active    {background:#e05c5c;}
@@ -140,7 +148,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .state-box .icon{font-size:2.5rem;margin-bottom:14px;display:block;}
 .state-box h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text-soft);margin-bottom:8px;}
 .state-box p{font-size:0.88rem;}
-
 /* ── DAY POPUP ── */
 .day-overlay{display:none;position:fixed;inset:0;background:rgba(20,5,15,0.75);backdrop-filter:blur(6px);z-index:190;align-items:center;justify-content:center;padding:16px;}
 .day-overlay.open{display:flex;}
@@ -159,7 +166,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .day-event-time{font-size:0.72rem;color:var(--text-muted);margin-top:2px;}
 .day-event-arrow{color:var(--text-muted);font-size:0.85rem;flex-shrink:0;}
 .day-empty{padding:28px 14px;text-align:center;color:var(--text-muted);font-size:0.85rem;font-style:italic;}
-
 /* ── DETAIL MODAL ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(30,10,10,0.45);backdrop-filter:blur(5px);z-index:200;align-items:center;justify-content:center;padding:16px;}
 .overlay.open{display:flex;}
@@ -183,7 +189,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .btn-gcal-big:hover{background:#a33d56;transform:translateY(-1px);}
 .btn-more{background:var(--surface)!important;color:var(--text-soft)!important;border:1px solid var(--border)!important;}
 .btn-more:hover{border-color:var(--accent)!important;color:var(--accent)!important;background:var(--surface)!important;transform:none!important;}
-
 /* ── FOOTER ── */
 footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:'Futura','Century Gothic','Trebuchet MS',sans-serif;font-size:0.85rem;}
 .footer-inner{max-width:1100px;margin:0 auto;padding:52px 24px 28px;}
@@ -200,7 +205,6 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 .footer-tell{display:inline-flex;margin-top:6px;color:#c9526c;font-weight:600;}
 .footer-tell:hover{color:#fccc84;}
 .footer-bottom{border-top:1px solid rgba(252,204,132,0.08);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:0.75rem;color:rgba(252,204,132,0.2);}
-
 @media(max-width:640px){
   .cal-cell{min-height:62px;padding:4px 3px 3px;}
   .cal-event-chip{font-size:0.55rem;}
@@ -375,7 +379,7 @@ let calYear, calMonth;
 
 const TYPE_STYLE = {
   festival:    { color:'#ff6b6b', bg:'rgba(255,107,107,0.15)' },
-  concert:     { color:'#75FF73', bg:'rgba(117,255,115,0.15)'  },
+  concert:     { color:'#75FF73', bg:'rgba(117,255,115,0.15)' },
   nightlife:   { color:'#f472b6', bg:'rgba(244,114,182,0.15)' },
   social:      { color:'#fb923c', bg:'rgba(251,146,60,0.15)'  },
   dining:      { color:'#facc15', bg:'rgba(250,204,21,0.15)'  },
@@ -386,7 +390,6 @@ const TYPE_STYLE = {
   expo:        { color:'#c084fc', bg:'rgba(192,132,252,0.15)' },
 };
 const PRICE_STYLE = {
-  // all prices get the same coral color — bright and consistent
   _default: { color:'#ff9966', bg:'rgba(255,153,102,0.15)' },
 };
 const CITY_STYLE = {
@@ -402,7 +405,6 @@ const CITY_STYLE = {
 function tagHTML(value, styleMap) {
   if (!value) return '';
   const key = String(value).toLowerCase();
-  // For price: any value gets the same coral color
   const s = styleMap[key] || styleMap[value] || styleMap['_default'] || { color:'#6b7280', bg:'rgba(107,114,128,0.15)' };
   const display = String(value).charAt(0).toUpperCase() + String(value).slice(1);
   return `<span class="tag" style="color:${s.color};background:${s.bg};">${display}</span>`;
@@ -649,7 +651,6 @@ function renderCalendar() {
 function prevMonth() { calMonth--; if (calMonth < 0)  { calMonth = 11; calYear--; } renderCalendar(); }
 function nextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0;  calYear++; } renderCalendar(); }
 
-// ── DAY POPUP ──
 function openDayModal(dateStr) {
   const dayEvs = filteredEvents.filter(e => e.date === dateStr);
   const [y,m,d] = dateStr.split('-');
@@ -773,8 +774,8 @@ function openDetail(ev) {
       ${ev.time     ? `<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>` : ''}
       ${ev.location ? `<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> ${esc(ev.location)}</div>` : ''}
     </div>
-${ev.description ? `<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : ''}
-${mapHTML}
+    ${ev.description ? `<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : ''}
+    ${mapHTML}
     <div class="detail-actions">
       <button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>
       ${ev.link ? `<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>` : ''}
