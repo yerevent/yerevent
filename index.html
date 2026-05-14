@@ -116,9 +116,15 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-cell.public-holiday{background:rgba(201,82,108,0.1);border-color:rgba(201,82,108,0.25);}
 .cal-cell.public-holiday.weekend{background:rgba(201,82,108,0.15);}
 .cal-cell.public-holiday:hover{border-color:rgba(201,82,108,0.5);}
+.cal-cell.cultural-holiday{background:rgba(252,204,132,0.07);border-color:rgba(252,204,132,0.2);}
+.cal-cell.cultural-holiday:hover{border-color:rgba(252,204,132,0.4);}
+.cal-cell.cultural-holiday.weekend{background:rgba(252,204,132,0.1);}
 .holiday-label{display:block;font-size:0.58rem;font-weight:700;color:#c9526c;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;}
-.holiday-legend{display:flex;align-items:center;gap:7px;font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;}
+.cultural-label{display:block;font-size:0.58rem;font-weight:700;color:#fccc84;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;opacity:0.7;}
+.holiday-legend{display:flex;flex-wrap:wrap;align-items:center;gap:14px;font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;}
 .holiday-legend-swatch{width:14px;height:14px;border-radius:4px;background:rgba(201,82,108,0.15);border:1px solid rgba(201,82,108,0.3);flex-shrink:0;}
+.holiday-legend-swatch.cultural{background:rgba(252,204,132,0.12);border:1px solid rgba(252,204,132,0.3);}
+.legend-item{display:flex;align-items:center;gap:6px;}
 .cal-cell:hover{border-color:rgba(252,204,132,0.25);}
 .cal-cell.other-month{opacity:0.2;cursor:default;}
 .cal-cell.today{border-color:var(--accent);}
@@ -281,8 +287,8 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 
   <div id="calendarView">
     <div class="holiday-legend">
-      <span class="holiday-legend-swatch"></span>
-      <span>Official non-working public holidays of the Republic of Armenia</span>
+      <div class="legend-item"><span class="holiday-legend-swatch"></span><span>Non-working public holiday</span></div>
+      <div class="legend-item"><span class="holiday-legend-swatch cultural"></span><span>Cultural holiday (work day)</span></div>
     </div>
     <div class="cal-nav">
       <button class="cal-nav-btn" onclick="prevMonth()">←</button>
@@ -576,8 +582,29 @@ const AM_PUBLIC_HOLIDAYS = {
   '12-31': "New Year's Eve",
 };
 
+// Cultural holidays — widely celebrated but NOT official days off
+// Moveable 2026 dates: St. Sarkis = Feb 7, Easter = Apr 5
+const AM_CULTURAL_HOLIDAYS = {
+  '01-13': "Old New Year",
+  '02-07': "St. Sarkis Day",
+  '02-14': "Valentine's Day",
+  '03-01': "St. Vardanants Day",
+  '04-05': "Easter Sunday",
+  '04-06': "Easter Monday",
+  '04-07': "Motherhood & Beauty Day",
+  '06-01': "Children's Day",
+  '10-31': "Halloween",
+  '11-22': "St. Gregory the Illuminator",
+  '12-25': "Christmas (Western)",
+  '12-26': "Christmas (Western)",
+};
+
 function getHoliday(dateStr) {
   return AM_PUBLIC_HOLIDAYS[dateStr.slice(5)] || null;
+}
+
+function getCulturalHoliday(dateStr) {
+  return AM_CULTURAL_HOLIDAYS[dateStr.slice(5)] || null;
 }
 
 function renderCalendar() {
@@ -604,14 +631,16 @@ function renderCalendar() {
     const isToday   = date.toDateString() === today.toDateString();
     const isWeekend = (i % 7) >= 5;
     const holiday   = getHoliday(dateStr);
+    const cultural  = !holiday ? getCulturalHoliday(dateStr) : null;
     const dayEvs    = filteredEvents.filter(e => e.date === dateStr);
 
     const cell = document.createElement('div');
     cell.className = 'cal-cell'
-      + (isOther   ? ' other-month'    : '')
-      + (isToday   ? ' today'          : '')
-      + (isWeekend ? ' weekend'        : '')
-      + (holiday   ? ' public-holiday' : '');
+      + (isOther   ? ' other-month'     : '')
+      + (isToday   ? ' today'           : '')
+      + (isWeekend ? ' weekend'         : '')
+      + (holiday   ? ' public-holiday'  : '')
+      + (cultural  ? ' cultural-holiday': '');
 
     if (!isOther) cell.addEventListener('click', () => openDayModal(dateStr));
 
@@ -626,6 +655,14 @@ function renderCalendar() {
       hlabel.title = 'Official non-working public holiday in the Republic of Armenia';
       hlabel.textContent = holiday;
       cell.appendChild(hlabel);
+    }
+
+    if (cultural) {
+      const clabel = document.createElement('span');
+      clabel.className = 'cultural-label';
+      clabel.title = 'Cultural holiday (working day)';
+      clabel.textContent = cultural;
+      cell.appendChild(clabel);
     }
 
     dayEvs.slice(0,3).forEach(ev => {
@@ -656,11 +693,13 @@ function openDayModal(dateStr) {
   const [y,m,d] = dateStr.split('-');
   const displayDate = `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
   const holiday = getHoliday(dateStr);
+  const cultural = !holiday ? getCulturalHoliday(dateStr) : null;
   const n = dayEvs.length;
+  const holidayName = holiday || cultural || null;
 
   document.getElementById('dayPopupDate').textContent = displayDate;
   document.getElementById('dayPopupSub').textContent =
-    holiday ? `${holiday}${n ? ' · ' + n + ' event' + (n !== 1 ? 's' : '') : ''}` :
+    holidayName ? `${holidayName}${n ? ' · ' + n + ' event' + (n !== 1 ? 's' : '') : ''}` :
     n === 0 ? 'No events' : `${n} event${n !== 1 ? 's' : ''}`;
 
   const body = document.getElementById('dayPopupBody');
