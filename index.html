@@ -457,7 +457,7 @@ function normaliseEvent(raw) {
     const [y,m,d] = dateStr.split('-');
     rawDate = `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
   }
-  return {
+  const base = {
     name:        raw['name']        || '',
     date:        dateStr,
     rawDate:     rawDate,
@@ -469,6 +469,40 @@ function normaliseEvent(raw) {
     link:        raw['Link']        || '',
     description: raw['Description'] || '',
   };
+  return base;
+}
+
+// Expand multi-day events so each day gets its own entry
+function expandEvents(events) {
+  const expanded = [];
+  events.forEach(ev => {
+    const extraDates = getMultiDayDates(ev.rawDate, ev.date);
+    if (extraDates.length <= 1) {
+      expanded.push(ev);
+    } else {
+      extraDates.forEach(d => {
+        expanded.push({ ...ev, date: d });
+      });
+    }
+  });
+  return expanded;
+}
+
+// Parse "June 5-7, 2026" or "June 5–7, 2026" into array of date strings
+function getMultiDayDates(rawDate, firstDateStr) {
+  if (!rawDate || !firstDateStr) return [firstDateStr];
+  const s = String(rawDate).trim();
+  // Match patterns like "June 5-7, 2026" or "June 5–7, 2026"
+  const match = s.match(/([A-Za-z]+)\s+(\d+)[–\-](\d+),?\s*(\d{4})/);
+  if (!match) return [firstDateStr];
+  const month = match[1], startDay = parseInt(match[2]), endDay = parseInt(match[3]), year = parseInt(match[4]);
+  const monthIndex = MONTHS_LONG.indexOf(month.charAt(0).toUpperCase() + month.slice(1).toLowerCase());
+  if (monthIndex === -1) return [firstDateStr];
+  const dates = [];
+  for (let d = startDay; d <= endDay; d++) {
+    dates.push(`${year}-${String(monthIndex+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+  }
+  return dates.length > 0 ? dates : [firstDateStr];
 }
 
 async function fetchEvents(isRefresh = false) {
@@ -482,7 +516,7 @@ async function fetchEvents(isRefresh = false) {
   try {
     const res = await fetch(API_URL + '?t=' + Date.now());
     const raw = await res.json();
-    allEvents = raw.map(normaliseEvent).filter(ev => ev.name && ev.date);
+    allEvents = expandEvents(raw.map(normaliseEvent).filter(ev => ev.name && ev.date));
     lastFetchedAt = new Date();
     setSyncStatus('live');
   } catch(e) {
