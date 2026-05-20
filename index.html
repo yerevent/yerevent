@@ -26,30 +26,13 @@
   --accent: #c9526c;
   --gold: #fccc84;
   --radius: 14px;
-
-  /* TYPE — full rainbow, all unique */
-  --festival:    #ff6b6b;
-  --concert:     #75FF73;
-  --nightlife:   #f472b6;
-  --social:      #fb923c;
-  --dining:      #facc15;
-  --educational: #60a5fa;
-  --art:         #a78bfa;
-  --film:        #2dd4bf;
-  --sports:      #38bdf8;
-  --expo:        #c084fc;
-
-  /* CITY — warm/earthy tones, all unique */
-  --city-yerevan:     #e05c5c;
-  --city-gyumri:      #d97706;
-  --city-vanadzor:    #16a34a;
-  --city-meghri:      #0891b2;
-  --city-kapan:       #7c3aed;
-  --city-nearyerevan: #db2777;
-  --city-other:       #6b7280;
-
-  /* PRICE — one bold coral */
-  --price-color: #ff9966;
+  --festival:#ff6b6b; --concert:#75FF73; --nightlife:#f472b6;
+  --social:#fb923c; --dining:#facc15; --educational:#60a5fa;
+  --art:#a78bfa; --film:#2dd4bf; --sports:#38bdf8; --expo:#c084fc;
+  --market:#fda4af;
+  --city-yerevan:#e05c5c; --city-gyumri:#d97706; --city-vanadzor:#16a34a;
+  --city-meghri:#0891b2; --city-kapan:#7c3aed; --city-nearyerevan:#db2777; --city-other:#6b7280;
+  --price-color:#ff9966;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -76,6 +59,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .pill[data-type="film"].active       {background:#2dd4bf;color:#1a1a1a!important;}
 .pill[data-type="sports"].active     {background:#38bdf8;color:#1a1a1a!important;}
 .pill[data-type="expo"].active       {background:#c084fc;}
+.pill[data-type="market"].active     {background:#fda4af;color:#1a1a1a!important;}
 .pill[data-city="Yerevan"].active    {background:#e05c5c;}
 .pill[data-city="Gyumri"].active     {background:#d97706;color:#1a1a1a!important;}
 .pill[data-city="Vanadzor"].active   {background:#16a34a;}
@@ -247,6 +231,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
           <button class="pill" data-group="type" data-type="film"        data-value="film">🎬 Film</button>
           <button class="pill" data-group="type" data-type="sports"      data-value="sports">⚽ Sports</button>
           <button class="pill" data-group="type" data-type="expo"        data-value="expo">🏛 Expo</button>
+          <button class="pill" data-group="type" data-type="market"      data-value="market">🛍️ Market</button>
         </div>
       </div>
       <div class="filter-group">
@@ -394,6 +379,7 @@ const TYPE_STYLE = {
   film:        { color:'#2dd4bf', bg:'rgba(45,212,191,0.15)'  },
   sports:      { color:'#38bdf8', bg:'rgba(56,189,248,0.15)'  },
   expo:        { color:'#c084fc', bg:'rgba(192,132,252,0.15)' },
+  market:      { color:'#fda4af', bg:'rgba(253,164,175,0.15)' },
 };
 const PRICE_STYLE = {
   _default: { color:'#ff9966', bg:'rgba(255,153,102,0.15)' },
@@ -429,6 +415,18 @@ function parseSheetDate(raw) {
     const d = new Date(new Date(s).getTime() + 12 * 60 * 60 * 1000);
     return toDateStr(d);
   }
+  const dotMatch = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
+  if (dotMatch) {
+    let [_, d, m, y] = dotMatch;
+    if (y.length === 2) y = '20' + y;
+    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
+  const slashMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (slashMatch) {
+    let [_, d, m, y] = slashMatch;
+    if (y.length === 2) y = '20' + y;
+    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+  }
   const cleaned = s.replace(/[–—]\d+/, '');
   const d = new Date(cleaned);
   if (!isNaN(d)) return toDateStr(d);
@@ -457,7 +455,7 @@ function normaliseEvent(raw) {
     const [y,m,d] = dateStr.split('-');
     rawDate = `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
   }
-  const base = {
+  return {
     name:        raw['name']        || '',
     date:        dateStr,
     rawDate:     rawDate,
@@ -469,10 +467,8 @@ function normaliseEvent(raw) {
     link:        raw['Link']        || '',
     description: raw['Description'] || '',
   };
-  return base;
 }
 
-// Expand multi-day events so each day gets its own entry
 function expandEvents(events) {
   const expanded = [];
   events.forEach(ev => {
@@ -480,19 +476,15 @@ function expandEvents(events) {
     if (extraDates.length <= 1) {
       expanded.push(ev);
     } else {
-      extraDates.forEach(d => {
-        expanded.push({ ...ev, date: d });
-      });
+      extraDates.forEach(d => expanded.push({ ...ev, date: d }));
     }
   });
   return expanded;
 }
 
-// Parse "June 5-7, 2026" or "June 5–7, 2026" into array of date strings
 function getMultiDayDates(rawDate, firstDateStr) {
   if (!rawDate || !firstDateStr) return [firstDateStr];
   const s = String(rawDate).trim();
-  // Match patterns like "June 5-7, 2026" or "June 5–7, 2026"
   const match = s.match(/([A-Za-z]+)\s+(\d+)[–\-](\d+),?\s*(\d{4})/);
   if (!match) return [firstDateStr];
   const month = match[1], startDay = parseInt(match[2]), endDay = parseInt(match[3]), year = parseInt(match[4]);
@@ -601,45 +593,26 @@ function applyFilters() {
 }
 
 const AM_PUBLIC_HOLIDAYS = {
-  '01-01': "New Year's Day",
-  '01-02': "New Year's Day",
-  '01-06': "Christmas & Epiphany",
-  '01-27': "Memorial Day",
-  '01-28': "Army Day",
-  '03-08': "International Women's Day",
-  '04-24': "Genocide Remembrance Day",
-  '05-01': "Labour Day",
-  '05-09': "Victory and Peace Day",
-  '05-28': "Republic Day",
-  '07-05': "Constitution Day",
-  '09-21': "Independence Day",
+  '01-01': "New Year's Day", '01-02': "New Year's Day",
+  '01-06': "Christmas & Epiphany", '01-27': "Memorial Day",
+  '01-28': "Army Day", '03-08': "International Women's Day",
+  '04-24': "Genocide Remembrance Day", '05-01': "Labour Day",
+  '05-09': "Victory and Peace Day", '05-28': "Republic Day",
+  '07-05': "Constitution Day", '09-21': "Independence Day",
   '12-31': "New Year's Eve",
 };
 
-// Cultural holidays — widely celebrated but NOT official days off
-// Moveable 2026 dates: St. Sarkis = Feb 7, Easter = Apr 5
 const AM_CULTURAL_HOLIDAYS = {
-  '01-13': "Old New Year",
-  '02-07': "St. Sarkis Day",
-  '02-14': "Valentine's Day",
-  '03-01': "St. Vardanants Day",
-  '04-05': "Easter Sunday",
-  '04-06': "Easter Monday",
-  '04-07': "Motherhood & Beauty Day",
-  '06-01': "Children's Day",
-  '10-31': "Halloween",
-  '11-22': "St. Gregory the Illuminator",
-  '12-25': "Christmas (Western)",
-  '12-26': "Christmas (Western)",
+  '01-13': "Old New Year", '02-07': "St. Sarkis Day",
+  '02-14': "Valentine's Day", '03-01': "St. Vardanants Day",
+  '04-05': "Easter Sunday", '04-06': "Easter Monday",
+  '04-07': "Motherhood & Beauty Day", '06-01': "Children's Day",
+  '10-31': "Halloween", '11-22': "St. Gregory the Illuminator",
+  '12-25': "Christmas (Western)", '12-26': "Christmas (Western)",
 };
 
-function getHoliday(dateStr) {
-  return AM_PUBLIC_HOLIDAYS[dateStr.slice(5)] || null;
-}
-
-function getCulturalHoliday(dateStr) {
-  return AM_CULTURAL_HOLIDAYS[dateStr.slice(5)] || null;
-}
+function getHoliday(dateStr) { return AM_PUBLIC_HOLIDAYS[dateStr.slice(5)] || null; }
+function getCulturalHoliday(dateStr) { return AM_CULTURAL_HOLIDAYS[dateStr.slice(5)] || null; }
 
 function renderCalendar() {
   document.getElementById('calMonthLabel').textContent = `${MONTHS_LONG[calMonth]} ${calYear}`;
@@ -686,11 +659,10 @@ function renderCalendar() {
     if (holiday) {
       const hlabel = document.createElement('span');
       hlabel.className = 'holiday-label';
-      hlabel.title = 'Official non-working public holiday in the Republic of Armenia';
+      hlabel.title = 'Official non-working public holiday';
       hlabel.textContent = holiday;
       cell.appendChild(hlabel);
     }
-
     if (cultural) {
       const clabel = document.createElement('span');
       clabel.className = 'cultural-label';
@@ -738,7 +710,6 @@ function openDayModal(dateStr) {
 
   const body = document.getElementById('dayPopupBody');
   body.innerHTML = '';
-
   if (!n) {
     body.innerHTML = `<div class="day-empty">No events on this day.</div>`;
   } else {
@@ -761,9 +732,7 @@ function openDayModal(dateStr) {
   document.getElementById('dayOverlay').classList.add('open');
 }
 
-function closeDayModal() {
-  document.getElementById('dayOverlay').classList.remove('open');
-}
+function closeDayModal() { document.getElementById('dayOverlay').classList.remove('open'); }
 
 function renderList() {
   const section = document.getElementById('listSection');
@@ -884,10 +853,7 @@ function addToGCal(ev) {
     ev.link        ? `🔗 More info: ${ev.link}` : '',
   ].filter(Boolean).join('\n\n');
   const params = new URLSearchParams({
-    action:   'TEMPLATE',
-    text:     ev.name,
-    dates,
-    details,
+    action: 'TEMPLATE', text: ev.name, dates, details,
     location: ev.location ? `${ev.location}${ev.city ? ', ' + ev.city : ''}, Armenia` : '',
   });
   window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank');
