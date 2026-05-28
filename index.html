@@ -14,6 +14,8 @@
   gtag('config', 'G-C998B8RD5Z');
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root {
   --bg: #2b101a;
@@ -28,11 +30,11 @@
   --radius: 14px;
   --festival:#ff6b6b; --concert:#75FF73; --nightlife:#f472b6;
   --social:#fb923c; --dining:#facc15; --educational:#60a5fa;
-  --art:#a78bfa; --film:#2dd4bf; --sports:#38bdf8; --expo:#c084fc;
-  --market:#fda4af;
+  --art:#a78bfa; --film:#2dd4bf; --sports:#38bdf8;
+  --activities:#d9f99d; --expo:#c084fc; --market:#fda4af;
   --city-yerevan:#e05c5c; --city-gyumri:#d97706; --city-vanadzor:#16a34a;
-  --city-meghri:#0891b2; --city-kapan:#7c3aed; --city-nearyerevan:#db2777; --city-other:#6b7280;
-  --price-color:#ff9966;
+  --city-meghri:#0891b2; --city-kapan:#7c3aed; --city-nearyerevan:#db2777;
+  --city-other:#6b7280; --price-color:#ff9966;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -46,7 +48,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .filter-group{flex:1;min-width:200px;}
 .filter-group-label{font-size:0.68rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1.2px;}
 .filter-pills{display:flex;flex-wrap:wrap;gap:5px;}
-.pill{font-size:0.73rem;font-weight:500;padding:5px 12px;border-radius:100px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text-soft);font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.pill{font-size:0.73rem;font-weight:500;padding:5px 12px;border-radius:100px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text-soft);font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;user-select:none;}
 .pill:hover{border-color:var(--accent);color:var(--accent);}
 .pill.active{color:#fff!important;border-color:transparent;}
 .pill[data-type="festival"].active   {background:#ff6b6b;}
@@ -58,6 +60,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .pill[data-type="art"].active        {background:#a78bfa;}
 .pill[data-type="film"].active       {background:#2dd4bf;color:#1a1a1a!important;}
 .pill[data-type="sports"].active     {background:#38bdf8;color:#1a1a1a!important;}
+.pill[data-type="activities"].active {background:#d9f99d;color:#1a1a1a!important;}
 .pill[data-type="expo"].active       {background:#c084fc;}
 .pill[data-type="market"].active     {background:#fda4af;color:#1a1a1a!important;}
 .pill[data-city="Yerevan"].active    {background:#e05c5c;}
@@ -68,6 +71,10 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .pill[data-city="Near Yerevan"].active{background:#db2777;}
 .pill[data-city="Other"].active      {background:#6b7280;}
 .pill.all-pill.active{background:var(--accent);}
+.pill[data-price="free"].active     {background:#34d399;color:#1a1a1a!important;}
+.pill[data-price="under5k"].active  {background:#86efac;color:#1a1a1a!important;}
+.pill[data-price="5to10k"].active   {background:#fbbf24;color:#1a1a1a!important;}
+.pill[data-price="over10k"].active  {background:#f97316;color:#1a1a1a!important;}
 .filter-clear{font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;padding:0;margin-top:12px;text-decoration:underline;display:block;}
 .filter-clear:hover{color:var(--accent);}
 .sync-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:7px 14px;margin-bottom:16px;font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;gap:8px;}
@@ -88,6 +95,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .view-tab{font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:600;padding:7px 18px;border-radius:100px;border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;}
 .view-tab.active{background:var(--accent);color:#fff;}
 #resultCount{font-size:0.78rem;color:var(--text-muted);}
+
+/* ── CALENDAR ── */
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .cal-nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-soft);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
 .cal-nav-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -95,28 +104,30 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;text-align:center;}
 .cal-weekday{font-size:0.62rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);padding:8px 0;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.cal-cell{min-height:96px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s;cursor:pointer;}
+.cal-cell{min-height:100px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s,background 0.15s,box-shadow 0.15s;cursor:pointer;position:relative;}
+.cal-cell:not(.other-month):hover{border-color:rgba(201,82,108,0.55);background:var(--surface2);box-shadow:0 0 0 2px rgba(201,82,108,0.15);}
 .cal-cell.weekend{background:#150a10;}
+.cal-cell.weekend:not(.other-month):hover{background:#1e0e18;}
 .cal-cell.public-holiday{background:rgba(201,82,108,0.1);border-color:rgba(201,82,108,0.25);}
-.cal-cell.public-holiday.weekend{background:rgba(201,82,108,0.15);}
-.cal-cell.public-holiday:hover{border-color:rgba(201,82,108,0.5);}
+.cal-cell.public-holiday:not(.other-month):hover{border-color:rgba(201,82,108,0.55);}
 .cal-cell.cultural-holiday{background:rgba(252,204,132,0.07);border-color:rgba(252,204,132,0.2);}
-.cal-cell.cultural-holiday:hover{border-color:rgba(252,204,132,0.4);}
-.cal-cell.cultural-holiday.weekend{background:rgba(252,204,132,0.1);}
-.holiday-label{display:block;font-size:0.58rem;font-weight:700;color:#c9526c;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;}
-.cultural-label{display:block;font-size:0.58rem;font-weight:700;color:#fccc84;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;opacity:0.7;}
+.cal-cell.cultural-holiday:not(.other-month):hover{border-color:rgba(252,204,132,0.5);}
+.holiday-label{display:block;font-size:0.55rem;font-weight:700;color:#c9526c;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;}
+.cultural-label{display:block;font-size:0.55rem;font-weight:700;color:#fccc84;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;opacity:0.7;}
 .holiday-legend{display:flex;flex-wrap:wrap;align-items:center;gap:14px;font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;}
 .holiday-legend-swatch{width:14px;height:14px;border-radius:4px;background:rgba(201,82,108,0.15);border:1px solid rgba(201,82,108,0.3);flex-shrink:0;}
 .holiday-legend-swatch.cultural{background:rgba(252,204,132,0.12);border:1px solid rgba(252,204,132,0.3);}
 .legend-item{display:flex;align-items:center;gap:6px;}
-.cal-cell:hover{border-color:rgba(252,204,132,0.25);}
 .cal-cell.other-month{opacity:0.2;cursor:default;}
 .cal-cell.today{border-color:var(--accent);}
 .cal-cell.today .day-num{color:var(--gold);font-weight:700;}
 .day-num{font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;}
-.cal-event-chip{display:block;font-size:0.62rem;font-weight:500;padding:2px 5px;border-radius:4px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s;}
-.cal-event-chip:hover{opacity:0.75;}
-.cal-more{font-size:0.6rem;color:var(--text-muted);margin-top:2px;}
+.cal-event-chip{display:block;font-size:0.62rem;font-weight:600;padding:3px 6px;border-radius:5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid transparent;pointer-events:none;}
+.cal-more{font-size:0.68rem;font-weight:700;color:var(--accent);margin-top:4px;background:rgba(201,82,108,0.12);border:1px solid rgba(201,82,108,0.3);border-radius:5px;padding:2px 6px;display:inline-block;}
+.cal-tap-hint{position:absolute;bottom:5px;right:6px;font-size:0.55rem;color:var(--text-muted);opacity:0;transition:opacity 0.15s;pointer-events:none;}
+.cal-cell:not(.other-month):hover .cal-tap-hint{opacity:1;}
+
+/* ── LIST ── */
 .list-month-group{margin-bottom:32px;}
 .list-month-heading{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--text-soft);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
 .event-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:start;cursor:pointer;transition:border-color 0.2s,transform 0.15s;animation:fadeIn 0.3s ease both;}
@@ -138,32 +149,50 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .state-box .icon{font-size:2.5rem;margin-bottom:14px;display:block;}
 .state-box h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text-soft);margin-bottom:8px;}
 .state-box p{font-size:0.88rem;}
+
+/* ── MAP ── */
+#mapView{display:none;}
+#eventMap{width:100%;height:560px;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
+.leaflet-popup-content-wrapper{background:var(--bg);border:1px solid rgba(252,204,132,0.2);border-radius:10px;color:var(--text);box-shadow:0 4px 24px rgba(0,0,0,0.5);}
+.leaflet-popup-tip{background:var(--bg);}
+.leaflet-popup-content{margin:12px 14px;font-family:'Outfit',sans-serif;}
+.map-popup-name{font-size:0.88rem;font-weight:600;color:var(--text);margin-bottom:4px;}
+.map-popup-meta{font-size:0.72rem;color:rgba(252,204,132,0.6);margin-bottom:4px;}
+.map-popup-tag{display:inline-block;font-size:0.62rem;font-weight:600;padding:2px 7px;border-radius:100px;margin-bottom:8px;}
+.map-popup-btn{display:block;width:100%;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:0.72rem;cursor:pointer;font-weight:600;font-family:'Outfit',sans-serif;text-align:center;}
+.map-popup-btn:hover{background:#a33d56;}
+.map-no-location{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:12px;font-size:0.8rem;color:var(--text-muted);}
+
 /* ── DAY POPUP ── */
-.day-overlay{display:none;position:fixed;inset:0;background:rgba(20,5,15,0.75);backdrop-filter:blur(6px);z-index:190;align-items:center;justify-content:center;padding:16px;}
+.day-overlay{display:none;position:fixed;inset:0;background:rgba(20,5,15,0.8);backdrop-filter:blur(8px);z-index:190;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
 .day-overlay.open{display:flex;}
-.day-popup{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:420px;max-height:80vh;overflow-y:auto;animation:modalIn 0.22s cubic-bezier(0.34,1.2,0.64,1);}
-.day-popup-header{padding:16px 18px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg);z-index:1;}
-.day-popup-date{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--gold);}
-.day-popup-sub{font-size:0.72rem;color:var(--text-muted);margin-top:3px;}
-.day-popup-close{background:none;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer;line-height:1;padding:2px 4px;transition:color 0.15s;}
-.day-popup-close:hover{color:var(--gold);}
-.day-popup-body{padding:12px 14px;display:flex;flex-direction:column;gap:7px;}
-.day-event-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:border-color 0.15s,transform 0.12s;}
-.day-event-row:hover{border-color:rgba(201,82,108,0.5);transform:translateX(3px);}
-.day-event-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.day-popup{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:480px;animation:modalIn 0.22s cubic-bezier(0.34,1.2,0.64,1);margin:auto;}
+.day-popup-header{padding:18px 20px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg);z-index:1;border-radius:var(--radius) var(--radius) 0 0;}
+.day-popup-date{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--gold);}
+.day-popup-sub{font-size:0.75rem;color:var(--text-muted);margin-top:4px;}
+.day-popup-close{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:0.78rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:5px 10px;border-radius:7px;transition:all 0.15s;}
+.day-popup-close:hover{color:var(--gold);border-color:var(--gold);}
+.day-popup-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+.day-event-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:border-color 0.15s,transform 0.12s,background 0.12s;}
+.day-event-row:hover{border-color:rgba(201,82,108,0.5);transform:translateX(4px);background:var(--surface2);}
+.day-event-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .day-event-info{min-width:0;flex:1;}
-.day-event-name{font-size:0.88rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.day-event-time{font-size:0.72rem;color:var(--text-muted);margin-top:2px;}
-.day-event-arrow{color:var(--text-muted);font-size:0.85rem;flex-shrink:0;}
-.day-empty{padding:28px 14px;text-align:center;color:var(--text-muted);font-size:0.85rem;font-style:italic;}
+.day-event-name{font-size:0.92rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.day-event-time{font-size:0.74rem;color:var(--text-muted);margin-top:2px;}
+.day-event-arrow{color:var(--accent);font-size:1rem;flex-shrink:0;font-weight:700;}
+.day-empty{padding:32px 16px;text-align:center;color:var(--text-muted);font-size:0.88rem;font-style:italic;}
+
 /* ── DETAIL MODAL ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(30,10,10,0.45);backdrop-filter:blur(5px);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(30,10,10,0.55);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:16px;}
 .overlay.open{display:flex;}
 .modal{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:modalIn 0.25s cubic-bezier(0.34,1.2,0.64,1);}
 @keyframes modalIn{from{transform:scale(0.94) translateY(20px);opacity:0;}to{transform:none;opacity:1;}}
-.modal-header{padding:20px 22px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg);z-index:1;}
+.modal-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg);z-index:1;gap:10px;}
+.modal-header-left{display:flex;align-items:center;gap:10px;min-width:0;}
+.btn-back{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:5px 10px;border-radius:7px;transition:all 0.15s;white-space:nowrap;flex-shrink:0;}
+.btn-back:hover{border-color:var(--gold);color:var(--gold);}
 .modal-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--accent);}
-.modal-close{background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;transition:color 0.15s;}
+.modal-close{background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;transition:color 0.15s;flex-shrink:0;}
 .modal-close:hover{color:var(--accent);}
 .modal-body{padding:20px 22px;}
 .detail-event-name{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;line-height:1.2;margin-bottom:12px;color:var(--text);}
@@ -179,6 +208,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .btn-gcal-big:hover{background:#a33d56;transform:translateY(-1px);}
 .btn-more{background:var(--surface)!important;color:var(--text-soft)!important;border:1px solid var(--border)!important;}
 .btn-more:hover{border-color:var(--accent)!important;color:var(--accent)!important;background:var(--surface)!important;transform:none!important;}
+
 /* ── FOOTER ── */
 footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:'Futura','Century Gothic','Trebuchet MS',sans-serif;font-size:0.85rem;}
 .footer-inner{max-width:1100px;margin:0 auto;padding:52px 24px 28px;}
@@ -196,7 +226,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 .footer-tell:hover{color:#fccc84;}
 .footer-bottom{border-top:1px solid rgba(252,204,132,0.08);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:0.75rem;color:rgba(252,204,132,0.2);}
 @media(max-width:640px){
-  .cal-cell{min-height:62px;padding:4px 3px 3px;}
+  .cal-cell{min-height:72px;padding:5px 4px 4px;}
   .cal-event-chip{font-size:0.55rem;}
   .event-card{grid-template-columns:auto 1fr;}
   .event-action{display:none;}
@@ -204,6 +234,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
   .footer-top{justify-content:flex-start;}
   .footer-links{flex-direction:column;gap:28px;}
   .footer-bottom{flex-direction:column;gap:4px;}
+  #eventMap{height:400px;}
 }
 </style>
 </head>
@@ -218,7 +249,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
   <div class="filters-section">
     <div class="filters-row">
       <div class="filter-group">
-        <div class="filter-group-label">Type</div>
+        <div class="filter-group-label">Type <span style="font-size:0.6rem;opacity:0.45;font-weight:400;letter-spacing:0;text-transform:none;">(pick multiple)</span></div>
         <div class="filter-pills">
           <button class="pill all-pill active" data-group="type" data-value="all">All</button>
           <button class="pill" data-group="type" data-type="festival"    data-value="festival">🎪 Festival</button>
@@ -230,12 +261,13 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
           <button class="pill" data-group="type" data-type="art"         data-value="art">🎨 Art</button>
           <button class="pill" data-group="type" data-type="film"        data-value="film">🎬 Film</button>
           <button class="pill" data-group="type" data-type="sports"      data-value="sports">⚽ Sports</button>
+          <button class="pill" data-group="type" data-type="activities"  data-value="activities">🏃 Activities</button>
           <button class="pill" data-group="type" data-type="expo"        data-value="expo">🏛 Expo</button>
           <button class="pill" data-group="type" data-type="market"      data-value="market">🛍️ Market</button>
         </div>
       </div>
       <div class="filter-group">
-        <div class="filter-group-label">City</div>
+        <div class="filter-group-label">City <span style="font-size:0.6rem;opacity:0.45;font-weight:400;letter-spacing:0;text-transform:none;">(pick multiple)</span></div>
         <div class="filter-pills">
           <button class="pill all-pill active" data-group="city" data-value="all">All</button>
           <button class="pill" data-group="city" data-city="Yerevan"      data-value="Yerevan">Yerevan</button>
@@ -249,6 +281,18 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
       </div>
     </div>
     <button class="filter-clear" onclick="clearFilters()">Clear filters</button>
+  </div>
+
+  <!-- Price filter row -->
+  <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+    <div class="filter-group-label">Price</div>
+    <div class="filter-pills" style="margin-top:8px;">
+      <button class="pill all-pill active" data-group="price" data-value="all">All prices</button>
+      <button class="pill" data-group="price" data-price="free"    data-value="free">🎁 Free</button>
+      <button class="pill" data-group="price" data-price="under5k" data-value="under5k">Under 5,000 AMD</button>
+      <button class="pill" data-group="price" data-price="5to10k"  data-value="5to10k">5,000–10,000 AMD</button>
+      <button class="pill" data-group="price" data-price="over10k" data-value="over10k">10,000+ AMD</button>
+    </div>
   </div>
 
   <div class="sync-bar" id="syncBar">
@@ -266,6 +310,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
     <div class="view-tabs">
       <button class="view-tab active" id="tabCalendar" onclick="switchView('calendar')">📅 Calendar</button>
       <button class="view-tab" id="tabList" onclick="switchView('list')">☰ List</button>
+      <button class="view-tab" id="tabMap" onclick="switchView('map')">🗺 Map</button>
     </div>
     <div id="resultCount"></div>
   </div>
@@ -292,6 +337,13 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
   <div id="listView" style="display:none;">
     <div id="listSection"></div>
   </div>
+
+  <div id="mapView">
+    <div id="eventMap"></div>
+    <div class="map-no-location" id="mapNoLocation" style="display:none;">
+      ⚠️ Some events don't have a location and aren't shown on the map.
+    </div>
+  </div>
 </div>
 
 <!-- ── DAY POPUP ── -->
@@ -302,7 +354,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
         <div class="day-popup-date" id="dayPopupDate"></div>
         <div class="day-popup-sub" id="dayPopupSub"></div>
       </div>
-      <button class="day-popup-close" onclick="closeDayModal()">&times;</button>
+      <button class="day-popup-close" onclick="closeDayModal()">✕ Close</button>
     </div>
     <div class="day-popup-body" id="dayPopupBody"></div>
   </div>
@@ -312,7 +364,10 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 <div class="overlay" id="detailOverlay">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">Event Details</span>
+      <div class="modal-header-left">
+        <button class="btn-back" id="backBtn" onclick="backToDayModal()" style="display:none;">← Back</button>
+        <span class="modal-title">Event Details</span>
+      </div>
       <button class="modal-close" onclick="closeDetail()">&times;</button>
     </div>
     <div class="modal-body" id="detailBody"></div>
@@ -361,11 +416,14 @@ let refreshTimer = null, countdownTimer = null;
 let secondsUntilRefresh = REFRESH_INTERVAL_SECONDS;
 let lastFetchedAt = null;
 let currentEvent = null;
+let lastDayDateStr = null;
+let leafletMap = null;
+let mapMarkers = [];
 
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 let allEvents = [], filteredEvents = [];
-let activeFilters = { type: 'all', city: 'all' };
+let activeFilters = { type: [], city: [], price: [] };
 let calYear, calMonth;
 
 const TYPE_STYLE = {
@@ -378,12 +436,11 @@ const TYPE_STYLE = {
   art:         { color:'#a78bfa', bg:'rgba(167,139,250,0.15)' },
   film:        { color:'#2dd4bf', bg:'rgba(45,212,191,0.15)'  },
   sports:      { color:'#38bdf8', bg:'rgba(56,189,248,0.15)'  },
+  activities:  { color:'#d9f99d', bg:'rgba(217,249,157,0.15)' },
   expo:        { color:'#c084fc', bg:'rgba(192,132,252,0.15)' },
   market:      { color:'#fda4af', bg:'rgba(253,164,175,0.15)' },
 };
-const PRICE_STYLE = {
-  _default: { color:'#ff9966', bg:'rgba(255,153,102,0.15)' },
-};
+const PRICE_STYLE = { _default: { color:'#ff9966', bg:'rgba(255,153,102,0.15)' } };
 const CITY_STYLE = {
   'Yerevan':      { color:'#e05c5c', bg:'rgba(224,92,92,0.15)'   },
   'Gyumri':       { color:'#d97706', bg:'rgba(217,119,6,0.15)'   },
@@ -473,11 +530,8 @@ function expandEvents(events) {
   const expanded = [];
   events.forEach(ev => {
     const extraDates = getMultiDayDates(ev.rawDate, ev.date);
-    if (extraDates.length <= 1) {
-      expanded.push(ev);
-    } else {
-      extraDates.forEach(d => expanded.push({ ...ev, date: d }));
-    }
+    if (extraDates.length <= 1) { expanded.push(ev); }
+    else { extraDates.forEach(d => expanded.push({ ...ev, date: d })); }
   });
   return expanded;
 }
@@ -563,52 +617,82 @@ function showLoading() {
     `<div class="state-box"><div class="spinner"></div><p>Loading events…</p></div>`;
 }
 
+// ── MULTI-SELECT FILTERS ──
 document.querySelectorAll('.pill').forEach(pill => {
   pill.addEventListener('click', () => {
-    const group = pill.dataset.group, value = pill.dataset.value;
-    activeFilters[group] = value;
-    document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
+    const group = pill.dataset.group;
+    const value = pill.dataset.value;
+
+    if (value === 'all') {
+      activeFilters[group] = [];
+      document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    } else {
+      document.querySelector(`.pill.all-pill[data-group="${group}"]`).classList.remove('active');
+      if (activeFilters[group].includes(value)) {
+        activeFilters[group] = activeFilters[group].filter(v => v !== value);
+        pill.classList.remove('active');
+        if (activeFilters[group].length === 0) {
+          document.querySelector(`.pill.all-pill[data-group="${group}"]`).classList.add('active');
+        }
+      } else {
+        activeFilters[group].push(value);
+        pill.classList.add('active');
+      }
+    }
     applyFilters();
   });
 });
 
 function clearFilters() {
-  activeFilters = { type:'all', city:'all' };
+  activeFilters = { type: [], city: [], price: [] };
   document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.pill.all-pill').forEach(p => p.classList.add('active'));
   applyFilters();
 }
 
+// Extract the lowest AMD amount from a price string
+function getPriceBucket(priceStr) {
+  if (!priceStr) return null;
+  const s = String(priceStr).toLowerCase().trim();
+  if (s === 'free' || s === '0' || s === '0 amd') return 'free';
+  // Extract all numbers from the string
+  const nums = s.match(/\d[\d,]*/g);
+  if (!nums) return null;
+  // Use the lowest number (handles ranges like "5000-8000 AMD")
+  const val = Math.min(...nums.map(n => parseInt(n.replace(/,/g,''))));
+  if (isNaN(val)) return null;
+  if (val === 0) return 'free';
+  if (val < 5000)  return 'under5k';
+  if (val <= 10000) return '5to10k';
+  return 'over10k';
+}
+
 function applyFilters() {
   filteredEvents = allEvents.filter(ev => {
-    const typeOk = activeFilters.type === 'all' || ev.type === activeFilters.type;
-    const cityOk = activeFilters.city === 'all' || ev.city === activeFilters.city;
-    return typeOk && cityOk;
+    const typeOk  = activeFilters.type.length  === 0 || activeFilters.type.includes(ev.type);
+    const cityOk  = activeFilters.city.length  === 0 || activeFilters.city.includes(ev.city);
+    const priceOk = activeFilters.price.length === 0 || activeFilters.price.includes(getPriceBucket(ev.price));
+    return typeOk && cityOk && priceOk;
   });
   const n = filteredEvents.length;
   document.getElementById('resultCount').textContent = `${n} event${n !== 1 ? 's' : ''} found`;
   renderCalendar();
   renderList();
+  if (leafletMap) renderMap();
 }
 
 const AM_PUBLIC_HOLIDAYS = {
-  '01-01': "New Year's Day", '01-02': "New Year's Day",
-  '01-06': "Christmas & Epiphany", '01-27': "Memorial Day",
-  '01-28': "Army Day", '03-08': "International Women's Day",
-  '04-24': "Genocide Remembrance Day", '05-01': "Labour Day",
-  '05-09': "Victory and Peace Day", '05-28': "Republic Day",
-  '07-05': "Constitution Day", '09-21': "Independence Day",
-  '12-31': "New Year's Eve",
+  '01-01':"New Year's Day",'01-02':"New Year's Day",'01-06':"Christmas & Epiphany",
+  '01-27':"Memorial Day",'01-28':"Army Day",'03-08':"International Women's Day",
+  '04-24':"Genocide Remembrance Day",'05-01':"Labour Day",'05-09':"Victory and Peace Day",
+  '05-28':"Republic Day",'07-05':"Constitution Day",'09-21':"Independence Day",'12-31':"New Year's Eve",
 };
-
 const AM_CULTURAL_HOLIDAYS = {
-  '01-13': "Old New Year", '02-07': "St. Sarkis Day",
-  '02-14': "Valentine's Day", '03-01': "St. Vardanants Day",
-  '04-05': "Easter Sunday", '04-06': "Easter Monday",
-  '04-07': "Motherhood & Beauty Day", '06-01': "Children's Day",
-  '10-31': "Halloween", '11-22': "St. Gregory the Illuminator",
-  '12-25': "Christmas (Western)", '12-26': "Christmas (Western)",
+  '01-13':"Old New Year",'02-07':"St. Sarkis Day",'02-14':"Valentine's Day",
+  '03-01':"St. Vardanants Day",'04-05':"Easter Sunday",'04-06':"Easter Monday",
+  '04-07':"Motherhood & Beauty Day",'06-01':"Children's Day",'10-31':"Halloween",
+  '11-22':"St. Gregory the Illuminator",'12-25':"Christmas (Western)",'12-26':"Christmas (Western)",
 };
 
 function getHoliday(dateStr) { return AM_PUBLIC_HOLIDAYS[dateStr.slice(5)] || null; }
@@ -659,25 +743,22 @@ function renderCalendar() {
     if (holiday) {
       const hlabel = document.createElement('span');
       hlabel.className = 'holiday-label';
-      hlabel.title = 'Official non-working public holiday';
       hlabel.textContent = holiday;
       cell.appendChild(hlabel);
     }
     if (cultural) {
       const clabel = document.createElement('span');
       clabel.className = 'cultural-label';
-      clabel.title = 'Cultural holiday (working day)';
       clabel.textContent = cultural;
       cell.appendChild(clabel);
     }
 
-    dayEvs.slice(0,3).forEach(ev => {
+    dayEvs.slice(0, 3).forEach(ev => {
       const chip = document.createElement('span');
       chip.className = 'cal-event-chip';
       const s = TYPE_STYLE[ev.type] || { color:'#888', bg:'rgba(136,136,136,0.15)' };
-      chip.style.cssText = `color:${s.color};background:${s.bg};`;
+      chip.style.cssText = `color:${s.color};background:${s.bg};border-color:${s.color}33;`;
       chip.textContent = ev.name;
-      chip.addEventListener('click', e => { e.stopPropagation(); openDayModal(dateStr); });
       cell.appendChild(chip);
     });
 
@@ -687,6 +768,14 @@ function renderCalendar() {
       more.textContent = `+${dayEvs.length - 3} more`;
       cell.appendChild(more);
     }
+
+    if (!isOther && dayEvs.length > 0) {
+      const hint = document.createElement('div');
+      hint.className = 'cal-tap-hint';
+      hint.textContent = 'tap to view';
+      cell.appendChild(hint);
+    }
+
     grid.appendChild(cell);
   }
 }
@@ -694,7 +783,9 @@ function renderCalendar() {
 function prevMonth() { calMonth--; if (calMonth < 0)  { calMonth = 11; calYear--; } renderCalendar(); }
 function nextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0;  calYear++; } renderCalendar(); }
 
+// ── DAY POPUP ──
 function openDayModal(dateStr) {
+  lastDayDateStr = dateStr;
   const dayEvs = filteredEvents.filter(e => e.date === dateStr);
   const [y,m,d] = dateStr.split('-');
   const displayDate = `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
@@ -718,14 +809,18 @@ function openDayModal(dateStr) {
       row.className = 'day-event-row';
       const s = TYPE_STYLE[ev.type] || { color:'#888' };
       row.innerHTML = `
-        <span class="day-event-dot" style="background:${s.color};"></span>
+        <span class="day-event-dot" style="background:${s.color};box-shadow:0 0 0 3px ${s.color}33;"></span>
         <div class="day-event-info">
           <div class="day-event-name">${esc(ev.name)}</div>
-          <div class="day-event-time">${ev.time ? esc(ev.time) : 'Time TBA'}${ev.location ? ' · ' + esc(ev.location) : ''}</div>
+          <div class="day-event-time">${ev.time ? esc(ev.time) : 'Time TBA'}${ev.location ? ' · 📍 ' + esc(ev.location) : ''}</div>
         </div>
         <span class="day-event-arrow">→</span>
       `;
-      row.addEventListener('click', () => { closeDayModal(); setTimeout(() => openDetail(ev), 120); });
+      row.addEventListener('click', () => {
+        document.getElementById('backBtn').style.display = 'inline-flex';
+        document.getElementById('detailOverlay').classList.add('open');
+        openDetail(ev);
+      });
       body.appendChild(row);
     });
   }
@@ -734,6 +829,50 @@ function openDayModal(dateStr) {
 
 function closeDayModal() { document.getElementById('dayOverlay').classList.remove('open'); }
 
+function backToDayModal() {
+  closeDetail();
+  if (lastDayDateStr) openDayModal(lastDayDateStr);
+}
+
+// ── DETAIL ──
+function openDetail(ev) {
+  currentEvent = ev;
+  const [y,m,d] = ev.date.split('-');
+  const displayDate = ev.rawDate || `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
+  const mapHTML = ev.location
+    ? `<div class="detail-map"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps?q=${encodeURIComponent(ev.location + (ev.city ? ', ' + ev.city : '') + ', Armenia')}&output=embed"
+        allowfullscreen></iframe></div>`
+    : '';
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-event-name">${esc(ev.name)}</div>
+    <div class="detail-tags">
+      ${tagHTML(ev.type,  TYPE_STYLE)}
+      ${tagHTML(ev.price, PRICE_STYLE)}
+      ${tagHTML(ev.city,  CITY_STYLE)}
+    </div>
+    <div class="detail-meta">
+      <div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>
+      ${ev.time     ? `<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>` : ''}
+      ${ev.location ? `<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> ${esc(ev.location)}</div>` : ''}
+    </div>
+    ${ev.description ? `<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : ''}
+    ${mapHTML}
+    <div class="detail-actions">
+      <button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>
+      ${ev.link ? `<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>` : ''}
+    </div>
+  `;
+  document.getElementById('gcalBtn').addEventListener('click', () => addToGCal(currentEvent));
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.getElementById('backBtn').style.display = 'none';
+  currentEvent = null;
+}
+
+// ── LIST ──
 function renderList() {
   const section = document.getElementById('listSection');
   if (!filteredEvents.length) {
@@ -781,55 +920,95 @@ function renderList() {
         </div>
       `;
       card.querySelector('.gcal-btn').addEventListener('click', e => { e.stopPropagation(); addToGCal(ev); });
-      card.addEventListener('click', () => openDetail(ev));
+      card.addEventListener('click', () => {
+        document.getElementById('backBtn').style.display = 'none';
+        document.getElementById('detailOverlay').classList.add('open');
+        openDetail(ev);
+      });
       group.appendChild(card);
     });
     section.appendChild(group);
   });
 }
 
+// ── MAP ──
+function initMap() {
+  if (leafletMap) return;
+  leafletMap = L.map('eventMap', { center: [40.1872, 44.5136], zoom: 13 });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap contributors © CARTO', maxZoom: 19,
+  }).addTo(leafletMap);
+  renderMap();
+}
+
+function renderMap() {
+  if (!leafletMap) return;
+  mapMarkers.forEach(m => m.remove());
+  mapMarkers = [];
+
+  let hasNoLocation = false;
+  let idx = 0;
+
+  const seen = new Set();
+  const unique = filteredEvents.filter(ev => {
+    const key = ev.name + '|' + ev.location;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  unique.forEach(ev => {
+    if (!ev.location) { hasNoLocation = true; return; }
+    const s = TYPE_STYLE[ev.type] || { color:'#888' };
+    const markerId = ++idx;
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:12px;height:12px;background:${s.color};border-radius:50%;border:2px solid rgba(255,255,255,0.25);box-shadow:0 0 0 4px ${s.color}33,0 2px 8px rgba(0,0,0,0.5);"></div>`,
+      iconSize:[12,12], iconAnchor:[6,6], popupAnchor:[0,-10],
+    });
+
+    const query = `${ev.location}${ev.city ? ', ' + ev.city : ''}, Armenia`;
+    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`, { headers:{'Accept-Language':'en'} })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.length) return;
+        const marker = L.marker([parseFloat(data[0].lat), parseFloat(data[0].lon)], { icon }).addTo(leafletMap);
+        const [y,m,d] = ev.date.split('-');
+        const dateDisp = ev.rawDate || `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
+        marker.bindPopup(`
+          <div class="map-popup-name">${esc(ev.name)}</div>
+          <div class="map-popup-meta">📅 ${esc(dateDisp)}${ev.time ? ' · 🕐 ' + esc(ev.time) : ''}</div>
+          <div class="map-popup-meta">📍 ${esc(ev.location)}</div>
+          <span class="map-popup-tag" style="color:${s.color};background:${s.color}22;">${ev.type}</span>
+          <button class="map-popup-btn" id="mapbtn-${markerId}">View event →</button>
+        `);
+        marker.on('popupopen', () => {
+          setTimeout(() => {
+            const btn = document.getElementById(`mapbtn-${markerId}`);
+            if (btn) btn.onclick = () => {
+              document.getElementById('backBtn').style.display = 'none';
+              document.getElementById('detailOverlay').classList.add('open');
+              openDetail(ev);
+            };
+          }, 50);
+        });
+        mapMarkers.push(marker);
+      }).catch(() => {});
+  });
+
+  document.getElementById('mapNoLocation').style.display = hasNoLocation ? 'block' : 'none';
+}
+
+// ── SWITCH VIEW ──
 function switchView(v) {
   document.getElementById('calendarView').style.display = v === 'calendar' ? 'block' : 'none';
   document.getElementById('listView').style.display     = v === 'list'     ? 'block' : 'none';
+  document.getElementById('mapView').style.display      = v === 'map'      ? 'block' : 'none';
   document.getElementById('tabCalendar').classList.toggle('active', v === 'calendar');
   document.getElementById('tabList').classList.toggle('active', v === 'list');
-}
-
-function openDetail(ev) {
-  currentEvent = ev;
-  const [y,m,d] = ev.date.split('-');
-  const displayDate = ev.rawDate || `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
-  const mapHTML = ev.location
-    ? `<div class="detail-map"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-        src="https://www.google.com/maps?q=${encodeURIComponent(ev.location + (ev.city ? ', ' + ev.city : '') + ', Armenia')}&output=embed"
-        allowfullscreen></iframe></div>`
-    : '';
-  document.getElementById('detailBody').innerHTML = `
-    <div class="detail-event-name">${esc(ev.name)}</div>
-    <div class="detail-tags">
-      ${tagHTML(ev.type,  TYPE_STYLE)}
-      ${tagHTML(ev.price, PRICE_STYLE)}
-      ${tagHTML(ev.city,  CITY_STYLE)}
-    </div>
-    <div class="detail-meta">
-      <div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>
-      ${ev.time     ? `<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>` : ''}
-      ${ev.location ? `<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> ${esc(ev.location)}</div>` : ''}
-    </div>
-    ${ev.description ? `<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : ''}
-    ${mapHTML}
-    <div class="detail-actions">
-      <button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>
-      ${ev.link ? `<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>` : ''}
-    </div>
-  `;
-  document.getElementById('gcalBtn').addEventListener('click', () => addToGCal(currentEvent));
-  document.getElementById('detailOverlay').classList.add('open');
-}
-
-function closeDetail() {
-  document.getElementById('detailOverlay').classList.remove('open');
-  currentEvent = null;
+  document.getElementById('tabMap').classList.toggle('active', v === 'map');
+  if (v === 'map') setTimeout(() => { initMap(); if (leafletMap) leafletMap.invalidateSize(); }, 100);
 }
 
 function addToGCal(ev) {
@@ -848,13 +1027,13 @@ function addToGCal(ev) {
     if (start) dates = `${start}/${end || start}`;
   }
   const details = [
-    ev.time        ? `🕐 ${ev.time}`           : '',
-    ev.description ? ev.description             : '',
-    ev.link        ? `🔗 More info: ${ev.link}` : '',
+    ev.time ? `🕐 ${ev.time}` : '',
+    ev.description ? ev.description : '',
+    ev.link ? `🔗 More info: ${ev.link}` : '',
   ].filter(Boolean).join('\n\n');
   const params = new URLSearchParams({
-    action: 'TEMPLATE', text: ev.name, dates, details,
-    location: ev.location ? `${ev.location}${ev.city ? ', ' + ev.city : ''}, Armenia` : '',
+    action:'TEMPLATE', text:ev.name, dates, details,
+    location: ev.location ? `${ev.location}${ev.city ? ', '+ev.city : ''}, Armenia` : '',
   });
   window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank');
 }
