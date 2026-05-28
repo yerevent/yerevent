@@ -167,8 +167,10 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .day-popup-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;flex-shrink:0;}
 .day-popup-date{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--gold);}
 .day-popup-sub{font-size:0.75rem;color:var(--text-muted);margin-top:4px;}
-.day-popup-close{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:0.78rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:5px 10px;border-radius:7px;transition:all 0.15s;white-space:nowrap;}
+.day-popup-close{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:0.78rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:5px 10px;border-radius:7px;transition:all 0.15s;white-space:nowrap;margin-left:8px;}
 .day-popup-close:hover{color:var(--gold);border-color:var(--gold);}
+.day-nav-btn{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:1rem;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;}
+.day-nav-btn:hover{border-color:var(--gold);color:var(--gold);}
 .day-popup-content{display:grid;grid-template-columns:1fr 340px;flex:1;overflow:hidden;min-height:0;}
 .day-map-col{position:relative;border-right:1px solid var(--border);}
 #dayMap{width:100%;height:100%;min-height:300px;}
@@ -301,8 +303,9 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
       <button class="pill" data-group="price" data-price="over10k" data-value="over10k">10,000+ AMD</button>
     </div>
   </div>
+</div>
 
-  <div class="sync-bar" id="syncBar">
+  <div class="sync-bar" id="syncBar" style="margin-top:20px;">
     <div class="sync-left">
       <span class="sync-dot" id="syncDot"></span>
       <span id="syncStatus">Connecting…</span>
@@ -349,11 +352,13 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 <div class="day-overlay" id="dayOverlay">
   <div class="day-popup">
     <div class="day-popup-header">
-      <div>
+      <button class="day-nav-btn" onclick="navigateDay(-1)" title="Previous day">←</button>
+      <div style="flex:1;text-align:center;">
         <div class="day-popup-date" id="dayPopupDate"></div>
         <div class="day-popup-sub" id="dayPopupSub"></div>
       </div>
-      <button class="day-popup-close" onclick="closeDayModal()">✕ Close</button>
+      <button class="day-nav-btn" onclick="navigateDay(1)" title="Next day">→</button>
+      <button class="day-popup-close" onclick="closeDayModal()">✕</button>
     </div>
     <div class="day-popup-content">
       <div class="day-map-col">
@@ -926,6 +931,20 @@ function openDayModal(dateStr) {
 
 function closeDayModal() {
   document.getElementById('dayOverlay').classList.remove('open');
+}
+
+function navigateDay(direction) {
+  if (!lastDayDateStr) return;
+  const d = new Date(lastDayDateStr);
+  d.setDate(d.getDate() + direction);
+  const newStr = toDateStr(d);
+  // If navigating to a different month, update the calendar
+  if (d.getMonth() !== calMonth || d.getFullYear() !== calYear) {
+    calMonth = d.getMonth();
+    calYear = d.getFullYear();
+    renderCalendar();
+  }
+  openDayModal(newStr);
 }
 
 function backToDayModal() {
