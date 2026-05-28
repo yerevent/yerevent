@@ -104,8 +104,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-month-label{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--accent);}
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;text-align:center;}
 .cal-weekday{font-size:0.62rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);padding:8px 0;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;grid-auto-rows:auto;}
-.cal-cell{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s,background 0.15s,box-shadow 0.15s;cursor:pointer;position:relative;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;grid-auto-rows:152px;}
+.cal-cell{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s,background 0.15s,box-shadow 0.15s;cursor:pointer;position:relative;display:flex;flex-direction:column;}
 .cal-cell:not(.other-month):hover{border-color:rgba(201,82,108,0.55);background:#1a0a12;box-shadow:0 0 0 2px rgba(201,82,108,0.15);}
 .cal-cell.weekend{background:#120810;}
 .cal-cell.weekend:not(.other-month):hover{background:#1a0d16;}
@@ -113,8 +113,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-cell.public-holiday:not(.other-month):hover{border-color:rgba(201,82,108,0.55);}
 .cal-cell.cultural-holiday{background:rgba(252,204,132,0.05);border-color:rgba(252,204,132,0.2);}
 .cal-cell.cultural-holiday:not(.other-month):hover{border-color:rgba(252,204,132,0.5);}
-.holiday-label{display:block;font-size:0.55rem;font-weight:700;color:#c9526c;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;}
-.cultural-label{display:block;font-size:0.55rem;font-weight:700;color:#fccc84;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;opacity:0.7;}
+.holiday-label{display:block;font-size:0.55rem;font-weight:700;color:#c9526c;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;flex-shrink:0;}
+.cultural-label{display:block;font-size:0.55rem;font-weight:700;color:#fccc84;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;opacity:0.7;flex-shrink:0;}
 .holiday-legend{display:flex;flex-wrap:wrap;align-items:center;gap:14px;font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;}
 .holiday-legend-swatch{width:14px;height:14px;border-radius:4px;background:rgba(201,82,108,0.15);border:1px solid rgba(201,82,108,0.3);flex-shrink:0;}
 .holiday-legend-swatch.cultural{background:rgba(252,204,132,0.12);border:1px solid rgba(252,204,132,0.3);}
@@ -122,12 +122,20 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-cell.other-month{opacity:0.2;cursor:default;}
 .cal-cell.today{border-color:var(--accent);}
 .cal-cell.today .day-num{color:var(--gold);font-weight:700;}
-.day-num{font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;}
-.cal-event-chip{display:block;font-size:0.62rem;font-weight:600;padding:3px 6px;border-radius:5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid transparent;pointer-events:none;}
-.cal-more{font-size:0.68rem;font-weight:700;color:var(--accent);margin-top:4px;background:rgba(201,82,108,0.12);border:1px solid rgba(201,82,108,0.3);border-radius:5px;padding:2px 6px;display:inline-block;}
-.cal-tap-hint{position:absolute;bottom:5px;right:6px;font-size:0.55rem;color:var(--text-muted);opacity:0;transition:opacity 0.15s;pointer-events:none;}
+.day-num{font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;flex-shrink:0;}
+.cal-chips{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:2px;}
+.cal-event-chip{display:block;font-size:0.62rem;font-weight:600;padding:3px 6px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid transparent;pointer-events:none;flex-shrink:0;}
+.cal-more{font-size:0.65rem;font-weight:700;color:var(--accent);margin-top:3px;background:rgba(201,82,108,0.12);border:1px solid rgba(201,82,108,0.3);border-radius:5px;padding:2px 6px;display:inline-block;flex-shrink:0;cursor:pointer;}
+.cal-tap-hint{font-size:0.55rem;color:var(--text-muted);opacity:0;transition:opacity 0.15s;pointer-events:none;margin-top:auto;padding-top:2px;text-align:right;flex-shrink:0;}
 .cal-cell:not(.other-month):hover .cal-tap-hint{opacity:1;}
 .sync-bar{margin-top:0;margin-bottom:16px;}
+
+/* ── THEMED SCROLLBAR ── */
+* { scrollbar-width: thin; scrollbar-color: rgba(201,82,108,0.4) rgba(31,13,21,0.6); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(31,13,21,0.6); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(201,82,108,0.45); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(201,82,108,0.75); }
 
 /* ── LIST ── */
 .list-month-group{margin-bottom:32px;}
@@ -775,14 +783,27 @@ function renderCalendar() {
       cell.appendChild(clabel);
     }
 
-    dayEvs.forEach(ev => {
+    const MAX_CHIPS = 8;
+    const chipsWrap = document.createElement('div');
+    chipsWrap.className = 'cal-chips';
+
+    dayEvs.slice(0, MAX_CHIPS).forEach(ev => {
       const chip = document.createElement('span');
       chip.className = 'cal-event-chip';
       const s = TYPE_STYLE[ev.type] || { color:'#888', bg:'rgba(136,136,136,0.15)' };
       chip.style.cssText = `color:${s.color};background:${s.bg};border-color:${s.color}33;`;
       chip.textContent = ev.name;
-      cell.appendChild(chip);
+      chipsWrap.appendChild(chip);
     });
+
+    if (dayEvs.length > MAX_CHIPS) {
+      const more = document.createElement('div');
+      more.className = 'cal-more';
+      more.textContent = `+ ${dayEvs.length - MAX_CHIPS} more — tap to see all`;
+      chipsWrap.appendChild(more);
+    }
+
+    cell.appendChild(chipsWrap);
 
     if (!isOther && dayEvs.length > 0) {
       const hint = document.createElement('div');
