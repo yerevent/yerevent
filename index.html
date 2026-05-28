@@ -150,9 +150,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .state-box h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text-soft);margin-bottom:8px;}
 .state-box p{font-size:0.88rem;}
 
-/* ── MAP ── */
-#mapView{display:none;}
-#eventMap{width:100%;height:560px;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
+/* ── MAP (global leaflet styles) ── */
 .leaflet-popup-content-wrapper{background:var(--bg);border:1px solid rgba(252,204,132,0.2);border-radius:10px;color:var(--text);box-shadow:0 4px 24px rgba(0,0,0,0.5);}
 .leaflet-popup-tip{background:var(--bg);}
 .leaflet-popup-content{margin:12px 14px;font-family:'Outfit',sans-serif;}
@@ -161,26 +159,35 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .map-popup-tag{display:inline-block;font-size:0.62rem;font-weight:600;padding:2px 7px;border-radius:100px;margin-bottom:8px;}
 .map-popup-btn{display:block;width:100%;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:0.72rem;cursor:pointer;font-weight:600;font-family:'Outfit',sans-serif;text-align:center;}
 .map-popup-btn:hover{background:#a33d56;}
-.map-no-location{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:12px;font-size:0.8rem;color:var(--text-muted);}
 
 /* ── DAY POPUP ── */
-.day-overlay{display:none;position:fixed;inset:0;background:rgba(20,5,15,0.8);backdrop-filter:blur(8px);z-index:190;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+.day-overlay{display:none;position:fixed;inset:0;background:rgba(20,5,15,0.85);backdrop-filter:blur(8px);z-index:190;align-items:center;justify-content:center;padding:16px;}
 .day-overlay.open{display:flex;}
-.day-popup{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:480px;animation:modalIn 0.22s cubic-bezier(0.34,1.2,0.64,1);margin:auto;}
-.day-popup-header{padding:18px 20px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg);z-index:1;border-radius:var(--radius) var(--radius) 0 0;}
+.day-popup{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:960px;max-height:88vh;display:flex;flex-direction:column;animation:modalIn 0.22s cubic-bezier(0.34,1.2,0.64,1);}
+.day-popup-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;flex-shrink:0;}
 .day-popup-date{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--gold);}
 .day-popup-sub{font-size:0.75rem;color:var(--text-muted);margin-top:4px;}
-.day-popup-close{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:0.78rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:5px 10px;border-radius:7px;transition:all 0.15s;}
+.day-popup-close{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:0.78rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:5px 10px;border-radius:7px;transition:all 0.15s;white-space:nowrap;}
 .day-popup-close:hover{color:var(--gold);border-color:var(--gold);}
-.day-popup-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+.day-popup-content{display:grid;grid-template-columns:1fr 340px;flex:1;overflow:hidden;min-height:0;}
+.day-map-col{position:relative;border-right:1px solid var(--border);}
+#dayMap{width:100%;height:100%;min-height:300px;}
+.day-map-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(43,16,26,0.85);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:0.7rem;color:var(--text-muted);white-space:nowrap;z-index:500;}
+.day-list-col{overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
 .day-event-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:border-color 0.15s,transform 0.12s,background 0.12s;}
-.day-event-row:hover{border-color:rgba(201,82,108,0.5);transform:translateX(4px);background:var(--surface2);}
+.day-event-row:hover{border-color:rgba(201,82,108,0.5);transform:translateX(3px);background:var(--surface2);}
+.day-event-row.highlighted{border-color:var(--accent);background:var(--surface2);}
 .day-event-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .day-event-info{min-width:0;flex:1;}
-.day-event-name{font-size:0.92rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.day-event-time{font-size:0.74rem;color:var(--text-muted);margin-top:2px;}
+.day-event-name{font-size:0.9rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.day-event-time{font-size:0.73rem;color:var(--text-muted);margin-top:2px;}
 .day-event-arrow{color:var(--accent);font-size:1rem;flex-shrink:0;font-weight:700;}
 .day-empty{padding:32px 16px;text-align:center;color:var(--text-muted);font-size:0.88rem;font-style:italic;}
+@media(max-width:700px){
+  .day-popup-content{grid-template-columns:1fr;grid-template-rows:240px 1fr;}
+  .day-map-col{border-right:none;border-bottom:1px solid var(--border);}
+  .day-popup{max-height:95vh;}
+}
 
 /* ── DETAIL MODAL ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(30,10,10,0.55);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:16px;}
@@ -310,7 +317,6 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
     <div class="view-tabs">
       <button class="view-tab active" id="tabCalendar" onclick="switchView('calendar')">📅 Calendar</button>
       <button class="view-tab" id="tabList" onclick="switchView('list')">☰ List</button>
-      <button class="view-tab" id="tabMap" onclick="switchView('map')">🗺 Map</button>
     </div>
     <div id="resultCount"></div>
   </div>
@@ -337,13 +343,6 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
   <div id="listView" style="display:none;">
     <div id="listSection"></div>
   </div>
-
-  <div id="mapView">
-    <div id="eventMap"></div>
-    <div class="map-no-location" id="mapNoLocation" style="display:none;">
-      ⚠️ Some events don't have a location and aren't shown on the map.
-    </div>
-  </div>
 </div>
 
 <!-- ── DAY POPUP ── -->
@@ -356,7 +355,13 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
       </div>
       <button class="day-popup-close" onclick="closeDayModal()">✕ Close</button>
     </div>
-    <div class="day-popup-body" id="dayPopupBody"></div>
+    <div class="day-popup-content">
+      <div class="day-map-col">
+        <div id="dayMap"></div>
+        <div class="day-map-hint" id="dayMapHint" style="display:none;">⚠️ Some events have no location</div>
+      </div>
+      <div class="day-list-col" id="dayPopupBody"></div>
+    </div>
   </div>
 </div>
 
@@ -417,8 +422,10 @@ let secondsUntilRefresh = REFRESH_INTERVAL_SECONDS;
 let lastFetchedAt = null;
 let currentEvent = null;
 let lastDayDateStr = null;
-let leafletMap = null;
-let mapMarkers = [];
+let leafletMap = null;      // global map (unused now)
+let dayMap = null;          // day popup map
+let dayMapMarkers = [];
+let dayMapMarkerId = 0;
 
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -679,7 +686,6 @@ function applyFilters() {
   document.getElementById('resultCount').textContent = `${n} event${n !== 1 ? 's' : ''} found`;
   renderCalendar();
   renderList();
-  if (leafletMap) renderMap();
 }
 
 const AM_PUBLIC_HOLIDAYS = {
@@ -799,14 +805,18 @@ function openDayModal(dateStr) {
     holidayName ? `${holidayName}${n ? ' · ' + n + ' event' + (n !== 1 ? 's' : '') : ''}` :
     n === 0 ? 'No events' : `${n} event${n !== 1 ? 's' : ''}`;
 
+  // Build event list
   const body = document.getElementById('dayPopupBody');
   body.innerHTML = '';
+  const rowEls = [];
+
   if (!n) {
     body.innerHTML = `<div class="day-empty">No events on this day.</div>`;
   } else {
-    dayEvs.forEach(ev => {
+    dayEvs.forEach((ev, idx) => {
       const row = document.createElement('div');
       row.className = 'day-event-row';
+      row.dataset.idx = idx;
       const s = TYPE_STYLE[ev.type] || { color:'#888' };
       row.innerHTML = `
         <span class="day-event-dot" style="background:${s.color};box-shadow:0 0 0 3px ${s.color}33;"></span>
@@ -822,12 +832,100 @@ function openDayModal(dateStr) {
         openDetail(ev);
       });
       body.appendChild(row);
+      rowEls.push(row);
     });
   }
+
   document.getElementById('dayOverlay').classList.add('open');
+
+  // Init or reset day map
+  setTimeout(() => {
+    if (!dayMap) {
+      dayMap = L.map('dayMap', { center: [40.1872, 44.5136], zoom: 13, zoomControl: true });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap contributors © CARTO', maxZoom: 19,
+      }).addTo(dayMap);
+    }
+    dayMap.invalidateSize();
+
+    // Clear old markers
+    dayMapMarkers.forEach(m => m.remove());
+    dayMapMarkers = [];
+
+    let hasNoLocation = false;
+    const bounds = [];
+
+    dayEvs.forEach((ev, idx) => {
+      if (!ev.location) { hasNoLocation = true; return; }
+      const s = TYPE_STYLE[ev.type] || { color:'#888' };
+      const mid = ++dayMapMarkerId;
+
+      const icon = L.divIcon({
+        className: '',
+        html: `<div style="width:13px;height:13px;background:${s.color};border-radius:50%;border:2px solid rgba(255,255,255,0.3);box-shadow:0 0 0 4px ${s.color}44,0 2px 8px rgba(0,0,0,0.6);cursor:pointer;"></div>`,
+        iconSize:[13,13], iconAnchor:[6,6], popupAnchor:[0,-10],
+      });
+
+      const query = `${ev.location}${ev.city ? ', ' + ev.city : ''}, Armenia`;
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`, { headers:{'Accept-Language':'en'} })
+        .then(r => r.json())
+        .then(data => {
+          if (!data.length) return;
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          bounds.push([lat, lng]);
+
+          const marker = L.marker([lat, lng], { icon }).addTo(dayMap);
+          marker.bindPopup(`
+            <div class="map-popup-name">${esc(ev.name)}</div>
+            <div class="map-popup-meta">${ev.time ? '🕐 ' + esc(ev.time) : ''}${ev.location ? ' · 📍 ' + esc(ev.location) : ''}</div>
+            <span class="map-popup-tag" style="color:${s.color};background:${s.color}22;">${ev.type}</span>
+            <button class="map-popup-btn" id="daymapbtn-${mid}">View event →</button>
+          `);
+          marker.on('popupopen', () => {
+            // Highlight corresponding list row
+            rowEls.forEach(r => r.classList.remove('highlighted'));
+            if (rowEls[idx]) rowEls[idx].classList.add('highlighted');
+            setTimeout(() => {
+              const btn = document.getElementById(`daymapbtn-${mid}`);
+              if (btn) btn.onclick = () => {
+                document.getElementById('backBtn').style.display = 'inline-flex';
+                document.getElementById('detailOverlay').classList.add('open');
+                openDetail(ev);
+              };
+            }, 50);
+          });
+          marker.on('popupclose', () => {
+            if (rowEls[idx]) rowEls[idx].classList.remove('highlighted');
+          });
+
+          // Clicking the list row flies to marker
+          if (rowEls[idx]) {
+            rowEls[idx].addEventListener('mouseenter', () => {
+              marker.openPopup();
+              dayMap.panTo([lat, lng], { animate: true, duration: 0.4 });
+            });
+          }
+
+          dayMapMarkers.push(marker);
+
+          // Fit map to all markers
+          if (bounds.length === 1) {
+            dayMap.setView([lat, lng], 15);
+          } else {
+            dayMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 16 });
+          }
+        })
+        .catch(() => {});
+    });
+
+    document.getElementById('dayMapHint').style.display = hasNoLocation ? 'block' : 'none';
+  }, 100);
 }
 
-function closeDayModal() { document.getElementById('dayOverlay').classList.remove('open'); }
+function closeDayModal() {
+  document.getElementById('dayOverlay').classList.remove('open');
+}
 
 function backToDayModal() {
   closeDetail();
@@ -931,84 +1029,12 @@ function renderList() {
   });
 }
 
-// ── MAP ──
-function initMap() {
-  if (leafletMap) return;
-  leafletMap = L.map('eventMap', { center: [40.1872, 44.5136], zoom: 13 });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap contributors © CARTO', maxZoom: 19,
-  }).addTo(leafletMap);
-  renderMap();
-}
-
-function renderMap() {
-  if (!leafletMap) return;
-  mapMarkers.forEach(m => m.remove());
-  mapMarkers = [];
-
-  let hasNoLocation = false;
-  let idx = 0;
-
-  const seen = new Set();
-  const unique = filteredEvents.filter(ev => {
-    const key = ev.name + '|' + ev.location;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  unique.forEach(ev => {
-    if (!ev.location) { hasNoLocation = true; return; }
-    const s = TYPE_STYLE[ev.type] || { color:'#888' };
-    const markerId = ++idx;
-
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="width:12px;height:12px;background:${s.color};border-radius:50%;border:2px solid rgba(255,255,255,0.25);box-shadow:0 0 0 4px ${s.color}33,0 2px 8px rgba(0,0,0,0.5);"></div>`,
-      iconSize:[12,12], iconAnchor:[6,6], popupAnchor:[0,-10],
-    });
-
-    const query = `${ev.location}${ev.city ? ', ' + ev.city : ''}, Armenia`;
-    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`, { headers:{'Accept-Language':'en'} })
-      .then(r => r.json())
-      .then(data => {
-        if (!data.length) return;
-        const marker = L.marker([parseFloat(data[0].lat), parseFloat(data[0].lon)], { icon }).addTo(leafletMap);
-        const [y,m,d] = ev.date.split('-');
-        const dateDisp = ev.rawDate || `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
-        marker.bindPopup(`
-          <div class="map-popup-name">${esc(ev.name)}</div>
-          <div class="map-popup-meta">📅 ${esc(dateDisp)}${ev.time ? ' · 🕐 ' + esc(ev.time) : ''}</div>
-          <div class="map-popup-meta">📍 ${esc(ev.location)}</div>
-          <span class="map-popup-tag" style="color:${s.color};background:${s.color}22;">${ev.type}</span>
-          <button class="map-popup-btn" id="mapbtn-${markerId}">View event →</button>
-        `);
-        marker.on('popupopen', () => {
-          setTimeout(() => {
-            const btn = document.getElementById(`mapbtn-${markerId}`);
-            if (btn) btn.onclick = () => {
-              document.getElementById('backBtn').style.display = 'none';
-              document.getElementById('detailOverlay').classList.add('open');
-              openDetail(ev);
-            };
-          }, 50);
-        });
-        mapMarkers.push(marker);
-      }).catch(() => {});
-  });
-
-  document.getElementById('mapNoLocation').style.display = hasNoLocation ? 'block' : 'none';
-}
-
 // ── SWITCH VIEW ──
 function switchView(v) {
   document.getElementById('calendarView').style.display = v === 'calendar' ? 'block' : 'none';
   document.getElementById('listView').style.display     = v === 'list'     ? 'block' : 'none';
-  document.getElementById('mapView').style.display      = v === 'map'      ? 'block' : 'none';
   document.getElementById('tabCalendar').classList.toggle('active', v === 'calendar');
   document.getElementById('tabList').classList.toggle('active', v === 'list');
-  document.getElementById('tabMap').classList.toggle('active', v === 'map');
-  if (v === 'map') setTimeout(() => { initMap(); if (leafletMap) leafletMap.invalidateSize(); }, 100);
 }
 
 function addToGCal(ev) {
