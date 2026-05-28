@@ -867,7 +867,8 @@ function openDayModal(dateStr) {
       });
 
       const query = `${ev.location}${ev.city ? ', ' + ev.city : ''}, Armenia`;
-      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`, { headers:{'Accept-Language':'en'} })
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
+      fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, { headers:{'Accept-Language':'en'} })
         .then(r => r.json())
         .then(data => {
           if (!data.length) return;
