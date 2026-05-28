@@ -97,20 +97,21 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 #resultCount{font-size:0.78rem;color:var(--text-muted);}
 
 /* ── CALENDAR ── */
+.cal-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:24px;}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.cal-nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-soft);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.cal-nav-btn{background:var(--bg);border:1px solid var(--border);color:var(--text-soft);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
 .cal-nav-btn:hover{border-color:var(--accent);color:var(--accent);}
 .cal-month-label{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--accent);}
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;text-align:center;}
 .cal-weekday{font-size:0.62rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);padding:8px 0;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.cal-cell{min-height:100px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s,background 0.15s,box-shadow 0.15s;cursor:pointer;position:relative;}
-.cal-cell:not(.other-month):hover{border-color:rgba(201,82,108,0.55);background:var(--surface2);box-shadow:0 0 0 2px rgba(201,82,108,0.15);}
-.cal-cell.weekend{background:#150a10;}
-.cal-cell.weekend:not(.other-month):hover{background:#1e0e18;}
-.cal-cell.public-holiday{background:rgba(201,82,108,0.1);border-color:rgba(201,82,108,0.25);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;grid-auto-rows:auto;}
+.cal-cell{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 6px 6px;overflow:hidden;transition:border-color 0.15s,background 0.15s,box-shadow 0.15s;cursor:pointer;position:relative;}
+.cal-cell:not(.other-month):hover{border-color:rgba(201,82,108,0.55);background:#1a0a12;box-shadow:0 0 0 2px rgba(201,82,108,0.15);}
+.cal-cell.weekend{background:#120810;}
+.cal-cell.weekend:not(.other-month):hover{background:#1a0d16;}
+.cal-cell.public-holiday{background:rgba(201,82,108,0.08);border-color:rgba(201,82,108,0.25);}
 .cal-cell.public-holiday:not(.other-month):hover{border-color:rgba(201,82,108,0.55);}
-.cal-cell.cultural-holiday{background:rgba(252,204,132,0.07);border-color:rgba(252,204,132,0.2);}
+.cal-cell.cultural-holiday{background:rgba(252,204,132,0.05);border-color:rgba(252,204,132,0.2);}
 .cal-cell.cultural-holiday:not(.other-month):hover{border-color:rgba(252,204,132,0.5);}
 .holiday-label{display:block;font-size:0.55rem;font-weight:700;color:#c9526c;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;}
 .cultural-label{display:block;font-size:0.55rem;font-weight:700;color:#fccc84;letter-spacing:0.2px;margin-bottom:3px;line-height:1.2;text-transform:uppercase;opacity:0.7;}
@@ -126,6 +127,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-more{font-size:0.68rem;font-weight:700;color:var(--accent);margin-top:4px;background:rgba(201,82,108,0.12);border:1px solid rgba(201,82,108,0.3);border-radius:5px;padding:2px 6px;display:inline-block;}
 .cal-tap-hint{position:absolute;bottom:5px;right:6px;font-size:0.55rem;color:var(--text-muted);opacity:0;transition:opacity 0.15s;pointer-events:none;}
 .cal-cell:not(.other-month):hover .cal-tap-hint{opacity:1;}
+.sync-bar{margin-top:0;margin-bottom:16px;}
 
 /* ── LIST ── */
 .list-month-group{margin-bottom:32px;}
@@ -198,28 +200,30 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 }
 
 /* ── DETAIL MODAL ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(30,10,10,0.55);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(20,5,15,0.85);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:20px 80px;}
 .overlay.open{display:flex;}
-.modal{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:modalIn 0.25s cubic-bezier(0.34,1.2,0.64,1);}
+.modal{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;height:100%;display:flex;flex-direction:column;animation:modalIn 0.25s cubic-bezier(0.34,1.2,0.64,1);}
 @keyframes modalIn{from{transform:scale(0.94) translateY(20px);opacity:0;}to{transform:none;opacity:1;}}
-.modal-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg);z-index:1;gap:10px;}
+.modal-header{padding:14px 20px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px;}
 .modal-header-left{display:flex;align-items:center;gap:10px;min-width:0;}
 .btn-back{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:'Outfit',sans-serif;cursor:pointer;padding:5px 10px;border-radius:7px;transition:all 0.15s;white-space:nowrap;flex-shrink:0;}
 .btn-back:hover{border-color:var(--gold);color:var(--gold);}
 .modal-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--accent);}
 .modal-close{background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;transition:color 0.15s;flex-shrink:0;}
 .modal-close:hover{color:var(--accent);}
-.modal-body{padding:20px 22px;}
-.detail-event-name{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;line-height:1.2;margin-bottom:12px;color:var(--text);}
+.modal-body{padding:0;flex:1;overflow:hidden;display:grid;grid-template-columns:1fr 400px;}
+.modal-body-left{padding:24px 28px;overflow-y:auto;}
+.modal-body-right{border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.detail-event-name{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;line-height:1.2;margin-bottom:12px;color:var(--text);}
 .detail-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
 .detail-meta{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;}
 .detail-meta-row{display:flex;align-items:flex-start;gap:9px;font-size:0.87rem;color:var(--text-soft);}
 .detail-meta-icon{font-size:0.95rem;flex-shrink:0;margin-top:1px;}
 .detail-desc{background:var(--surface);border-radius:10px;padding:12px 14px;font-size:0.87rem;color:var(--text-soft);line-height:1.65;margin-bottom:18px;}
-.detail-map{width:100%;height:200px;border-radius:10px;border:1px solid var(--border);margin-bottom:18px;overflow:hidden;background:var(--surface);}
-.detail-map iframe{width:100%;height:100%;border:none;display:block;}
-.detail-actions{display:flex;gap:10px;flex-wrap:wrap;}
-.btn-gcal-big{flex:1;background:var(--accent);color:#fff;font-family:'Outfit',sans-serif;font-size:0.87rem;font-weight:600;padding:11px 18px;border-radius:100px;border:none;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;}
+.detail-map-full{flex:1;overflow:hidden;}
+.detail-map-full iframe{width:100%;height:100%;border:none;display:block;}
+.detail-actions{display:flex;gap:8px;padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.btn-gcal-big{flex:1;background:var(--accent);color:#fff;font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:600;padding:10px 14px;border-radius:100px;border:none;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;white-space:nowrap;}
 .btn-gcal-big:hover{background:#a33d56;transform:translateY(-1px);}
 .btn-more{background:var(--surface)!important;color:var(--text-soft)!important;border:1px solid var(--border)!important;}
 .btn-more:hover{border-color:var(--accent)!important;color:var(--accent)!important;background:var(--surface)!important;transform:none!important;}
@@ -296,22 +300,21 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
       </div>
     </div>
     <button class="filter-clear" onclick="clearFilters()">Clear filters</button>
-  </div>
 
-  <!-- Price filter row -->
-  <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
-    <div class="filter-group-label">Price</div>
-    <div class="filter-pills" style="margin-top:8px;">
-      <button class="pill all-pill active" data-group="price" data-value="all">All prices</button>
-      <button class="pill" data-group="price" data-price="free"    data-value="free">🎁 Free</button>
-      <button class="pill" data-group="price" data-price="under5k" data-value="under5k">Under 5,000 AMD</button>
-      <button class="pill" data-group="price" data-price="5to10k"  data-value="5to10k">5,000–10,000 AMD</button>
-      <button class="pill" data-group="price" data-price="over10k" data-value="over10k">10,000+ AMD</button>
+    <!-- Price filter row — inside the same filters card -->
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+      <div class="filter-group-label">Price</div>
+      <div class="filter-pills" style="margin-top:8px;">
+        <button class="pill all-pill active" data-group="price" data-value="all">All prices</button>
+        <button class="pill" data-group="price" data-price="free"    data-value="free">🎁 Free</button>
+        <button class="pill" data-group="price" data-price="under5k" data-value="under5k">Under 5,000 AMD</button>
+        <button class="pill" data-group="price" data-price="5to10k"  data-value="5to10k">5,000–10,000 AMD</button>
+        <button class="pill" data-group="price" data-price="over10k" data-value="over10k">10,000+ AMD</button>
+      </div>
     </div>
-  </div>
-</div>
+  </div><!-- end filters-section -->
 
-  <div class="sync-bar" id="syncBar" style="margin-top:20px;">
+  <div class="sync-bar" id="syncBar">
     <div class="sync-left">
       <span class="sync-dot" id="syncDot"></span>
       <span id="syncStatus">Connecting…</span>
@@ -330,7 +333,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
     <div id="resultCount"></div>
   </div>
 
-  <div id="calendarView">
+  <div id="calendarView" class="cal-container">
     <div class="holiday-legend">
       <div class="legend-item"><span class="holiday-legend-swatch"></span><span>Non-working public holiday</span></div>
       <div class="legend-item"><span class="holiday-legend-swatch cultural"></span><span>Cultural holiday (work day)</span></div>
@@ -352,7 +355,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
   <div id="listView" style="display:none;">
     <div id="listSection"></div>
   </div>
-</div>
+</div><!-- end wrapper -->
 
 <!-- ── DAY NAV ARROWS (outside popup) ── -->
 <button class="day-nav-side day-nav-prev" id="dayNavPrev" onclick="navigateDay(-1)" style="display:none;">←</button>
@@ -772,7 +775,7 @@ function renderCalendar() {
       cell.appendChild(clabel);
     }
 
-    dayEvs.slice(0, 3).forEach(ev => {
+    dayEvs.forEach(ev => {
       const chip = document.createElement('span');
       chip.className = 'cal-event-chip';
       const s = TYPE_STYLE[ev.type] || { color:'#888', bg:'rgba(136,136,136,0.15)' };
@@ -780,13 +783,6 @@ function renderCalendar() {
       chip.textContent = ev.name;
       cell.appendChild(chip);
     });
-
-    if (dayEvs.length > 3) {
-      const more = document.createElement('div');
-      more.className = 'cal-more';
-      more.textContent = `+${dayEvs.length - 3} more`;
-      cell.appendChild(more);
-    }
 
     if (!isOther && dayEvs.length > 0) {
       const hint = document.createElement('div');
@@ -882,14 +878,11 @@ function openDayModal(dateStr) {
       });
 
       const query = `${ev.location}${ev.city ? ', ' + ev.city : ''}, Armenia`;
-      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
-      fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`)
+      fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lang=en`)
         .then(r => r.json())
-        .then(wrapper => {
-          const data = JSON.parse(wrapper.contents);
-          if (!data.length) return;
-          const lat = parseFloat(data[0].lat);
-          const lng = parseFloat(data[0].lon);
+        .then(geo => {
+          if (!geo.features || !geo.features.length) return;
+          const [lng, lat] = geo.features[0].geometry.coordinates;
           bounds.push([lat, lng]);
 
           const marker = L.marker([lat, lng], { icon }).addTo(dayMap);
@@ -971,27 +964,32 @@ function openDetail(ev) {
   const [y,m,d] = ev.date.split('-');
   const displayDate = ev.rawDate || `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
   const mapHTML = ev.location
-    ? `<div class="detail-map"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+    ? `<div class="detail-map-full"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
         src="https://www.google.com/maps?q=${encodeURIComponent(ev.location + (ev.city ? ', ' + ev.city : '') + ', Armenia')}&output=embed"
         allowfullscreen></iframe></div>`
-    : '';
+    : `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.85rem;padding:20px;">No location info</div>`;
+
   document.getElementById('detailBody').innerHTML = `
-    <div class="detail-event-name">${esc(ev.name)}</div>
-    <div class="detail-tags">
-      ${tagHTML(ev.type,  TYPE_STYLE)}
-      ${tagHTML(ev.price, PRICE_STYLE)}
-      ${tagHTML(ev.city,  CITY_STYLE)}
+    <div class="modal-body-left">
+      <div class="detail-event-name">${esc(ev.name)}</div>
+      <div class="detail-tags">
+        ${tagHTML(ev.type,  TYPE_STYLE)}
+        ${tagHTML(ev.price, PRICE_STYLE)}
+        ${tagHTML(ev.city,  CITY_STYLE)}
+      </div>
+      <div class="detail-meta">
+        <div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>
+        ${ev.time     ? `<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>` : ''}
+        ${ev.location ? `<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> ${esc(ev.location)}</div>` : ''}
+      </div>
+      ${ev.description ? `<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : ''}
     </div>
-    <div class="detail-meta">
-      <div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>
-      ${ev.time     ? `<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>` : ''}
-      ${ev.location ? `<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> ${esc(ev.location)}</div>` : ''}
-    </div>
-    ${ev.description ? `<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : ''}
-    ${mapHTML}
-    <div class="detail-actions">
-      <button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>
-      ${ev.link ? `<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>` : ''}
+    <div class="modal-body-right">
+      ${mapHTML}
+      <div class="detail-actions">
+        <button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>
+        ${ev.link ? `<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>` : ''}
+      </div>
     </div>
   `;
   document.getElementById('gcalBtn').addEventListener('click', () => addToGCal(currentEvent));
