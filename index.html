@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="yerevent.png" type="image/png">
 <title> yerevent </title>
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-C998B8RD5Z"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -126,21 +125,21 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-cell.today{border-color:var(--accent);}
 .cal-cell.today .day-num{color:var(--gold);font-weight:700;}
 .day-num{font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;flex-shrink:0;}
-/* chips area: fixed height for exactly 3 chips, never clips the more pill */
 .cal-chips{display:flex;flex-direction:column;gap:2px;flex:1;min-height:0;overflow:hidden;}
 .cal-event-chip{display:block;font-size:0.6rem;font-weight:600;padding:2px 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid transparent;pointer-events:none;flex-shrink:0;line-height:1.4;}
-/* more pill: outside chips, always visible at bottom of cell */
+/* more pill: single compact line, always visible outside chips */
 .cal-more{
   font-size:0.6rem;font-weight:700;color:#fff;
   margin-top:3px;
   background:var(--accent);
   border-radius:4px;
-  padding:2px 4px;
+  padding:2px 0;
   display:block;
   width:100%;
   flex-shrink:0;
-  letter-spacing:0.2px;
   text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
   animation:morePulse 2.5s ease-in-out infinite;
 }
 @keyframes morePulse{
@@ -154,11 +153,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .sync-bar{margin-top:0;margin-bottom:16px;}
 
 /* ── THEMED SCROLLBAR ── */
-* { scrollbar-width: thin; scrollbar-color: rgba(201,82,108,0.4) rgba(31,13,21,0.6); }
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: rgba(31,13,21,0.6); border-radius: 10px; }
-::-webkit-scrollbar-thumb { background: rgba(201,82,108,0.45); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(201,82,108,0.75); }
+*{scrollbar-width:thin;scrollbar-color:rgba(201,82,108,0.4) rgba(31,13,21,0.6);}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:rgba(31,13,21,0.6);border-radius:10px;}
+::-webkit-scrollbar-thumb{background:rgba(201,82,108,0.45);border-radius:10px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(201,82,108,0.75);}
 
 /* ── LIST ── */
 .list-month-group{margin-bottom:32px;}
@@ -183,7 +182,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .state-box h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text-soft);margin-bottom:8px;}
 .state-box p{font-size:0.88rem;}
 
-/* ── MAP (global leaflet styles) ── */
+/* ── MAP (leaflet styles) ── */
 .leaflet-popup-content-wrapper{background:var(--bg);border:1px solid rgba(252,204,132,0.2);border-radius:10px;color:var(--text);box-shadow:0 4px 24px rgba(0,0,0,0.5);}
 .leaflet-popup-tip{background:var(--bg);}
 .leaflet-popup-content{margin:12px 14px;font-family:'Outfit',sans-serif;}
@@ -197,7 +196,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .day-overlay{display:none;position:fixed;inset:0;background:rgba(20,5,15,0.85);backdrop-filter:blur(8px);z-index:190;align-items:center;justify-content:center;padding:20px 80px;}
 .day-overlay.open{display:flex;}
 .day-nav-side{position:fixed;top:50%;transform:translateY(-50%);z-index:195;background:rgba(43,16,26,0.9);border:1px solid rgba(252,204,132,0.2);color:var(--gold);font-size:2rem;cursor:pointer;width:56px;height:100px;display:none;align-items:center;justify-content:center;transition:all 0.2s;border-radius:12px;backdrop-filter:blur(6px);}
-.day-overlay.open ~ .day-nav-side,.day-nav-side{display:none;}
 .day-nav-side:hover{background:rgba(201,82,108,0.35);border-color:var(--accent);color:#fff;transform:translateY(-50%) scale(1.05);}
 .day-nav-prev{left:12px;}
 .day-nav-next{right:12px;}
@@ -267,101 +265,54 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 .footer-tell{display:inline-flex;margin-top:6px;color:#c9526c;font-weight:600;}
 .footer-tell:hover{color:#fccc84;}
 .footer-bottom{border-top:1px solid rgba(252,204,132,0.08);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:0.75rem;color:rgba(252,204,132,0.2);}
-@media(max-width:768px){
-  /* ── Calendar ── */
-  .wrapper{padding:0 8px 80px;}
-  .cal-container{padding:12px 10px;}
-  .cal-grid{grid-auto-rows:105px;gap:3px;}
-  .cal-event-chip{font-size:0.58rem;padding:2px 4px;line-height:1.3;}
-  .cal-cell{padding:5px 4px 4px;border-radius:7px;}
-  .cal-chips{gap:1px;}
-  .day-num{font-size:0.7rem;margin-bottom:2px;}
-  .cal-weekday{font-size:0.55rem;letter-spacing:0.5px;}
 
-  /* ── Filters ── */
+@media(max-width:768px){
+  /* Wider frames — no side padding waste */
+  .wrapper{padding:0 4px 80px;}
+  .cal-container{padding:10px 6px;border-radius:10px;}
+  .filters-section{border-radius:10px;padding:14px 12px;}
+
+  /* Calendar — wider cells, more text fits */
+  .cal-grid{grid-auto-rows:110px;gap:2px;}
+  .cal-weekdays{gap:0;}
+  .cal-weekday{font-size:0.52rem;letter-spacing:0;padding:6px 0;}
+  .cal-event-chip{font-size:0.56rem;padding:2px 3px;line-height:1.3;}
+  .cal-cell{padding:5px 3px 3px;border-radius:6px;}
+  .cal-chips{gap:1px;}
+  .day-num{font-size:0.68rem;margin-bottom:2px;}
+  .cal-more{font-size:0.58rem;padding:2px 0;border-radius:3px;}
+
+  /* Filters */
   .filters-row{flex-direction:column;gap:14px;}
   .event-card{grid-template-columns:auto 1fr;}
   .event-action{display:none;}
 
-  /* ── Day popup ── */
+  /* Day popup */
   .day-overlay{padding:0;}
   .day-nav-side{width:36px;height:60px;font-size:1.2rem;}
   .day-nav-prev{left:4px;}
   .day-nav-next{right:4px;}
-  .day-popup{
-    width:calc(100vw - 88px);
-    height:100vh;
-    max-height:100vh;
-    border-radius:0;
-  }
+  .day-popup{width:calc(100vw - 88px);height:100vh;max-height:100vh;border-radius:0;}
   .day-popup-header{padding:12px 14px 10px;flex-shrink:0;}
   .day-popup-date{font-size:1rem;}
-  /* Stack map on top, list below — list MUST scroll */
-  .day-popup-content{
-    display:flex;
-    flex-direction:column;
-    flex:1;
-    overflow:hidden;
-    min-height:0;
-  }
-  .day-map-col{
-    flex:0 0 180px;
-    border-right:none;
-    border-bottom:1px solid var(--border);
-  }
+  .day-popup-content{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;}
+  .day-map-col{flex:0 0 180px;border-right:none;border-bottom:1px solid var(--border);}
   #dayMap{height:180px;}
-  .day-list-col{
-    flex:1;
-    overflow-y:auto;
-    padding:10px 12px;
-    min-height:0;
-  }
+  .day-list-col{flex:1;overflow-y:auto;padding:10px 12px;min-height:0;}
 
-  /* ── Detail modal — fully scrollable single column ── */
+  /* Detail modal */
   .overlay{padding:0;}
-  .modal{
-    width:100vw;
-    height:100vh;
-    max-height:100vh;
-    border-radius:0;
-    border:none;
-    display:flex;
-    flex-direction:column;
-  }
+  .modal{width:100vw;height:100vh;max-height:100vh;border-radius:0;border:none;display:flex;flex-direction:column;}
   .modal-header{flex-shrink:0;}
-  /* Single scrollable column — content then map then buttons */
-  .modal-body{
-    display:block;
-    overflow-y:auto;
-    flex:1;
-    min-height:0;
-  }
-  .modal-body-left{
-    padding:16px;
-    overflow-y:visible;
-  }
-  .modal-body-right{
-    border-left:none;
-    border-top:1px solid var(--border);
-    display:flex;
-    flex-direction:column;
-  }
-  .detail-map-full{
-    height:220px;
-    flex:none;
-  }
+  .modal-body{display:block;overflow-y:auto;flex:1;min-height:0;}
+  .modal-body-left{padding:16px;overflow-y:visible;}
+  .modal-body-right{border-left:none;border-top:1px solid var(--border);display:flex;flex-direction:column;}
+  .detail-map-full{height:220px;flex:none;}
   .detail-map-full iframe{height:220px;}
-  .detail-actions{
-    padding:12px;
-    flex-shrink:0;
-    position:sticky;
-    bottom:0;
-    background:var(--bg);
-    border-top:1px solid var(--border);
-  }
+  .detail-actions{padding:12px;flex-shrink:0;position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);}
   .detail-event-name{font-size:1.2rem;}
 
-  /* ── Footer ── */
+  /* Footer */
   .footer-top{justify-content:flex-start;}
   .footer-links{flex-direction:column;gap:28px;}
   .footer-bottom{flex-direction:column;gap:4px;}
@@ -411,8 +362,6 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
       </div>
     </div>
     <button class="filter-clear" onclick="clearFilters()">Clear filters</button>
-
-    <!-- Price filter row — inside the same filters card -->
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
       <div class="filter-group-label">Price</div>
       <div class="filter-pills" style="margin-top:8px;">
@@ -423,7 +372,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
         <button class="pill" data-group="price" data-price="over10k" data-value="over10k">10,000+ AMD</button>
       </div>
     </div>
-  </div><!-- end filters-section -->
+  </div>
 
   <div class="sync-bar" id="syncBar">
     <div class="sync-left">
@@ -466,13 +415,11 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
   <div id="listView">
     <div id="listSection"></div>
   </div>
-</div><!-- end wrapper -->
+</div>
 
-<!-- ── DAY NAV ARROWS (outside popup) ── -->
 <button class="day-nav-side day-nav-prev" id="dayNavPrev" onclick="navigateDay(-1)" style="display:none;">←</button>
 <button class="day-nav-side day-nav-next" id="dayNavNext" onclick="navigateDay(1)" style="display:none;">→</button>
 
-<!-- ── DAY POPUP ── -->
 <div class="day-overlay" id="dayOverlay">
   <div class="day-popup">
     <div class="day-popup-header">
@@ -492,7 +439,6 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
   </div>
 </div>
 
-<!-- ── EVENT DETAIL MODAL ── -->
 <div class="overlay" id="detailOverlay">
   <div class="modal">
     <div class="modal-header">
@@ -506,7 +452,6 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
   </div>
 </div>
 
-<!-- ── FOOTER ── -->
 <footer>
   <div class="footer-inner">
     <div class="footer-blurb-section">
@@ -543,701 +488,323 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbxnkiM0ZLk0HtLH-R51fu41YDUnyOeB0mchMPPYFFPUvu4x-_oBSutvZK-uqhSe3_I-aQ/exec';
 const REFRESH_INTERVAL_SECONDS = 60;
+let refreshTimer=null,countdownTimer=null,secondsUntilRefresh=REFRESH_INTERVAL_SECONDS;
+let lastFetchedAt=null,currentEvent=null,lastDayDateStr=null;
+let dayMap=null,dayMapMarkers=[],dayMapMarkerId=0;
+const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_LONG=['January','February','March','April','May','June','July','August','September','October','November','December'];
+let allEvents=[],filteredEvents=[],activeFilters={type:[],city:[],price:[]},calYear,calMonth;
 
-let refreshTimer = null, countdownTimer = null;
-let secondsUntilRefresh = REFRESH_INTERVAL_SECONDS;
-let lastFetchedAt = null;
-let currentEvent = null;
-let lastDayDateStr = null;
-let dayMap = null;
-let dayMapMarkers = [];
-let dayMapMarkerId = 0;
-
-const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const MONTHS_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-let allEvents = [], filteredEvents = [];
-let activeFilters = { type: [], city: [], price: [] };
-let calYear, calMonth;
-
-const TYPE_STYLE = {
-  festival:    { color:'#ff6b6b', bg:'rgba(255,107,107,0.15)' },
-  concert:     { color:'#75FF73', bg:'rgba(117,255,115,0.15)' },
-  nightlife:   { color:'#f472b6', bg:'rgba(244,114,182,0.15)' },
-  social:      { color:'#fb923c', bg:'rgba(251,146,60,0.15)'  },
-  dining:      { color:'#facc15', bg:'rgba(250,204,21,0.15)'  },
-  educational: { color:'#60a5fa', bg:'rgba(96,165,250,0.15)'  },
-  art:         { color:'#a78bfa', bg:'rgba(167,139,250,0.15)' },
-  film:        { color:'#2dd4bf', bg:'rgba(45,212,191,0.15)'  },
-  sports:      { color:'#38bdf8', bg:'rgba(56,189,248,0.15)'  },
-  activities:  { color:'#d9f99d', bg:'rgba(217,249,157,0.15)' },
-  expo:        { color:'#c084fc', bg:'rgba(192,132,252,0.15)' },
-  market:      { color:'#fda4af', bg:'rgba(253,164,175,0.15)' },
+const TYPE_STYLE={
+  festival:{color:'#ff6b6b',bg:'rgba(255,107,107,0.15)'},concert:{color:'#75FF73',bg:'rgba(117,255,115,0.15)'},
+  nightlife:{color:'#f472b6',bg:'rgba(244,114,182,0.15)'},social:{color:'#fb923c',bg:'rgba(251,146,60,0.15)'},
+  dining:{color:'#facc15',bg:'rgba(250,204,21,0.15)'},educational:{color:'#60a5fa',bg:'rgba(96,165,250,0.15)'},
+  art:{color:'#a78bfa',bg:'rgba(167,139,250,0.15)'},film:{color:'#2dd4bf',bg:'rgba(45,212,191,0.15)'},
+  sports:{color:'#38bdf8',bg:'rgba(56,189,248,0.15)'},activities:{color:'#d9f99d',bg:'rgba(217,249,157,0.15)'},
+  expo:{color:'#c084fc',bg:'rgba(192,132,252,0.15)'},market:{color:'#fda4af',bg:'rgba(253,164,175,0.15)'},
 };
-const PRICE_STYLE = { _default: { color:'#ff9966', bg:'rgba(255,153,102,0.15)' } };
-const CITY_STYLE = {
-  'Yerevan':      { color:'#e05c5c', bg:'rgba(224,92,92,0.15)'   },
-  'Gyumri':       { color:'#d97706', bg:'rgba(217,119,6,0.15)'   },
-  'Vanadzor':     { color:'#16a34a', bg:'rgba(22,163,74,0.15)'   },
-  'Meghri':       { color:'#0891b2', bg:'rgba(8,145,178,0.15)'   },
-  'Kapan':        { color:'#7c3aed', bg:'rgba(124,58,237,0.15)'  },
-  'Near Yerevan': { color:'#db2777', bg:'rgba(219,39,119,0.15)'  },
-  'Other':        { color:'#6b7280', bg:'rgba(107,114,128,0.15)' },
+const PRICE_STYLE={_default:{color:'#ff9966',bg:'rgba(255,153,102,0.15)'}};
+const CITY_STYLE={
+  'Yerevan':{color:'#e05c5c',bg:'rgba(224,92,92,0.15)'},'Gyumri':{color:'#d97706',bg:'rgba(217,119,6,0.15)'},
+  'Vanadzor':{color:'#16a34a',bg:'rgba(22,163,74,0.15)'},'Meghri':{color:'#0891b2',bg:'rgba(8,145,178,0.15)'},
+  'Kapan':{color:'#7c3aed',bg:'rgba(124,58,237,0.15)'},'Near Yerevan':{color:'#db2777',bg:'rgba(219,39,119,0.15)'},
+  'Other':{color:'#6b7280',bg:'rgba(107,114,128,0.15)'},
 };
 
-function tagHTML(value, styleMap) {
-  if (!value) return '';
-  const key = String(value).toLowerCase();
-  const s = styleMap[key] || styleMap[value] || styleMap['_default'] || { color:'#6b7280', bg:'rgba(107,114,128,0.15)' };
-  const display = String(value).charAt(0).toUpperCase() + String(value).slice(1);
-  return `<span class="tag" style="color:${s.color};background:${s.bg};">${display}</span>`;
+function tagHTML(value,styleMap){
+  if(!value)return'';
+  const key=String(value).toLowerCase();
+  const s=styleMap[key]||styleMap[value]||styleMap['_default']||{color:'#6b7280',bg:'rgba(107,114,128,0.15)'};
+  const display=String(value).charAt(0).toUpperCase()+String(value).slice(1);
+  return`<span class="tag" style="color:${s.color};background:${s.bg};">${display}</span>`;
 }
-
-function toDateStr(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function toDateStr(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function parseSheetDate(raw){
+  if(!raw)return'';const s=String(raw).trim();if(!s)return'';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){const d=new Date(new Date(s).getTime()+12*60*60*1000);return toDateStr(d);}
+  const dm=s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
+  if(dm){let[_,d,m,y]=dm;if(y.length===2)y='20'+y;return`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;}
+  const sm=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if(sm){let[_,d,m,y]=sm;if(y.length===2)y='20'+y;return`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;}
+  const cleaned=s.replace(/[–—]\d+/,'');const d=new Date(cleaned);if(!isNaN(d))return toDateStr(d);return'';
 }
-
-function parseSheetDate(raw) {
-  if (!raw) return '';
-  const s = String(raw).trim();
-  if (!s) return '';
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
-    const d = new Date(new Date(s).getTime() + 12 * 60 * 60 * 1000);
-    return toDateStr(d);
-  }
-  const dotMatch = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
-  if (dotMatch) {
-    let [_, d, m, y] = dotMatch;
-    if (y.length === 2) y = '20' + y;
-    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-  }
-  const slashMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-  if (slashMatch) {
-    let [_, d, m, y] = slashMatch;
-    if (y.length === 2) y = '20' + y;
-    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-  }
-  const cleaned = s.replace(/[–—]\d+/, '');
-  const d = new Date(cleaned);
-  if (!isNaN(d)) return toDateStr(d);
-  return '';
-}
-
-function parseSheetTime(raw) {
-  if (!raw) return '';
-  const s = String(raw).trim();
-  if (!s) return '';
-  if (s.startsWith('1899-12-30T')) {
-    const d = new Date(s);
-    let h = d.getUTCHours(), m = d.getUTCMinutes();
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    return `${h}:${String(m).padStart(2,'0')} ${ampm}`;
-  }
+function parseSheetTime(raw){
+  if(!raw)return'';const s=String(raw).trim();if(!s)return'';
+  if(s.startsWith('1899-12-30T')){const d=new Date(s);let h=d.getUTCHours(),m=d.getUTCMinutes();const ampm=h>=12?'PM':'AM';h=h%12||12;return`${h}:${String(m).padStart(2,'0')} ${ampm}`;}
   return s;
 }
-
-function normaliseEvent(raw) {
-  const dateStr = parseSheetDate(raw['Date']);
-  const rawDateVal = String(raw['Date'] || '');
-  let rawDate = rawDateVal;
-  if (/^\d{4}-\d{2}-\d{2}T/.test(rawDateVal) && dateStr) {
-    const [y,m,d] = dateStr.split('-');
-    rawDate = `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
-  }
-  return {
-    name:        raw['name']        || '',
-    date:        dateStr,
-    rawDate:     rawDate,
-    time:        parseSheetTime(raw['Time']),
-    city:        raw['City']        || '',
-    location:    raw['Place']       || '',
-    type:        (raw['Type']       || '').toLowerCase(),
-    price:       (raw['Price']      || '').toLowerCase(),
-    link:        raw['Link']        || '',
-    description: raw['Description'] || '',
-  };
+function normaliseEvent(raw){
+  const dateStr=parseSheetDate(raw['Date']);const rawDateVal=String(raw['Date']||'');
+  let rawDate=rawDateVal;
+  if(/^\d{4}-\d{2}-\d{2}T/.test(rawDateVal)&&dateStr){const[y,m,d]=dateStr.split('-');rawDate=`${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;}
+  return{name:raw['name']||'',date:dateStr,rawDate,time:parseSheetTime(raw['Time']),city:raw['City']||'',
+    location:raw['Place']||'',type:(raw['Type']||'').toLowerCase(),price:(raw['Price']||''),
+    link:raw['Link']||'',description:raw['Description']||''};
 }
-
-function expandEvents(events) {
-  const expanded = [];
-  events.forEach(ev => {
-    const extraDates = getMultiDayDates(ev.rawDate, ev.date);
-    if (extraDates.length <= 1) { expanded.push(ev); }
-    else { extraDates.forEach(d => expanded.push({ ...ev, date: d })); }
-  });
+function expandEvents(events){
+  const expanded=[];
+  events.forEach(ev=>{const extra=getMultiDayDates(ev.rawDate,ev.date);
+    if(extra.length<=1)expanded.push(ev);else extra.forEach(d=>expanded.push({...ev,date:d}));});
   return expanded;
 }
-
-function getMultiDayDates(rawDate, firstDateStr) {
-  if (!rawDate || !firstDateStr) return [firstDateStr];
-  const s = String(rawDate).trim();
-  const match = s.match(/([A-Za-z]+)\s+(\d+)[–\-](\d+),?\s*(\d{4})/);
-  if (!match) return [firstDateStr];
-  const month = match[1], startDay = parseInt(match[2]), endDay = parseInt(match[3]), year = parseInt(match[4]);
-  const monthIndex = MONTHS_LONG.indexOf(month.charAt(0).toUpperCase() + month.slice(1).toLowerCase());
-  if (monthIndex === -1) return [firstDateStr];
-  const dates = [];
-  for (let d = startDay; d <= endDay; d++) {
-    dates.push(`${year}-${String(monthIndex+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
-  }
-  return dates.length > 0 ? dates : [firstDateStr];
+function getMultiDayDates(rawDate,firstDateStr){
+  if(!rawDate||!firstDateStr)return[firstDateStr];const s=String(rawDate).trim();
+  const match=s.match(/([A-Za-z]+)\s+(\d+)[–\-](\d+),?\s*(\d{4})/);if(!match)return[firstDateStr];
+  const month=match[1],startDay=parseInt(match[2]),endDay=parseInt(match[3]),year=parseInt(match[4]);
+  const mi=MONTHS_LONG.indexOf(month.charAt(0).toUpperCase()+month.slice(1).toLowerCase());if(mi===-1)return[firstDateStr];
+  const dates=[];for(let d=startDay;d<=endDay;d++)dates.push(`${year}-${String(mi+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+  return dates.length>0?dates:[firstDateStr];
 }
-
-async function fetchEvents(isRefresh = false) {
-  if (!isRefresh) {
-    const now = new Date();
-    calYear = now.getFullYear();
-    calMonth = now.getMonth();
-    showLoading();
-  }
+async function fetchEvents(isRefresh=false){
+  if(!isRefresh){const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();showLoading();}
   setSyncStatus('loading');
-  try {
-    const res = await fetch(API_URL + '?t=' + Date.now());
-    const raw = await res.json();
-    allEvents = expandEvents(raw.map(normaliseEvent).filter(ev => ev.name && ev.date));
-    lastFetchedAt = new Date();
-    setSyncStatus('live');
-  } catch(e) {
-    allEvents = [];
-    setSyncStatus('error');
-  }
-  applyFilters();
-  scheduleNextRefresh();
+  try{
+    const res=await fetch(API_URL+'?t='+Date.now());const raw=await res.json();
+    const today=new Date();today.setHours(0,0,0,0);
+    allEvents=expandEvents(raw.map(normaliseEvent).filter(ev=>{
+      if(!ev.name||!ev.date)return false;
+      return new Date(ev.date)>=today;
+    }));
+    lastFetchedAt=new Date();setSyncStatus('live');
+  }catch(e){allEvents=[];setSyncStatus('error');}
+  applyFilters();scheduleNextRefresh();
+}
+function setSyncStatus(state){
+  const dot=document.getElementById('syncDot'),status=document.getElementById('syncStatus');
+  dot.className='sync-dot';
+  if(state==='live'){dot.classList.add('live');const t=lastFetchedAt?lastFetchedAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';status.textContent=`Live · updated ${t}`;}
+  else if(state==='error'){dot.classList.add('error');status.textContent='Sync error — retrying…';}
+  else status.textContent='Syncing…';
+}
+function scheduleNextRefresh(){
+  clearTimeout(refreshTimer);clearInterval(countdownTimer);
+  secondsUntilRefresh=REFRESH_INTERVAL_SECONDS;updateCountdown();
+  countdownTimer=setInterval(()=>{secondsUntilRefresh--;updateCountdown();},1000);
+  refreshTimer=setTimeout(()=>{clearInterval(countdownTimer);fetchEvents(true);},REFRESH_INTERVAL_SECONDS*1000);
+}
+function updateCountdown(){document.getElementById('syncCountdown').textContent=secondsUntilRefresh>0?`next sync in ${secondsUntilRefresh}s`:'syncing…';}
+function manualRefresh(){
+  const btn=document.getElementById('syncRefreshBtn');btn.disabled=true;
+  clearTimeout(refreshTimer);clearInterval(countdownTimer);
+  document.getElementById('syncCountdown').textContent='syncing…';
+  fetchEvents(true).finally(()=>{btn.disabled=false;});
+}
+function showLoading(){
+  document.getElementById('calGrid').innerHTML=`<div style="grid-column:1/-1"><div class="state-box"><div class="spinner"></div><p>Loading events…</p></div></div>`;
+  document.getElementById('listSection').innerHTML=`<div class="state-box"><div class="spinner"></div><p>Loading events…</p></div>`;
 }
 
-function setSyncStatus(state) {
-  const dot = document.getElementById('syncDot');
-  const status = document.getElementById('syncStatus');
-  dot.className = 'sync-dot';
-  if (state === 'live') {
-    dot.classList.add('live');
-    const timeStr = lastFetchedAt ? lastFetchedAt.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
-    status.textContent = `Live · updated ${timeStr}`;
-  } else if (state === 'error') {
-    dot.classList.add('error');
-    status.textContent = 'Sync error — retrying…';
-  } else {
-    status.textContent = 'Syncing…';
-  }
-}
-
-function scheduleNextRefresh() {
-  clearTimeout(refreshTimer); clearInterval(countdownTimer);
-  secondsUntilRefresh = REFRESH_INTERVAL_SECONDS;
-  updateCountdown();
-  countdownTimer = setInterval(() => { secondsUntilRefresh--; updateCountdown(); }, 1000);
-  refreshTimer = setTimeout(() => { clearInterval(countdownTimer); fetchEvents(true); }, REFRESH_INTERVAL_SECONDS * 1000);
-}
-
-function updateCountdown() {
-  const el = document.getElementById('syncCountdown');
-  el.textContent = secondsUntilRefresh > 0 ? `next sync in ${secondsUntilRefresh}s` : 'syncing…';
-}
-
-function manualRefresh() {
-  const btn = document.getElementById('syncRefreshBtn');
-  btn.disabled = true;
-  clearTimeout(refreshTimer); clearInterval(countdownTimer);
-  document.getElementById('syncCountdown').textContent = 'syncing…';
-  fetchEvents(true).finally(() => { btn.disabled = false; });
-}
-
-function showLoading() {
-  document.getElementById('calGrid').innerHTML =
-    `<div style="grid-column:1/-1"><div class="state-box"><div class="spinner"></div><p>Loading events…</p></div></div>`;
-  document.getElementById('listSection').innerHTML =
-    `<div class="state-box"><div class="spinner"></div><p>Loading events…</p></div>`;
-}
-
-// ── MULTI-SELECT FILTERS ──
-document.querySelectorAll('.pill').forEach(pill => {
-  pill.addEventListener('click', () => {
-    const group = pill.dataset.group;
-    const value = pill.dataset.value;
-
-    if (value === 'all') {
-      activeFilters[group] = [];
-      document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p => p.classList.remove('active'));
+document.querySelectorAll('.pill').forEach(pill=>{
+  pill.addEventListener('click',()=>{
+    const group=pill.dataset.group,value=pill.dataset.value;
+    if(value==='all'){
+      activeFilters[group]=[];
+      document.querySelectorAll(`.pill[data-group="${group}"]`).forEach(p=>p.classList.remove('active'));
       pill.classList.add('active');
-    } else {
+    }else{
       document.querySelector(`.pill.all-pill[data-group="${group}"]`).classList.remove('active');
-      if (activeFilters[group].includes(value)) {
-        activeFilters[group] = activeFilters[group].filter(v => v !== value);
-        pill.classList.remove('active');
-        if (activeFilters[group].length === 0) {
-          document.querySelector(`.pill.all-pill[data-group="${group}"]`).classList.add('active');
-        }
-      } else {
-        activeFilters[group].push(value);
-        pill.classList.add('active');
-      }
+      if(activeFilters[group].includes(value)){
+        activeFilters[group]=activeFilters[group].filter(v=>v!==value);pill.classList.remove('active');
+        if(activeFilters[group].length===0)document.querySelector(`.pill.all-pill[data-group="${group}"]`).classList.add('active');
+      }else{activeFilters[group].push(value);pill.classList.add('active');}
     }
     applyFilters();
   });
 });
-
-function clearFilters() {
-  activeFilters = { type: [], city: [], price: [] };
-  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.pill.all-pill').forEach(p => p.classList.add('active'));
+function clearFilters(){
+  activeFilters={type:[],city:[],price:[]};
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.pill.all-pill').forEach(p=>p.classList.add('active'));
   applyFilters();
 }
-
-// Extract the lowest AMD amount from a price string
-function getPriceBucket(priceStr) {
-  if (!priceStr) return null;
-  const s = String(priceStr).toLowerCase().trim();
-  if (s === 'free' || s === '0' || s === '0 amd') return 'free';
-  const nums = s.match(/\d[\d,]*/g);
-  if (!nums) return null;
-  const val = Math.min(...nums.map(n => parseInt(n.replace(/,/g,''))));
-  if (isNaN(val) || val === 0) return 'free';
-  if (val < 5000)   return 'under5k';
-  if (val <= 10000) return '5to10k';
-  return 'over10k';
+function getPriceBucket(priceStr){
+  if(!priceStr)return null;const s=String(priceStr).toLowerCase().trim();
+  if(s==='free'||s==='0'||s==='0 amd')return'free';
+  const nums=s.match(/\d[\d,]*/g);if(!nums)return null;
+  const val=Math.min(...nums.map(n=>parseInt(n.replace(/,/g,''))));
+  if(isNaN(val)||val===0)return'free';if(val<5000)return'under5k';if(val<=10000)return'5to10k';return'over10k';
 }
-
-function applyFilters() {
-  filteredEvents = allEvents.filter(ev => {
-    const typeOk  = activeFilters.type.length  === 0 || activeFilters.type.includes(ev.type);
-    const cityOk  = activeFilters.city.length  === 0 || activeFilters.city.includes(ev.city);
-    const priceOk = activeFilters.price.length === 0 || activeFilters.price.includes(getPriceBucket(ev.price));
-    return typeOk && cityOk && priceOk;
+function applyFilters(){
+  filteredEvents=allEvents.filter(ev=>{
+    const typeOk=activeFilters.type.length===0||activeFilters.type.includes(ev.type);
+    const cityOk=activeFilters.city.length===0||activeFilters.city.includes(ev.city);
+    const priceOk=activeFilters.price.length===0||activeFilters.price.includes(getPriceBucket(ev.price));
+    return typeOk&&cityOk&&priceOk;
   });
-  const n = filteredEvents.length;
-  document.getElementById('resultCount').textContent = `${n} event${n !== 1 ? 's' : ''} found`;
-  renderCalendar();
-  renderList();
+  const n=filteredEvents.length;
+  document.getElementById('resultCount').textContent=`${n} event${n!==1?'s':''} found`;
+  renderCalendar();renderList();
 }
 
-const AM_PUBLIC_HOLIDAYS = {
-  '01-01':"New Year's Day",'01-02':"New Year's Day",'01-06':"Christmas & Epiphany",
-  '01-27':"Memorial Day",'01-28':"Army Day",'03-08':"International Women's Day",
-  '04-24':"Genocide Remembrance Day",'05-01':"Labour Day",'05-09':"Victory and Peace Day",
-  '05-28':"Republic Day",'07-05':"Constitution Day",'09-21':"Independence Day",'12-31':"New Year's Eve",
-};
-const AM_CULTURAL_HOLIDAYS = {
-  '01-13':"Old New Year",'02-07':"St. Sarkis Day",'02-14':"Valentine's Day",
-  '03-01':"St. Vardanants Day",'04-05':"Easter Sunday",'04-06':"Easter Monday",
-  '04-07':"Motherhood & Beauty Day",'06-01':"Children's Day",'10-31':"Halloween",
-  '11-22':"St. Gregory the Illuminator",'12-25':"Christmas (Western)",'12-26':"Christmas (Western)",
-};
+const AM_PUBLIC_HOLIDAYS={'01-01':"New Year's Day",'01-02':"New Year's Day",'01-06':"Christmas & Epiphany",'01-27':"Memorial Day",'01-28':"Army Day",'03-08':"International Women's Day",'04-24':"Genocide Remembrance Day",'05-01':"Labour Day",'05-09':"Victory and Peace Day",'05-28':"Republic Day",'07-05':"Constitution Day",'09-21':"Independence Day",'12-31':"New Year's Eve"};
+const AM_CULTURAL_HOLIDAYS={'01-13':"Old New Year",'02-07':"St. Sarkis Day",'02-14':"Valentine's Day",'03-01':"St. Vardanants Day",'04-05':"Easter Sunday",'04-06':"Easter Monday",'04-07':"Motherhood & Beauty Day",'06-01':"Children's Day",'10-31':"Halloween",'11-22':"St. Gregory the Illuminator",'12-25':"Christmas (Western)",'12-26':"Christmas (Western)"};
+function getHoliday(dateStr){return AM_PUBLIC_HOLIDAYS[dateStr.slice(5)]||null;}
+function getCulturalHoliday(dateStr){return AM_CULTURAL_HOLIDAYS[dateStr.slice(5)]||null;}
 
-function getHoliday(dateStr) { return AM_PUBLIC_HOLIDAYS[dateStr.slice(5)] || null; }
-function getCulturalHoliday(dateStr) { return AM_CULTURAL_HOLIDAYS[dateStr.slice(5)] || null; }
-
-function renderCalendar() {
-  document.getElementById('calMonthLabel').textContent = `${MONTHS_LONG[calMonth]} ${calYear}`;
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  const prevDays    = new Date(calYear, calMonth, 0).getDate();
-  const today       = new Date();
-  const rawFirstDay = new Date(calYear, calMonth, 1).getDay();
-  const firstDay    = (rawFirstDay + 6) % 7;
-  const totalCells  = Math.ceil((firstDay + daysInMonth) / 7) * 7;
-
-  for (let i = 0; i < totalCells; i++) {
-    let date, isOther = false;
-    if (i < firstDay) {
-      date = new Date(calYear, calMonth - 1, prevDays - firstDay + i + 1); isOther = true;
-    } else if (i >= firstDay + daysInMonth) {
-      date = new Date(calYear, calMonth + 1, i - firstDay - daysInMonth + 1); isOther = true;
-    } else {
-      date = new Date(calYear, calMonth, i - firstDay + 1);
-    }
-    const dateStr   = toDateStr(date);
-    const isToday   = date.toDateString() === today.toDateString();
-    const isWeekend = (i % 7) >= 5;
-    const holiday   = getHoliday(dateStr);
-    const cultural  = !holiday ? getCulturalHoliday(dateStr) : null;
-    const dayEvs    = filteredEvents.filter(e => e.date === dateStr);
-
-    const cell = document.createElement('div');
-    cell.className = 'cal-cell'
-      + (isOther   ? ' other-month'     : '')
-      + (isToday   ? ' today'           : '')
-      + (isWeekend ? ' weekend'         : '')
-      + (holiday   ? ' public-holiday'  : '')
-      + (cultural  ? ' cultural-holiday': '');
-
-    if (!isOther) cell.addEventListener('click', () => openDayModal(dateStr));
-
-    const numEl = document.createElement('span');
-    numEl.className = 'day-num';
-    numEl.textContent = date.getDate();
-    cell.appendChild(numEl);
-
-    if (holiday) {
-      const hlabel = document.createElement('span');
-      hlabel.className = 'holiday-label';
-      hlabel.textContent = holiday;
-      cell.appendChild(hlabel);
-    }
-    if (cultural) {
-      const clabel = document.createElement('span');
-      clabel.className = 'cultural-label';
-      clabel.textContent = cultural;
-      cell.appendChild(clabel);
-    }
-
-    const MAX_CHIPS = 3;
-    const chipsWrap = document.createElement('div');
-    chipsWrap.className = 'cal-chips';
-
-    dayEvs.slice(0, MAX_CHIPS).forEach(ev => {
-      const chip = document.createElement('span');
-      chip.className = 'cal-event-chip';
-      const s = TYPE_STYLE[ev.type] || { color:'#888', bg:'rgba(136,136,136,0.15)' };
-      chip.style.cssText = `color:${s.color};background:${s.bg};border-color:${s.color}33;`;
-      chip.textContent = ev.name;
-      chipsWrap.appendChild(chip);
+function renderCalendar(){
+  document.getElementById('calMonthLabel').textContent=`${MONTHS_LONG[calMonth]} ${calYear}`;
+  const grid=document.getElementById('calGrid');grid.innerHTML='';
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const prevDays=new Date(calYear,calMonth,0).getDate();
+  const today=new Date();
+  const firstDay=((new Date(calYear,calMonth,1).getDay())+6)%7;
+  const totalCells=Math.ceil((firstDay+daysInMonth)/7)*7;
+  for(let i=0;i<totalCells;i++){
+    let date,isOther=false;
+    if(i<firstDay){date=new Date(calYear,calMonth-1,prevDays-firstDay+i+1);isOther=true;}
+    else if(i>=firstDay+daysInMonth){date=new Date(calYear,calMonth+1,i-firstDay-daysInMonth+1);isOther=true;}
+    else{date=new Date(calYear,calMonth,i-firstDay+1);}
+    const dateStr=toDateStr(date),isToday=date.toDateString()===today.toDateString(),isWeekend=(i%7)>=5;
+    const holiday=getHoliday(dateStr),cultural=!holiday?getCulturalHoliday(dateStr):null;
+    const dayEvs=filteredEvents.filter(e=>e.date===dateStr);
+    const cell=document.createElement('div');
+    cell.className='cal-cell'+(isOther?' other-month':'')+(isToday?' today':'')+(isWeekend?' weekend':'')+(holiday?' public-holiday':'')+(cultural?' cultural-holiday':'');
+    if(!isOther)cell.addEventListener('click',()=>openDayModal(dateStr));
+    const numEl=document.createElement('span');numEl.className='day-num';numEl.textContent=date.getDate();cell.appendChild(numEl);
+    if(holiday){const h=document.createElement('span');h.className='holiday-label';h.textContent=holiday;cell.appendChild(h);}
+    if(cultural){const c=document.createElement('span');c.className='cultural-label';c.textContent=cultural;cell.appendChild(c);}
+    const MAX_CHIPS=3,chipsWrap=document.createElement('div');chipsWrap.className='cal-chips';
+    dayEvs.slice(0,MAX_CHIPS).forEach(ev=>{
+      const chip=document.createElement('span');chip.className='cal-event-chip';
+      const s=TYPE_STYLE[ev.type]||{color:'#888',bg:'rgba(136,136,136,0.15)'};
+      chip.style.cssText=`color:${s.color};background:${s.bg};border-color:${s.color}33;`;
+      chip.textContent=ev.name;chipsWrap.appendChild(chip);
     });
-
     cell.appendChild(chipsWrap);
-
-    // More pill goes OUTSIDE chips so it's never clipped
-    if (dayEvs.length > MAX_CHIPS) {
+    if(dayEvs.length>MAX_CHIPS){
       cell.classList.add('has-more');
-      const more = document.createElement('div');
-      more.className = 'cal-more';
-      more.textContent = `+${dayEvs.length - MAX_CHIPS}`;
+      const more=document.createElement('div');more.className='cal-more';
+      more.textContent=`+${dayEvs.length-MAX_CHIPS}`;
       cell.appendChild(more);
     }
-
-    if (!isOther && dayEvs.length > 0) {
-      const hint = document.createElement('div');
-      hint.className = 'cal-tap-hint';
-      hint.textContent = 'tap to view';
-      cell.appendChild(hint);
-    }
-
+    if(!isOther&&dayEvs.length>0){const hint=document.createElement('div');hint.className='cal-tap-hint';hint.textContent='tap to view';cell.appendChild(hint);}
     grid.appendChild(cell);
   }
 }
+function prevMonth(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function nextMonth(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
 
-function prevMonth() { calMonth--; if (calMonth < 0)  { calMonth = 11; calYear--; } renderCalendar(); }
-function nextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0;  calYear++; } renderCalendar(); }
-
-// ── DAY POPUP ──
-function openDayModal(dateStr) {
-  lastDayDateStr = dateStr;
-  const dayEvs = filteredEvents.filter(e => e.date === dateStr);
-  const [y,m,d] = dateStr.split('-');
-  const displayDate = `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
-  const holiday = getHoliday(dateStr);
-  const cultural = !holiday ? getCulturalHoliday(dateStr) : null;
-  const n = dayEvs.length;
-  const holidayName = holiday || cultural || null;
-
-  document.getElementById('dayPopupDate').textContent = displayDate;
-  document.getElementById('dayPopupSub').textContent =
-    holidayName ? `${holidayName}${n ? ' · ' + n + ' event' + (n !== 1 ? 's' : '') : ''}` :
-    n === 0 ? 'No events' : `${n} event${n !== 1 ? 's' : ''}`;
-
-  // Build event list
-  const body = document.getElementById('dayPopupBody');
-  body.innerHTML = '';
-  const rowEls = [];
-
-  if (!n) {
-    body.innerHTML = `<div class="day-empty">No events on this day.</div>`;
-  } else {
-    dayEvs.forEach((ev, idx) => {
-      const row = document.createElement('div');
-      row.className = 'day-event-row';
-      row.dataset.idx = idx;
-      const s = TYPE_STYLE[ev.type] || { color:'#888' };
-      row.innerHTML = `
-        <span class="day-event-dot" style="background:${s.color};box-shadow:0 0 0 3px ${s.color}33;"></span>
-        <div class="day-event-info">
-          <div class="day-event-name">${esc(ev.name)}</div>
-          <div class="day-event-time">${ev.time ? esc(ev.time) : 'Time TBA'}${ev.location ? ' · 📍 ' + esc(ev.location) : ''}</div>
-        </div>
-        <span class="day-event-arrow">→</span>
-      `;
-      row.addEventListener('click', () => {
-        document.getElementById('backBtn').style.display = 'inline-flex';
-        document.getElementById('detailOverlay').classList.add('open');
-        openDetail(ev);
-      });
-      body.appendChild(row);
-      rowEls.push(row);
+function openDayModal(dateStr){
+  lastDayDateStr=dateStr;
+  const dayEvs=filteredEvents.filter(e=>e.date===dateStr);
+  const[y,m,d]=dateStr.split('-');
+  const displayDate=`${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
+  const holiday=getHoliday(dateStr),cultural=!holiday?getCulturalHoliday(dateStr):null;
+  const n=dayEvs.length,holidayName=holiday||cultural||null;
+  document.getElementById('dayPopupDate').textContent=displayDate;
+  document.getElementById('dayPopupSub').textContent=holidayName?`${holidayName}${n?' · '+n+' event'+(n!==1?'s':''):''}`:n===0?'No events':`${n} event${n!==1?'s':''}`;
+  const body=document.getElementById('dayPopupBody');body.innerHTML='';const rowEls=[];
+  if(!n){body.innerHTML=`<div class="day-empty">No events on this day.</div>`;}
+  else{
+    dayEvs.forEach((ev,idx)=>{
+      const row=document.createElement('div');row.className='day-event-row';row.dataset.idx=idx;
+      const s=TYPE_STYLE[ev.type]||{color:'#888'};
+      row.innerHTML=`<span class="day-event-dot" style="background:${s.color};box-shadow:0 0 0 3px ${s.color}33;"></span><div class="day-event-info"><div class="day-event-name">${esc(ev.name)}</div><div class="day-event-time">${ev.time?esc(ev.time):'Time TBA'}${ev.location?' · 📍 '+esc(ev.location):''}</div></div><span class="day-event-arrow">→</span>`;
+      row.addEventListener('click',()=>{document.getElementById('backBtn').style.display='inline-flex';document.getElementById('detailOverlay').classList.add('open');openDetail(ev);});
+      body.appendChild(row);rowEls.push(row);
     });
   }
-
   document.getElementById('dayOverlay').classList.add('open');
-  document.getElementById('dayNavPrev').style.display = 'flex';
-  document.getElementById('dayNavNext').style.display = 'flex';
-
-  // Init or reset day map
-  let sessionId = ++dayMapMarkerId; // unique per openDayModal call
-  setTimeout(() => {
-    if (!dayMap) {
-      dayMap = L.map('dayMap', { center: [40.1872, 44.5136], zoom: 13, zoomControl: true });
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap contributors © CARTO', maxZoom: 19,
-      }).addTo(dayMap);
+  document.getElementById('dayNavPrev').style.display='flex';
+  document.getElementById('dayNavNext').style.display='flex';
+  let sessionId=++dayMapMarkerId;
+  setTimeout(()=>{
+    if(!dayMap){
+      dayMap=L.map('dayMap',{center:[40.1872,44.5136],zoom:13,zoomControl:true});
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19}).addTo(dayMap);
     }
     dayMap.invalidateSize();
-
-    // Clear old markers
-    dayMapMarkers.forEach(m => m.remove());
-    dayMapMarkers = [];
-
-    let hasNoLocation = false;
-    const bounds = [];
-    const currentSession = sessionId;
-
-    dayEvs.forEach((ev, idx) => {
-      if (!ev.location) { hasNoLocation = true; return; }
-      const s = TYPE_STYLE[ev.type] || { color:'#888' };
-      const mid = `${currentSession}-${idx}`;
-
-      const icon = L.divIcon({
-        className: '',
-        html: `<div style="width:13px;height:13px;background:${s.color};border-radius:50%;border:2px solid rgba(255,255,255,0.3);box-shadow:0 0 0 4px ${s.color}44,0 2px 8px rgba(0,0,0,0.6);cursor:pointer;"></div>`,
-        iconSize:[13,13], iconAnchor:[6,6], popupAnchor:[0,-10],
-      });
-
-      const query = `${ev.location}${ev.city ? ', ' + ev.city : ''}, Armenia`;
+    dayMapMarkers.forEach(m=>m.remove());dayMapMarkers=[];
+    let hasNoLocation=false;const bounds=[],currentSession=sessionId;
+    dayEvs.forEach((ev,idx)=>{
+      if(!ev.location){hasNoLocation=true;return;}
+      const s=TYPE_STYLE[ev.type]||{color:'#888'};const mid=`${currentSession}-${idx}`;
+      const icon=L.divIcon({className:'',html:`<div style="width:13px;height:13px;background:${s.color};border-radius:50%;border:2px solid rgba(255,255,255,0.3);box-shadow:0 0 0 4px ${s.color}44,0 2px 8px rgba(0,0,0,0.6);cursor:pointer;"></div>`,iconSize:[13,13],iconAnchor:[6,6],popupAnchor:[0,-10]});
+      const query=`${ev.location}${ev.city?', '+ev.city:''}, Armenia`;
       fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lang=en`)
-        .then(r => r.json())
-        .then(geo => {
-          // Discard if user has navigated to a different day
-          if (sessionId !== currentSession) return;
-          if (!geo.features || !geo.features.length) return;
-          const [lng, lat] = geo.features[0].geometry.coordinates;
-          bounds.push([lat, lng]);
-
-          const marker = L.marker([lat, lng], { icon }).addTo(dayMap);
-          marker.bindPopup(`
-            <div class="map-popup-name">${esc(ev.name)}</div>
-            <div class="map-popup-meta">${ev.time ? '🕐 ' + esc(ev.time) : ''}${ev.location ? ' · 📍 ' + esc(ev.location) : ''}</div>
-            <span class="map-popup-tag" style="color:${s.color};background:${s.color}22;">${ev.type}</span>
-            <button class="map-popup-btn" id="daymapbtn-${mid}">View event →</button>
-          `);
-          marker.on('popupopen', () => {
-            rowEls.forEach(r => r.classList.remove('highlighted'));
-            if (rowEls[idx]) {
-              rowEls[idx].classList.add('highlighted');
-              rowEls[idx].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-            }
-            setTimeout(() => {
-              const btn = document.getElementById(`daymapbtn-${mid}`);
-              if (btn) btn.onclick = () => {
-                document.getElementById('backBtn').style.display = 'inline-flex';
-                document.getElementById('detailOverlay').classList.add('open');
-                openDetail(ev);
-              };
-            }, 50);
+        .then(r=>r.json()).then(geo=>{
+          if(sessionId!==currentSession)return;
+          if(!geo.features||!geo.features.length)return;
+          const[lng,lat]=geo.features[0].geometry.coordinates;bounds.push([lat,lng]);
+          const marker=L.marker([lat,lng],{icon}).addTo(dayMap);
+          marker.bindPopup(`<div class="map-popup-name">${esc(ev.name)}</div><div class="map-popup-meta">${ev.time?'🕐 '+esc(ev.time):''}${ev.location?' · 📍 '+esc(ev.location):''}</div><span class="map-popup-tag" style="color:${s.color};background:${s.color}22;">${ev.type}</span><button class="map-popup-btn" id="daymapbtn-${mid}">View event →</button>`);
+          marker.on('popupopen',()=>{
+            rowEls.forEach(r=>r.classList.remove('highlighted'));
+            if(rowEls[idx]){rowEls[idx].classList.add('highlighted');rowEls[idx].scrollIntoView({block:'nearest',behavior:'smooth'});}
+            setTimeout(()=>{const btn=document.getElementById(`daymapbtn-${mid}`);if(btn)btn.onclick=()=>{document.getElementById('backBtn').style.display='inline-flex';document.getElementById('detailOverlay').classList.add('open');openDetail(ev);};},50);
           });
-          marker.on('popupclose', () => {
-            if (rowEls[idx]) rowEls[idx].classList.remove('highlighted');
-          });
-
-          // Clicking the list row flies to marker and opens popup (works on mobile too)
-          if (rowEls[idx]) {
-            rowEls[idx].addEventListener('click', (e) => {
-              // Don't interfere with the detail open click — handled separately below
-              dayMap.panTo([lat, lng], { animate: true, duration: 0.4 });
-              marker.openPopup();
-            }, { capture: true });
-          }
-
+          marker.on('popupclose',()=>{if(rowEls[idx])rowEls[idx].classList.remove('highlighted');});
+          if(rowEls[idx]){rowEls[idx].addEventListener('click',(e)=>{dayMap.panTo([lat,lng],{animate:true,duration:0.4});marker.openPopup();},{capture:true});}
           dayMapMarkers.push(marker);
-
-          if (bounds.length === 1) {
-            dayMap.setView([lat, lng], 15);
-          } else {
-            dayMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 16 });
-          }
-        })
-        .catch(() => {});
+          if(bounds.length===1)dayMap.setView([lat,lng],15);else dayMap.fitBounds(bounds,{padding:[30,30],maxZoom:16});
+        }).catch(()=>{});
     });
-
-    document.getElementById('dayMapHint').style.display = hasNoLocation ? 'block' : 'none';
-  }, 100);
+    document.getElementById('dayMapHint').style.display=hasNoLocation?'block':'none';
+  },100);
 }
-
-function closeDayModal() {
+function closeDayModal(){
   document.getElementById('dayOverlay').classList.remove('open');
-  document.getElementById('dayNavPrev').style.display = 'none';
-  document.getElementById('dayNavNext').style.display = 'none';
+  document.getElementById('dayNavPrev').style.display='none';
+  document.getElementById('dayNavNext').style.display='none';
 }
-
-function navigateDay(direction) {
-  if (!lastDayDateStr) return;
-  const d = new Date(lastDayDateStr);
-  d.setDate(d.getDate() + direction);
-  const newStr = toDateStr(d);
-  // If navigating to a different month, update the calendar
-  if (d.getMonth() !== calMonth || d.getFullYear() !== calYear) {
-    calMonth = d.getMonth();
-    calYear = d.getFullYear();
-    renderCalendar();
-  }
+function navigateDay(direction){
+  if(!lastDayDateStr)return;const d=new Date(lastDayDateStr);d.setDate(d.getDate()+direction);
+  const newStr=toDateStr(d);
+  if(d.getMonth()!==calMonth||d.getFullYear()!==calYear){calMonth=d.getMonth();calYear=d.getFullYear();renderCalendar();}
   openDayModal(newStr);
 }
+function backToDayModal(){closeDetail();if(lastDayDateStr)openDayModal(lastDayDateStr);}
 
-function backToDayModal() {
-  closeDetail();
-  if (lastDayDateStr) openDayModal(lastDayDateStr);
+function openDetail(ev){
+  currentEvent=ev;const[y,m,d]=ev.date.split('-');
+  const displayDate=ev.rawDate||`${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
+  const mapHTML=ev.location?`<div class="detail-map-full"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(ev.location+(ev.city?', '+ev.city:'')+', Armenia')}&output=embed" allowfullscreen></iframe></div>`:`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.85rem;padding:20px;">No location info</div>`;
+  document.getElementById('detailBody').innerHTML=`<div class="modal-body-left"><div class="detail-event-name">${esc(ev.name)}</div><div class="detail-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div><div class="detail-meta"><div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>${ev.time?`<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>`:''}${ev.location?`<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> ${esc(ev.location)}</div>`:''}</div>${ev.description?`<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>`:''}</div><div class="modal-body-right">${mapHTML}<div class="detail-actions"><button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>${ev.link?`<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>`:''}</div></div>`;
+  document.getElementById('gcalBtn').addEventListener('click',()=>addToGCal(currentEvent));
 }
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');document.getElementById('backBtn').style.display='none';currentEvent=null;}
 
-// ── DETAIL ──
-function openDetail(ev) {
-  currentEvent = ev;
-  const [y,m,d] = ev.date.split('-');
-  const displayDate = ev.rawDate || `${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
-  const mapHTML = ev.location
-    ? `<div class="detail-map-full"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-        src="https://www.google.com/maps?q=${encodeURIComponent(ev.location + (ev.city ? ', ' + ev.city : '') + ', Armenia')}&output=embed"
-        allowfullscreen></iframe></div>`
-    : `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.85rem;padding:20px;">No location info</div>`;
-
-  document.getElementById('detailBody').innerHTML = `
-    <div class="modal-body-left">
-      <div class="detail-event-name">${esc(ev.name)}</div>
-      <div class="detail-tags">
-        ${tagHTML(ev.type,  TYPE_STYLE)}
-        ${tagHTML(ev.price, PRICE_STYLE)}
-        ${tagHTML(ev.city,  CITY_STYLE)}
-      </div>
-      <div class="detail-meta">
-        <div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>
-        ${ev.time     ? `<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>` : ''}
-        ${ev.location ? `<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> ${esc(ev.location)}</div>` : ''}
-      </div>
-      ${ev.description ? `<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : ''}
-    </div>
-    <div class="modal-body-right">
-      ${mapHTML}
-      <div class="detail-actions">
-        <button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>
-        ${ev.link ? `<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>` : ''}
-      </div>
-    </div>
-  `;
-  document.getElementById('gcalBtn').addEventListener('click', () => addToGCal(currentEvent));
-}
-
-function closeDetail() {
-  document.getElementById('detailOverlay').classList.remove('open');
-  document.getElementById('backBtn').style.display = 'none';
-  currentEvent = null;
-}
-
-// ── LIST ──
-function renderList() {
-  const section = document.getElementById('listSection');
-  if (!filteredEvents.length) {
-    section.innerHTML = `<div class="state-box"><span class="icon">🔍</span><h3>No events found</h3><p>Try adjusting your filters.</p></div>`;
-    return;
-  }
-  const sorted = [...filteredEvents].sort((a,b) => a.date.localeCompare(b.date));
-  const byMonth = {};
-  sorted.forEach(ev => {
-    const [y,m] = ev.date.split('-');
-    const key = `${y}-${m}`;
-    if (!byMonth[key]) byMonth[key] = [];
-    byMonth[key].push(ev);
-  });
-  section.innerHTML = '';
-  Object.entries(byMonth).forEach(([key, evs]) => {
-    const [y,m] = key.split('-');
-    const group = document.createElement('div');
-    group.className = 'list-month-group';
-    group.innerHTML = `<div class="list-month-heading">${MONTHS_LONG[parseInt(m)-1]} ${y}</div>`;
-    evs.forEach((ev, idx) => {
-      const d = parseInt(ev.date.split('-')[2]);
-      const card = document.createElement('div');
-      card.className = 'event-card';
-      card.style.animationDelay = `${idx * 40}ms`;
-      card.innerHTML = `
-        <div class="event-date-block">
-          <div class="event-date-day">${d}</div>
-          <div class="event-date-month">${MONTHS_SHORT[parseInt(m)-1]}</div>
-        </div>
-        <div class="event-info">
-          <div class="event-name">${esc(ev.name)}</div>
-          <div class="event-meta">
-            ${ev.time ? `<span>🕐 ${esc(ev.time)}</span>` : ''}
-            ${ev.location ? `<span>📍 ${esc(ev.location)}</span>` : ''}
-          </div>
-          <div class="event-tags">
-            ${tagHTML(ev.type,  TYPE_STYLE)}
-            ${tagHTML(ev.price, PRICE_STYLE)}
-            ${tagHTML(ev.city,  CITY_STYLE)}
-          </div>
-        </div>
-        <div class="event-action">
-          <button class="gcal-btn">+ GCal</button>
-        </div>
-      `;
-      card.querySelector('.gcal-btn').addEventListener('click', e => { e.stopPropagation(); addToGCal(ev); });
-      card.addEventListener('click', () => {
-        document.getElementById('backBtn').style.display = 'none';
-        document.getElementById('detailOverlay').classList.add('open');
-        openDetail(ev);
-      });
+function renderList(){
+  const section=document.getElementById('listSection');
+  if(!filteredEvents.length){section.innerHTML=`<div class="state-box"><span class="icon">🔍</span><h3>No events found</h3><p>Try adjusting your filters.</p></div>`;return;}
+  const sorted=[...filteredEvents].sort((a,b)=>a.date.localeCompare(b.date));
+  const byMonth={};sorted.forEach(ev=>{const[y,m]=ev.date.split('-');const key=`${y}-${m}`;if(!byMonth[key])byMonth[key]=[];byMonth[key].push(ev);});
+  section.innerHTML='';
+  Object.entries(byMonth).forEach(([key,evs])=>{
+    const[y,m]=key.split('-');const group=document.createElement('div');group.className='list-month-group';
+    group.innerHTML=`<div class="list-month-heading">${MONTHS_LONG[parseInt(m)-1]} ${y}</div>`;
+    evs.forEach((ev,idx)=>{
+      const d=parseInt(ev.date.split('-')[2]);const card=document.createElement('div');card.className='event-card';card.style.animationDelay=`${idx*40}ms`;
+      card.innerHTML=`<div class="event-date-block"><div class="event-date-day">${d}</div><div class="event-date-month">${MONTHS_SHORT[parseInt(m)-1]}</div></div><div class="event-info"><div class="event-name">${esc(ev.name)}</div><div class="event-meta">${ev.time?`<span>🕐 ${esc(ev.time)}</span>`:''} ${ev.location?`<span>📍 ${esc(ev.location)}</span>`:''}</div><div class="event-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div></div><div class="event-action"><button class="gcal-btn">+ GCal</button></div>`;
+      card.querySelector('.gcal-btn').addEventListener('click',e=>{e.stopPropagation();addToGCal(ev);});
+      card.addEventListener('click',()=>{document.getElementById('backBtn').style.display='none';document.getElementById('detailOverlay').classList.add('open');openDetail(ev);});
       group.appendChild(card);
     });
     section.appendChild(group);
   });
 }
 
-// ── SWITCH VIEW ──
-function switchView(v) {
-  const cal = document.getElementById('calendarView');
-  const list = document.getElementById('listView');
-  if (v === 'calendar') {
-    cal.style.display = 'block';
-    list.style.display = 'none';
-  } else {
-    cal.style.display = 'none';
-    list.style.display = 'block';
-  }
-  document.getElementById('tabCalendar').classList.toggle('active', v === 'calendar');
-  document.getElementById('tabList').classList.toggle('active', v === 'list');
+function switchView(v){
+  document.getElementById('calendarView').style.display=v==='calendar'?'block':'none';
+  document.getElementById('listView').style.display=v==='list'?'block':'none';
+  document.getElementById('tabCalendar').classList.toggle('active',v==='calendar');
+  document.getElementById('tabList').classList.toggle('active',v==='list');
 }
 
-function addToGCal(ev) {
-  if (!ev) return;
-  const dateCompact = ev.date.replace(/-/g, '');
-  let dates = `${dateCompact}/${dateCompact}`;
-  if (ev.time) {
-    const parts = ev.time.split(/[–—]/).map(s => s.trim());
-    const toISO = (dateStr, timeStr) => {
-      const d = new Date(`${dateStr} ${timeStr}`);
-      if (isNaN(d)) return null;
-      return d.toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
-    };
-    const start = toISO(ev.date, parts[0]);
-    const end   = parts[1] ? toISO(ev.date, parts[1]) : start;
-    if (start) dates = `${start}/${end || start}`;
-  }
-  const details = [
-    ev.time ? `🕐 ${ev.time}` : '',
-    ev.description ? ev.description : '',
-    ev.link ? `🔗 More info: ${ev.link}` : '',
-  ].filter(Boolean).join('\n\n');
-  const params = new URLSearchParams({
-    action:'TEMPLATE', text:ev.name, dates, details,
-    location: ev.location ? `${ev.location}${ev.city ? ', '+ev.city : ''}, Armenia` : '',
-  });
-  window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank');
+function addToGCal(ev){
+  if(!ev)return;const dateCompact=ev.date.replace(/-/g,'');let dates=`${dateCompact}/${dateCompact}`;
+  if(ev.time){const parts=ev.time.split(/[–—]/).map(s=>s.trim());const toISO=(dateStr,timeStr)=>{const d=new Date(`${dateStr} ${timeStr}`);if(isNaN(d))return null;return d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';};const start=toISO(ev.date,parts[0]);const end=parts[1]?toISO(ev.date,parts[1]):start;if(start)dates=`${start}/${end||start}`;}
+  const details=[ev.time?`🕐 ${ev.time}`:'',ev.description?ev.description:'',ev.link?`🔗 More info: ${ev.link}`:''].filter(Boolean).join('\n\n');
+  const params=new URLSearchParams({action:'TEMPLATE',text:ev.name,dates,details,location:ev.location?`${ev.location}${ev.city?', '+ev.city:''}, Armenia`:''});
+  window.open(`https://calendar.google.com/calendar/render?${params}`,'_blank');
 }
 
-function esc(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-document.getElementById('detailOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDetail(); });
-document.getElementById('dayOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDayModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDetail(); closeDayModal(); } });
+document.getElementById('detailOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDetail();});
+document.getElementById('dayOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDayModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDetail();closeDayModal();}});
 
 fetchEvents();
 </script>
