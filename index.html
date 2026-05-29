@@ -98,6 +98,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 
 /* ── CALENDAR ── */
 .cal-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:24px;}
+#calendarView{display:block;}
+#calendarView.hidden{display:none!important;}
+#listView{display:none;}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .cal-nav-btn{background:var(--bg);border:1px solid var(--border);color:var(--text-soft);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
 .cal-nav-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -438,7 +441,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
     <div class="cal-grid" id="calGrid"></div>
   </div>
 
-  <div id="listView" style="display:none;">
+  <div id="listView">
     <div id="listSection"></div>
   </div>
 </div><!-- end wrapper -->
@@ -1162,8 +1165,15 @@ function renderList() {
 
 // ── SWITCH VIEW ──
 function switchView(v) {
-  document.getElementById('calendarView').style.display = v === 'calendar' ? 'block' : 'none';
-  document.getElementById('listView').style.display     = v === 'list'     ? 'block' : 'none';
+  const cal = document.getElementById('calendarView');
+  const list = document.getElementById('listView');
+  if (v === 'calendar') {
+    cal.style.display = 'block';
+    list.style.display = 'none';
+  } else {
+    cal.style.display = 'none';
+    list.style.display = 'block';
+  }
   document.getElementById('tabCalendar').classList.toggle('active', v === 'calendar');
   document.getElementById('tabList').classList.toggle('active', v === 'list');
 }
