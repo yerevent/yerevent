@@ -561,11 +561,7 @@ async function fetchEvents(isRefresh=false){
   setSyncStatus('loading');
   try{
     const res=await fetch(API_URL+'?t='+Date.now());const raw=await res.json();
-    const today=new Date();today.setHours(0,0,0,0);
-    allEvents=expandEvents(raw.map(normaliseEvent).filter(ev=>{
-      if(!ev.name||!ev.date)return false;
-      return new Date(ev.date)>=today;
-    }));
+    allEvents=expandEvents(raw.map(normaliseEvent).filter(ev=>ev.name&&ev.date));
     lastFetchedAt=new Date();setSyncStatus('live');
   }catch(e){allEvents=[];setSyncStatus('error');}
   applyFilters();scheduleNextRefresh();
