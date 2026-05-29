@@ -13,7 +13,7 @@
   gtag('js', new Date());
   gtag('config', 'G-C998B8RD5Z');
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -544,8 +544,7 @@ let secondsUntilRefresh = REFRESH_INTERVAL_SECONDS;
 let lastFetchedAt = null;
 let currentEvent = null;
 let lastDayDateStr = null;
-let leafletMap = null;      // global map (unused now)
-let dayMap = null;          // day popup map
+let dayMap = null;
 let dayMapMarkers = [];
 let dayMapMarkerId = 0;
 
@@ -649,7 +648,7 @@ function normaliseEvent(raw) {
     city:        raw['City']        || '',
     location:    raw['Place']       || '',
     type:        (raw['Type']       || '').toLowerCase(),
-    price:       (raw['Price']      || '').toLowerCase(),
+    price:       (raw['Price']      || ''),
     link:        raw['Link']        || '',
     description: raw['Description'] || '',
   };
@@ -691,7 +690,13 @@ async function fetchEvents(isRefresh = false) {
   try {
     const res = await fetch(API_URL + '?t=' + Date.now());
     const raw = await res.json();
-    allEvents = expandEvents(raw.map(normaliseEvent).filter(ev => ev.name && ev.date));
+    allEvents = expandEvents(raw.map(normaliseEvent).filter(ev => {
+      if (!ev.name || !ev.date) return false;
+      // Filter out events more than 1 day in the past
+      const today = new Date(); today.setHours(0,0,0,0);
+      const evDate = new Date(ev.date);
+      return evDate >= today;
+    }));
     lastFetchedAt = new Date();
     setSyncStatus('live');
   } catch(e) {
@@ -785,14 +790,11 @@ function getPriceBucket(priceStr) {
   if (!priceStr) return null;
   const s = String(priceStr).toLowerCase().trim();
   if (s === 'free' || s === '0' || s === '0 amd') return 'free';
-  // Extract all numbers from the string
   const nums = s.match(/\d[\d,]*/g);
   if (!nums) return null;
-  // Use the lowest number (handles ranges like "5000-8000 AMD")
   const val = Math.min(...nums.map(n => parseInt(n.replace(/,/g,''))));
-  if (isNaN(val)) return null;
-  if (val === 0) return 'free';
-  if (val < 5000)  return 'under5k';
+  if (isNaN(val) || val === 0) return 'free';
+  if (val < 5000)   return 'under5k';
   if (val <= 10000) return '5to10k';
   return 'over10k';
 }
@@ -971,6 +973,7 @@ function openDayModal(dateStr) {
   document.getElementById('dayNavNext').style.display = 'flex';
 
   // Init or reset day map
+  let sessionId = ++dayMapMarkerId; // unique per openDayModal call
   setTimeout(() => {
     if (!dayMap) {
       dayMap = L.map('dayMap', { center: [40.1872, 44.5136], zoom: 13, zoomControl: true });
@@ -986,11 +989,12 @@ function openDayModal(dateStr) {
 
     let hasNoLocation = false;
     const bounds = [];
+    const currentSession = sessionId;
 
     dayEvs.forEach((ev, idx) => {
       if (!ev.location) { hasNoLocation = true; return; }
       const s = TYPE_STYLE[ev.type] || { color:'#888' };
-      const mid = ++dayMapMarkerId;
+      const mid = `${currentSession}-${idx}`;
 
       const icon = L.divIcon({
         className: '',
@@ -1002,6 +1006,8 @@ function openDayModal(dateStr) {
       fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lang=en`)
         .then(r => r.json())
         .then(geo => {
+          // Discard if user has navigated to a different day
+          if (sessionId !== currentSession) return;
           if (!geo.features || !geo.features.length) return;
           const [lng, lat] = geo.features[0].geometry.coordinates;
           bounds.push([lat, lng]);
@@ -1014,9 +1020,11 @@ function openDayModal(dateStr) {
             <button class="map-popup-btn" id="daymapbtn-${mid}">View event →</button>
           `);
           marker.on('popupopen', () => {
-            // Highlight corresponding list row
             rowEls.forEach(r => r.classList.remove('highlighted'));
-            if (rowEls[idx]) rowEls[idx].classList.add('highlighted');
+            if (rowEls[idx]) {
+              rowEls[idx].classList.add('highlighted');
+              rowEls[idx].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
             setTimeout(() => {
               const btn = document.getElementById(`daymapbtn-${mid}`);
               if (btn) btn.onclick = () => {
@@ -1030,17 +1038,17 @@ function openDayModal(dateStr) {
             if (rowEls[idx]) rowEls[idx].classList.remove('highlighted');
           });
 
-          // Clicking the list row flies to marker
+          // Clicking the list row flies to marker and opens popup (works on mobile too)
           if (rowEls[idx]) {
-            rowEls[idx].addEventListener('mouseenter', () => {
-              marker.openPopup();
+            rowEls[idx].addEventListener('click', (e) => {
+              // Don't interfere with the detail open click — handled separately below
               dayMap.panTo([lat, lng], { animate: true, duration: 0.4 });
-            });
+              marker.openPopup();
+            }, { capture: true });
           }
 
           dayMapMarkers.push(marker);
 
-          // Fit map to all markers
           if (bounds.length === 1) {
             dayMap.setView([lat, lng], 15);
           } else {
