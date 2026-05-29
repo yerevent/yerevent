@@ -241,8 +241,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .detail-meta-row{display:flex;align-items:flex-start;gap:9px;font-size:0.87rem;color:var(--text-soft);}
 .detail-meta-icon{font-size:0.95rem;flex-shrink:0;margin-top:1px;}
 .detail-desc{background:var(--surface);border-radius:10px;padding:12px 14px;font-size:0.87rem;color:var(--text-soft);line-height:1.65;margin-bottom:18px;}
-.detail-map-full{flex:1;overflow:hidden;}
-.detail-map-full iframe{width:100%;height:100%;border:none;display:block;}
+.detail-map-full{flex:1;overflow:hidden;position:relative;}
+.detail-map-full .leaflet-container{cursor:pointer!important;}
+.detail-map-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(20,5,15,0.85));color:var(--gold);font-size:0.75rem;font-weight:600;text-align:center;padding:20px 0 10px;z-index:500;pointer-events:none;letter-spacing:0.3px;}
 .detail-actions{display:flex;gap:8px;padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
 .btn-gcal-big{flex:1;background:var(--accent);color:#fff;font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:600;padding:10px 14px;border-radius:100px;border:none;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;white-space:nowrap;}
 .btn-gcal-big:hover{background:#a33d56;transform:translateY(-1px);}
@@ -308,7 +309,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
   .modal-body-left{padding:16px;overflow-y:visible;}
   .modal-body-right{border-left:none;border-top:1px solid var(--border);display:flex;flex-direction:column;}
   .detail-map-full{height:220px;flex:none;}
-  .detail-map-full iframe{height:220px;}
+  .detail-map-full #detailMapEl{height:220px;}
   .detail-actions{padding:12px;flex-shrink:0;position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);}
   .detail-event-name{font-size:1.2rem;}
 
@@ -491,6 +492,7 @@ const REFRESH_INTERVAL_SECONDS = 60;
 let refreshTimer=null,countdownTimer=null,secondsUntilRefresh=REFRESH_INTERVAL_SECONDS;
 let lastFetchedAt=null,currentEvent=null,lastDayDateStr=null;
 let dayMap=null,dayMapMarkers=[],dayMapMarkerId=0;
+let detailMap=null,detailMapMarker=null;
 const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS_LONG=['January','February','March','April','May','June','July','August','September','October','November','December'];
 let allEvents=[],filteredEvents=[],activeFilters={type:[],city:[],price:[]},calYear,calMonth;
@@ -755,11 +757,50 @@ function backToDayModal(){closeDetail();if(lastDayDateStr)openDayModal(lastDayDa
 function openDetail(ev){
   currentEvent=ev;const[y,m,d]=ev.date.split('-');
   const displayDate=ev.rawDate||`${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
-  const mapHTML=ev.location?`<div class="detail-map-full"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(ev.location+(ev.city?', '+ev.city:'')+', Armenia')}&output=embed" allowfullscreen></iframe></div>`:`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.85rem;padding:20px;">No location info</div>`;
+  const gmapsUrl=ev.location?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.location+(ev.city?', '+ev.city:'')+', Armenia')}`:'';
+  const mapHTML=ev.location
+    ?`<div class="detail-map-full" id="detailMapWrap" style="cursor:pointer;" title="Open in Google Maps">
+        <div id="detailMapEl" style="width:100%;height:100%;"></div>
+        <div class="detail-map-overlay">📍 Open in Google Maps</div>
+      </div>`
+    :`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.85rem;padding:20px;">No location info</div>`;
+
   document.getElementById('detailBody').innerHTML=`<div class="modal-body-left"><div class="detail-event-name">${esc(ev.name)}</div><div class="detail-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div><div class="detail-meta"><div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>${ev.time?`<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>`:''}${ev.location?`<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> ${esc(ev.location)}</div>`:''}</div>${ev.description?`<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>`:''}</div><div class="modal-body-right">${mapHTML}<div class="detail-actions"><button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>${ev.link?`<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>`:''}</div></div>`;
   document.getElementById('gcalBtn').addEventListener('click',()=>addToGCal(currentEvent));
+
+  if(ev.location&&gmapsUrl){
+    // Click anywhere on map → Google Maps
+    document.getElementById('detailMapWrap').addEventListener('click',()=>window.open(gmapsUrl,'_blank'));
+
+    setTimeout(()=>{
+      const el=document.getElementById('detailMapEl');if(!el)return;
+      // Destroy old map instance
+      if(detailMap){detailMap.remove();detailMap=null;detailMapMarker=null;}
+      detailMap=L.map('detailMapEl',{center:[40.1872,44.5136],zoom:15,zoomControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false});
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19}).addTo(detailMap);
+      detailMap.invalidateSize();
+
+      const s=TYPE_STYLE[ev.type]||{color:'#c9526c'};
+      const icon=L.divIcon({className:'',html:`<div style="width:14px;height:14px;background:${s.color};border-radius:50%;border:2px solid rgba(255,255,255,0.4);box-shadow:0 0 0 5px ${s.color}44,0 2px 10px rgba(0,0,0,0.7);"></div>`,iconSize:[14,14],iconAnchor:[7,7]});
+
+      const query=`${ev.location}${ev.city?', '+ev.city:''}, Armenia`;
+      fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lang=en`)
+        .then(r=>r.json()).then(geo=>{
+          if(!geo.features||!geo.features.length)return;
+          const[lng,lat]=geo.features[0].geometry.coordinates;
+          detailMap.setView([lat,lng],15);
+          detailMapMarker=L.marker([lat,lng],{icon}).addTo(detailMap);
+        }).catch(()=>{});
+    },120);
+  }
 }
-function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');document.getElementById('backBtn').style.display='none';currentEvent=null;}
+function closeDetail(){
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.getElementById('backBtn').style.display='none';
+  currentEvent=null;
+  // Clean up detail map
+  if(detailMap){detailMap.remove();detailMap=null;detailMapMarker=null;}
+}
 
 function renderList(){
   const section=document.getElementById('listSection');
