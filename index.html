@@ -495,7 +495,9 @@ let dayMap=null,dayMapMarkers=[],dayMapMarkerId=0;
 let detailMap=null,detailMapMarker=null;
 const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS_LONG=['January','February','March','April','May','June','July','August','September','October','November','December'];
-let allEvents=[],filteredEvents=[],activeFilters={type:[],city:[],price:[]},calYear,calMonth;
+let allEvents=[],filteredEvents=[],activeFilters={type:[],city:[],price:[]};
+const now=new Date();
+let calYear=now.getFullYear(),calMonth=now.getMonth();
 
 const TYPE_STYLE={
   festival:{color:'#ff6b6b',bg:'rgba(255,107,107,0.15)'},concert:{color:'#75FF73',bg:'rgba(117,255,115,0.15)'},
