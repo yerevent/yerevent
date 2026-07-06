@@ -488,6 +488,8 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
+const EVENTS_JSON_URL = 'events.json'; // snapshot updated every 15 min by the sync robot (GitHub Action)
+const LAST_GOOD_KEY = 'yerevent_last_good_events';
 const REFRESH_INTERVAL_SECONDS = 60;
 let refreshTimer=null,countdownTimer=null,secondsUntilRefresh=REFRESH_INTERVAL_SECONDS;
 let lastFetchedAt=null,currentEvent=null,lastDayDateStr=null;
@@ -564,16 +566,33 @@ async function fetchEvents(isRefresh=false){
   if(!isRefresh){const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();showLoading();}
   setSyncStatus('loading');
   try{
-    const res=await fetch(API_URL+'?t='+Date.now());const raw=await res.json();
+    let raw=null;
+    try{
+      const res=await fetch(EVENTS_JSON_URL+'?t='+Date.now());
+      if(!res.ok)throw new Error('snapshot unavailable');
+      raw=await res.json();
+    }catch(snapErr){
+      const res=await fetch(API_URL+'?t='+Date.now());raw=await res.json();
+    }
+    if(!Array.isArray(raw))throw new Error('bad data');
+    try{localStorage.setItem(LAST_GOOD_KEY,JSON.stringify(raw));}catch(_){/* private mode etc. */}
     allEvents=expandEvents(raw.map(normaliseEvent).filter(ev=>ev.name&&ev.date));
     lastFetchedAt=new Date();setSyncStatus('live');
-  }catch(e){allEvents=[];setSyncStatus('error');}
+  }catch(e){
+    let cached=null;
+    try{cached=JSON.parse(localStorage.getItem(LAST_GOOD_KEY));}catch(_){}
+    if(Array.isArray(cached)&&cached.length){
+      allEvents=expandEvents(cached.map(normaliseEvent).filter(ev=>ev.name&&ev.date));
+      setSyncStatus('cached');
+    }else{allEvents=[];setSyncStatus('error');}
+  }
   applyFilters();scheduleNextRefresh();
 }
 function setSyncStatus(state){
   const dot=document.getElementById('syncDot'),status=document.getElementById('syncStatus');
   dot.className='sync-dot';
   if(state==='live'){dot.classList.add('live');const t=lastFetchedAt?lastFetchedAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';status.textContent=`Live · updated ${t}`;}
+  else if(state==='cached'){dot.classList.add('error');status.textContent='Showing saved events — reconnecting…';}
   else if(state==='error'){dot.classList.add('error');status.textContent='Sync error — retrying…';}
   else status.textContent='Syncing…';
 }
