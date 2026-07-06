@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="yerevent.png" type="image/png">
+<title>yerevent · admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #2b101a;
+  --surface: #1f0d15;
+  --surface2: #2a1020;
+  --border: rgba(252,204,132,0.12);
+  --text: #fdf5ec;
+  --text-soft: #fccc84;
+  --text-muted: rgba(252,204,132,0.45);
+  --accent: #c9526c;
+  --gold: #fccc84;
+  --ok: #75FF73;
+  --radius: 14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.wrap{max-width:720px;margin:0 auto;padding:16px 14px 90px;}
+h1{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--gold);text-align:center;padding:14px 0 2px;}
+h1 span{color:var(--accent);}
+.subtitle{text-align:center;color:var(--text-muted);font-size:0.8rem;margin-bottom:14px;}
+
+/* login */
+#loginView{max-width:340px;margin:60px auto;text-align:center;}
+#loginView input{width:100%;padding:14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1rem;margin-bottom:12px;text-align:center;}
+.btn{display:inline-block;border:none;border-radius:100px;padding:12px 22px;font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;background:var(--accent);color:#fff;transition:opacity .15s;}
+.btn:active{opacity:.7;}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text-soft);}
+.btn.green{background:#2e7d46;color:#eaffea;}
+.btn.red{background:transparent;border:1px solid rgba(255,107,107,.5);color:#ff6b6b;}
+.btn.small{padding:8px 14px;font-size:0.78rem;}
+.btn[disabled]{opacity:.45;cursor:default;}
+
+/* tabs */
+.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--surface);border-top:1px solid var(--border);z-index:50;}
+.tab{flex:1;padding:13px 4px;text-align:center;font-size:0.8rem;font-weight:600;color:var(--text-muted);cursor:pointer;border:none;background:none;font-family:'Outfit',sans-serif;}
+.tab.active{color:var(--gold);border-top:2px solid var(--accent);}
+.view{display:none;}
+.view.active{display:block;}
+
+/* extractor */
+textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Outfit',sans-serif;font-size:0.95rem;line-height:1.5;resize:vertical;}
+.hint{font-size:0.75rem;color:var(--text-muted);margin:8px 2px 14px;}
+
+/* cards — same feel as the main site */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.card.nodesc{border-color:rgba(255,107,107,.55);}
+.card h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--text);margin-bottom:6px;}
+.meta{font-size:0.82rem;color:var(--text-soft);margin-bottom:8px;line-height:1.5;}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.tag{font-size:0.68rem;font-weight:600;padding:3px 10px;border-radius:100px;text-transform:capitalize;}
+.desc{font-size:0.8rem;color:var(--text-muted);line-height:1.5;max-height:3.1em;overflow:hidden;}
+.desc.open{max-height:none;}
+.nodesc-badge{font-size:0.68rem;color:#ff6b6b;font-weight:600;}
+.cardbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.count{font-size:0.78rem;color:var(--text-muted);margin:4px 2px 12px;}
+
+/* edit form */
+.form{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.form label{display:block;font-size:0.68rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px;}
+.form input,.form select,.form textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Outfit',sans-serif;font-size:0.9rem;}
+.form textarea{min-height:110px;}
+.statusbar{position:fixed;top:0;left:0;right:0;padding:11px;text-align:center;font-size:0.85rem;font-weight:600;z-index:100;display:none;}
+.statusbar.err{background:#7a2033;color:#ffd9df;}
+.statusbar.ok{background:#1f4d2e;color:#d9ffe3;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--text-muted);border-top-color:var(--gold);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-2px;margin-right:6px;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.topbtns{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;}
+</style>
+</head>
+<body>
+<div class="statusbar" id="statusbar"></div>
+
+<div id="loginView">
+  <h1>yer<span>event</span> admin</h1>
+  <p class="subtitle">enter your admin password</p>
+  <input type="password" id="pwInput" placeholder="password" autocomplete="current-password">
+  <button class="btn" id="loginBtn" onclick="doLogin()">Enter</button>
+</div>
+
+<div id="appView" style="display:none">
+  <div class="wrap">
+    <h1>yer<span>event</span> admin</h1>
+
+    <!-- ADD -->
+    <div class="view active" id="view-add">
+      <p class="hint">Paste the text of an Instagram post (or any announcement). The AI reads it and fills in the event for you.</p>
+      <textarea id="postText" placeholder="Paste post text here…"></textarea>
+      <div style="text-align:center;margin-top:12px">
+        <button class="btn" id="extractBtn" onclick="doExtract()">✨ Extract event</button>
+      </div>
+      <div id="extractResult"></div>
+    </div>
+
+    <!-- LIVE -->
+    <div class="view" id="view-live">
+      <div class="topbtns">
+        <span class="count" id="liveCount"></span>
+        <button class="btn ghost small" onclick="loadLive()">↻ Refresh</button>
+      </div>
+      <div id="liveList"><span class="spin"></span> Loading…</div>
+    </div>
+
+    <!-- PENDING -->
+    <div class="view" id="view-pending">
+      <p class="hint">Events imported from Esora, waiting for your approval. A red border means the description is missing — check the original post. Approving publishes to the website.</p>
+      <div class="topbtns">
+        <span class="count" id="pendingCount"></span>
+        <button class="btn ghost small" onclick="loadPending()">↻ Refresh</button>
+      </div>
+      <div id="pendingList"><span class="spin"></span> Loading…</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-v="add" onclick="showTab('add')">➕ Add</button>
+    <button class="tab" data-v="live" onclick="showTab('live')">📅 Live events</button>
+    <button class="tab" data-v="pending" onclick="showTab('pending')">⏳ Esora</button>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
+const PW_KEY = 'yerevent_admin_pw';
+const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
+const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
+const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+let liveLoaded=false, pendingLoaded=false;
+
+function esc(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;}
+function status(msg, kind){
+  const b=document.getElementById('statusbar');
+  b.textContent=msg;b.className='statusbar '+(kind||'ok');b.style.display='block';
+  clearTimeout(status._t);status._t=setTimeout(()=>b.style.display='none', kind==='err'?6000:3000);
+}
+async function api(payload){
+  payload.password = localStorage.getItem(PW_KEY) || '';
+  const res = await fetch(API_URL, {method:'POST', body: JSON.stringify(payload)});
+  const out = await res.json();
+  if(!out.ok) throw new Error(out.error || 'Something went wrong');
+  return out;
+}
+
+/* ---------- login ---------- */
+async function doLogin(){
+  const pw = document.getElementById('pwInput').value.trim();
+  if(!pw) return;
+  const btn=document.getElementById('loginBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>Checking…';
+  localStorage.setItem(PW_KEY, pw);
+  try{ await api({action:'ping'}); enterApp(); }
+  catch(e){ localStorage.removeItem(PW_KEY); status(e.message==='Wrong password.'?'Wrong password — try again.':('Connection problem: '+e.message),'err'); }
+  btn.disabled=false;btn.textContent='Enter';
+}
+function enterApp(){
+  document.getElementById('loginView').style.display='none';
+  document.getElementById('appView').style.display='block';
+}
+document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+if(localStorage.getItem(PW_KEY)){
+  api({action:'ping'}).then(enterApp).catch(()=>{localStorage.removeItem(PW_KEY);});
+}
+
+/* ---------- tabs ---------- */
+function showTab(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.v===v));
+  document.getElementById('view-'+v).classList.add('active');
+  if(v==='live'&&!liveLoaded)loadLive();
+  if(v==='pending'&&!pendingLoaded)loadPending();
+}
+
+/* ---------- display helpers ---------- */
+function fmtDate(raw){
+  if(!raw) return '';
+  const s=String(raw);
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){const d=new Date(new Date(s).getTime()+12*60*60*1000);return MONTHS[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();}
+  return s;
+}
+function fmtTime(raw){
+  if(!raw) return '';
+  const s=String(raw);
+  if(s.startsWith('1899-12-30T')){const d=new Date(s);let h=d.getUTCHours(),m=d.getUTCMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+String(m).padStart(2,'0')+' '+ap;}
+  return s;
+}
+function cardHTML(ev, kind){
+  const t=(ev.type||'').toLowerCase();
+  const c=TYPE_COLOR[t]||'#888';
+  const noDesc=!String(ev.description||'').trim();
+  const tags =
+    (ev.type?`<span class="tag" style="color:${c};background:${c}22">${esc(ev.type)}</span>`:'')+
+    (ev.city?`<span class="tag" style="color:#e05c5c;background:#e05c5c22">${esc(ev.city)}</span>`:'')+
+    (ev.price?`<span class="tag" style="color:#ff9966;background:#ff996622">${esc(ev.price)}</span>`:'');
+  const meta=[fmtDate(ev.date), fmtTime(ev.time), ev.place?('📍 '+esc(ev.place)):''].filter(Boolean).join(' · ');
+  const desc = noDesc
+    ? '<span class="nodesc-badge">⚠ no description — check the original post</span>'
+    : `<div class="desc" onclick="this.classList.toggle('open')">${esc(ev.description)}</div>`;
+  const btns = kind==='live'
+    ? `<button class="btn ghost small" onclick="editEvent(${ev.row})">✏️ Edit</button>
+       <button class="btn red small" onclick="removeEvent(${ev.row}, this)">🗑 Delete</button>`
+    : `<button class="btn green small" onclick="approveEvent(${ev.row}, this)">✅ Approve & publish</button>`;
+  return `<div class="card ${noDesc?'nodesc':''}" id="card-${kind}-${ev.row}">
+    <h3>${esc(ev.name)}</h3>
+    <div class="meta">${meta}</div>
+    <div class="tagrow">${tags}</div>
+    ${desc}
+    ${ev.link?`<div style="margin-top:8px"><a href="${esc(ev.link)}" target="_blank" style="color:var(--gold);font-size:0.78rem">original post ↗</a></div>`:''}
+    <div class="cardbtns">${btns}</div>
+  </div>`;
+}
+
+/* ---------- live events ---------- */
+let liveRows=[];
+async function loadLive(){
+  const el=document.getElementById('liveList');
+  el.innerHTML='<span class="spin"></span> Loading…';
+  try{
+    const out=await api({action:'listEvents'});
+    liveRows=out.rows||[];
+    document.getElementById('liveCount').textContent=liveRows.length+' events on the website';
+    el.innerHTML=liveRows.map(ev=>cardHTML(ev,'live')).join('')||'<p class="hint">No events.</p>';
+    liveLoaded=true;
+  }catch(e){el.innerHTML='';status('Could not load events: '+e.message,'err');}
+}
+function formHTML(ev, submitLabel, submitFn){
+  const opts=(list,sel)=>list.map(v=>`<option ${String(sel||'').toLowerCase()===v.toLowerCase()?'selected':''}>${v}</option>`).join('');
+  return `<div class="form">
+    <label>Name</label><input id="f-name" value="${esc(ev.name)}">
+    <label>Date (e.g. July 15, 2026)</label><input id="f-date" value="${esc(fmtDate(ev.date))}">
+    <label>Time (e.g. 9 PM or 8 PM – 2 AM)</label><input id="f-time" value="${esc(fmtTime(ev.time))}">
+    <label>City</label><select id="f-city">${opts(CITIES, ev.city||'Yerevan')}</select>
+    <label>Place / venue</label><input id="f-place" value="${esc(ev.place)}">
+    <label>Type</label><select id="f-type">${opts(TYPES, ev.type||'nightlife')}</select>
+    <label>Price (e.g. 5000 AMD or Free)</label><input id="f-price" value="${esc(ev.price)}">
+    <label>Link</label><input id="f-link" value="${esc(ev.link)}">
+    <label>Description</label><textarea id="f-desc">${esc(ev.description)}</textarea>
+    <div class="cardbtns">
+      <button class="btn" onclick="${submitFn}">${submitLabel}</button>
+      <button class="btn ghost" onclick="this.closest('.form').remove()">Cancel</button>
+    </div>
+  </div>`;
+}
+function readForm(){
+  return {name:v('f-name'),date:v('f-date'),time:v('f-time'),city:v('f-city'),place:v('f-place'),
+          type:v('f-type'),price:v('f-price'),link:v('f-link'),description:v('f-desc')};
+  function v(id){return document.getElementById(id).value.trim();}
+}
+function editEvent(row){
+  const ev=liveRows.find(r=>r.row===row);if(!ev)return;
+  document.querySelectorAll('#view-live .form').forEach(f=>f.remove());
+  const card=document.getElementById('card-live-'+row);
+  card.insertAdjacentHTML('afterend', formHTML(ev,'💾 Save changes',`saveEdit(${row})`));
+}
+async function saveEdit(row){
+  try{
+    status('Saving…');
+    await api({action:'updateRow', sheet:'Events', row, event:readForm()});
+    status('Saved ✔'); loadLive();
+  }catch(e){status('Save failed: '+e.message,'err');}
+}
+async function removeEvent(row, btn){
+  const ev=liveRows.find(r=>r.row===row);
+  if(!confirm('Delete "'+(ev?ev.name:'this event')+'" from the website?'))return;
+  btn.disabled=true;
+  try{ await api({action:'removeEvent', row}); status('Deleted ✔'); loadLive(); }
+  catch(e){btn.disabled=false;status('Delete failed: '+e.message,'err');}
+}
+
+/* ---------- pending (esora) ---------- */
+let pendingRows=[];
+async function loadPending(){
+  const el=document.getElementById('pendingList');
+  el.innerHTML='<span class="spin"></span> Loading…';
+  try{
+    const out=await api({action:'listPending'});
+    pendingRows=out.rows||[];
+    document.getElementById('pendingCount').textContent=pendingRows.length+' waiting for review';
+    el.innerHTML=pendingRows.map(ev=>cardHTML(ev,'pending')).join('')||'<p class="hint">Nothing pending 🎉</p>';
+    pendingLoaded=true;
+  }catch(e){el.innerHTML='';status('Could not load pending: '+e.message,'err');}
+}
+async function approveEvent(row, btn){
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Publishing…';
+  try{
+    await api({action:'approve', rows:[row]});
+    status('Published to the website ✔');
+    loadPending(); liveLoaded=false;
+  }catch(e){btn.disabled=false;btn.textContent='✅ Approve & publish';status('Approve failed: '+e.message,'err');}
+}
+
+/* ---------- extractor ---------- */
+async function doExtract(){
+  const text=document.getElementById('postText').value.trim();
+  if(!text){status('Paste the post text first.','err');return;}
+  const btn=document.getElementById('extractBtn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Reading the post…';
+  try{
+    const out=await api({action:'extract', caption:text});
+    const ev=out.event||{};
+    ev.description=ev.description||text;
+    document.getElementById('extractResult').innerHTML=
+      '<p class="hint" style="margin-top:16px">Check the details, fix anything, then publish:</p>'+
+      formHTML(ev,'🚀 Publish to website','publishNew()');
+  }catch(e){status('Extraction failed: '+e.message,'err');}
+  btn.disabled=false;btn.textContent='✨ Extract event';
+}
+async function publishNew(){
+  try{
+    const ev=readForm();
+    if(!ev.name||!ev.date){status('Name and date are required.','err');return;}
+    status('Publishing…');
+    await api({action:'addEvent', event:ev});
+    status('Event published ✔');
+    document.getElementById('extractResult').innerHTML='';
+    document.getElementById('postText').value='';
+    liveLoaded=false;
+  }catch(e){status('Publish failed: '+e.message,'err');}
+}
+</script>
+</body>
+</html>
