@@ -276,7 +276,8 @@ function cardHTML(ev, kind){
   const btns = kind==='live'
     ? `<button class="btn ghost small" onclick="editEvent(${ev.row})">✏️ Edit</button>
        <button class="btn red small" onclick="removeEvent(${ev.row}, this)">🗑 Delete</button>`
-    : `<button class="btn green small" onclick="approveEvent(${ev.row}, this)">✅ Approve & publish</button>`;
+    : `<button class="btn green small" onclick="approveEvent(${ev.row}, this)">✅ Approve & publish</button>
+       <button class="btn red small" onclick="dismissEvent(${ev.row})">🗑 Not interested</button>`;
   return `<div class="card ${noDesc?'nodesc':''}" id="card-${kind}-${ev.row}">
     <h3>${esc(ev.name)}</h3>
     <div class="meta">${meta}</div>
@@ -530,13 +531,39 @@ function pubAdd(ev){
   try{localStorage.setItem(PUB_KEY,JSON.stringify(list.slice(0,80)));}catch(_){}
 }
 function fp(ev){return String(ev.name||'').trim().toLowerCase()+'|'+parseSheetDate(ev.date);}
+const HIDE_KEY='yerevent_dismissed_esora';
+function hideList(){try{return JSON.parse(localStorage.getItem(HIDE_KEY))||[];}catch(_){return[];}}
+function hideSave(list){try{localStorage.setItem(HIDE_KEY,JSON.stringify(list.slice(0,300)));}catch(_){}}
+function dismissEvent(row){
+  const ev=pendingRows.find(r=>r.row===row);if(!ev)return;
+  const list=hideList();
+  list.unshift({fp:fp(ev),name:ev.name,date:fmtDate(ev.date)});
+  hideSave(list);
+  renderPending();
+  status('Hidden "'+ev.name+'" — find it under "Not interested" below if you change your mind.');
+}
+function restoreEvent(fpVal){
+  hideSave(hideList().filter(h=>h.fp!==fpVal));
+  renderPending();
+}
+let showHidden=false;
+function toggleHidden(){showHidden=!showHidden;renderPending();}
 function renderPending(){
   const el=document.getElementById('pendingList');
-  let html=pendingRows.map(ev=>cardHTML(ev,'pending')).join('')||'<p class="hint">Nothing pending 🎉</p>';
+  const hidden=hideList(),hiddenFps=new Set(hidden.map(h=>h.fp));
+  const visible=pendingRows.filter(ev=>!hiddenFps.has(fp(ev)));
+  document.getElementById('pendingCount').textContent=visible.length+' waiting for review';
+  let html=visible.map(ev=>cardHTML(ev,'pending')).join('')||'<p class="hint">Nothing pending 🎉</p>';
   const pubs=pubList();
   if(pubs.length){
     html+=`<div class="month-heading" style="color:#75FF73">✔ Already picked & published</div>`+
       pubs.map(p=>`<div class="card pub"><h3>${esc(p.name)}</h3><div class="meta">${esc(p.date)}</div><div class="cardbtns"><button class="btn pubbed small" disabled>✔ Published</button></div></div>`).join('');
+  }
+  if(hidden.length){
+    html+=`<div class="month-heading" style="color:#ff6b6b;cursor:pointer" onclick="toggleHidden()">🗑 Not interested (${hidden.length}) ${showHidden?'▾':'▸'}</div>`;
+    if(showHidden){
+      html+=hidden.map(h=>`<div class="card" style="opacity:.6"><h3>${esc(h.name)}</h3><div class="meta">${esc(h.date)}</div><div class="cardbtns"><button class="btn ghost small" onclick="restoreEvent('${esc(h.fp).replace(/'/g,"\\'")}')">↩ Restore</button></div></div>`).join('');
+    }
   }
   el.innerHTML=html;
 }
