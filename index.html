@@ -106,10 +106,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-month-label{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--accent);}
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px;text-align:center;}
 .cal-weekday{font-size:0.62rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);padding:8px 0;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;grid-auto-rows:130px;position:relative;}
-.cal-chip-spacer{visibility:hidden;}
-.cal-span-bar{position:absolute;z-index:5;display:flex;align-items:center;border-radius:4px;font-size:0.6rem;font-weight:700;color:#1f0d15;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.35);transition:filter .15s;}
-.cal-span-bar:hover{filter:brightness(1.15);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;grid-auto-rows:130px;}
 .cal-cell{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:7px 6px 5px;overflow:hidden;transition:border-color 0.15s,background 0.15s,box-shadow 0.15s;cursor:pointer;position:relative;display:flex;flex-direction:column;}
 .cal-cell:not(.other-month):hover{border-color:rgba(201,82,108,0.55);background:#1a0a12;box-shadow:0 0 0 2px rgba(201,82,108,0.15);}
 .cal-cell.weekend{background:#120810;}
@@ -743,7 +740,6 @@ function renderCalendar(){
   const today=new Date();
   const firstDay=((new Date(calYear,calMonth,1).getDay())+6)%7;
   const totalCells=Math.ceil((firstDay+daysInMonth)/7)*7;
-  const MAX_CHIPS=3,cellEls=[],cellInfo=[];
   for(let i=0;i<totalCells;i++){
     let date,isOther=false;
     if(i<firstDay){date=new Date(calYear,calMonth-1,prevDays-firstDay+i+1);isOther=true;}
@@ -758,79 +754,24 @@ function renderCalendar(){
     const numEl=document.createElement('span');numEl.className='day-num';numEl.textContent=date.getDate();cell.appendChild(numEl);
     if(holiday){const h=document.createElement('span');h.className='holiday-label';h.textContent=holiday;cell.appendChild(h);}
     if(cultural){const c=document.createElement('span');c.className='cultural-label';c.textContent=cultural;cell.appendChild(c);}
-    grid.appendChild(cell);
-    cellEls.push(cell);cellInfo.push({dateStr,isOther,dayEvs});
-  }
-  /* --- multi-day events: assign each a "lane" per week, Google Calendar style --- */
-  const laneByIdx=Array.from({length:totalCells},()=>({}));
-  const bars=[];
-  for(let w=0;w<totalCells/7;w++){
-    const segs=new Map();
-    for(let c=0;c<7;c++){
-      const idx=w*7+c;
-      cellInfo[idx].dayEvs.forEach(ev=>{
-        if(!ev.span)return;
-        const s=segs.get(ev.span.id)||{ev,startIdx:idx,endIdx:idx};
-        if(idx<s.startIdx)s.startIdx=idx;if(idx>s.endIdx)s.endIdx=idx;
-        segs.set(ev.span.id,s);
-      });
-    }
-    const laneEnd=[];
-    [...segs.values()].sort((a,b)=>a.startIdx-b.startIdx||b.endIdx-a.endIdx).forEach(s=>{
-      let lane=0;
-      while(lane<MAX_CHIPS&&laneEnd[lane]!==undefined&&laneEnd[lane]>=s.startIdx)lane++;
-      if(lane>=MAX_CHIPS){for(let i=s.startIdx;i<=s.endIdx;i++)laneByIdx[i]._overflow=(laneByIdx[i]._overflow||0)+1;return;}
-      laneEnd[lane]=s.endIdx;s.lane=lane;bars.push(s);
-      for(let i=s.startIdx;i<=s.endIdx;i++)laneByIdx[i][lane]=true;
+    const MAX_CHIPS=3,chipsWrap=document.createElement('div');chipsWrap.className='cal-chips';
+    dayEvs.slice(0,MAX_CHIPS).forEach(ev=>{
+      const chip=document.createElement('span');chip.className='cal-event-chip';
+      const s=TYPE_STYLE[ev.type]||{color:'#888',bg:'rgba(136,136,136,0.15)'};
+      chip.style.cssText=`color:${s.color};background:${s.bg};border-color:${s.color}33;`;
+      chip.textContent=ev.name;chipsWrap.appendChild(chip);
     });
-  }
-  /* --- single-day chips fill the lanes the bars don't use --- */
-  for(let i=0;i<totalCells;i++){
-    const cell=cellEls[i],{isOther,dayEvs}=cellInfo[i];
-    const singles=dayEvs.filter(e=>!e.span);
-    const chipsWrap=document.createElement('div');chipsWrap.className='cal-chips';
-    let queue=[...singles];
-    for(let lane=0;lane<MAX_CHIPS;lane++){
-      if(laneByIdx[i][lane]){
-        const sp=document.createElement('span');sp.className='cal-event-chip cal-chip-spacer';sp.innerHTML='&nbsp;';chipsWrap.appendChild(sp);
-      }else if(queue.length){
-        const ev=queue.shift();
-        const chip=document.createElement('span');chip.className='cal-event-chip';
-        const s=TYPE_STYLE[ev.type]||{color:'#888',bg:'rgba(136,136,136,0.15)'};
-        chip.style.cssText=`color:${s.color};background:${s.bg};border-color:${s.color}33;`;
-        chip.textContent=ev.name;chipsWrap.appendChild(chip);
-      }
-    }
     cell.appendChild(chipsWrap);
-    const hidden=queue.length+(laneByIdx[i]._overflow||0);
-    if(hidden>0){
+    if(dayEvs.length>MAX_CHIPS){
       cell.classList.add('has-more');
       const more=document.createElement('div');more.className='cal-more';
-      more.textContent=`+${hidden}`;
+      more.textContent=`+${dayEvs.length-MAX_CHIPS}`;
       cell.appendChild(more);
     }
     if(!isOther&&dayEvs.length>0){const hint=document.createElement('div');hint.className='cal-tap-hint';hint.textContent='tap to view';cell.appendChild(hint);}
+    grid.appendChild(cell);
   }
-  /* --- draw the solid bars over the grid using real measured positions --- */
-  const probe=grid.querySelector('.cal-chip-spacer')||grid.querySelector('.cal-event-chip');
-  const barH=probe?probe.offsetHeight:17;
-  bars.forEach(b=>{
-    const startCell=cellEls[b.startIdx],endCell=cellEls[b.endIdx];
-    const chipsWrap=startCell.querySelector('.cal-chips');
-    const gapY=parseFloat(getComputedStyle(chipsWrap).rowGap)||2;
-    const top=startCell.offsetTop+chipsWrap.offsetTop+b.lane*(barH+gapY);
-    const left=startCell.offsetLeft+3;
-    const width=endCell.offsetLeft+endCell.offsetWidth-startCell.offsetLeft-6;
-    const s=TYPE_STYLE[b.ev.type]||{color:'#888'};
-    const bar=document.createElement('div');bar.className='cal-span-bar';
-    bar.style.cssText=`top:${top}px;left:${left}px;width:${width}px;height:${barH}px;background:${s.color};`;
-    bar.textContent=b.ev.name;bar.title=b.ev.name;
-    bar.addEventListener('click',e=>{e.stopPropagation();document.getElementById('backBtn').style.display='none';document.getElementById('detailOverlay').classList.add('open');openDetail(b.ev);});
-    grid.appendChild(bar);
-  });
 }
-let _calResizeT=null;
-window.addEventListener('resize',()=>{clearTimeout(_calResizeT);_calResizeT=setTimeout(renderCalendar,150);});
 function prevMonth(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 function nextMonth(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
 

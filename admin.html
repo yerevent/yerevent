@@ -68,6 +68,8 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 .cardbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
 .count{font-size:0.78rem;color:var(--text-muted);}
 .month-heading{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.05rem;margin:18px 2px 10px;}
+#badDateWarn{background:rgba(122,32,51,.35);border:1px solid rgba(255,107,107,.5);border-radius:var(--radius);padding:12px 14px;font-size:0.8rem;line-height:2;margin-bottom:12px;}
+#badDateWarn .badrow i{color:var(--text-muted);}
 
 /* edit form */
 .form{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
@@ -142,6 +144,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
       </div>
       <p class="hint">Edits and deletions land on the website within ~5 minutes (next robot sync). This page always shows the real, current data.</p>
       <div id="liveCalWrap" style="display:none">
+        <div id="badDateWarn" style="display:none"></div>
         <div class="cal-head">
           <button onclick="admNav(-1)">←</button>
           <span id="admMonthLabel"></span>
@@ -231,7 +234,18 @@ function parseSheetDate(raw){
   if(/^\d{4}-\d{2}-\d{2}T/.test(s)){const d=new Date(new Date(s).getTime()+12*60*60*1000);return toDateStr(d);}
   const dm=s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
   if(dm){let[,d,m,y]=dm;if(y.length===2)y='20'+y;return y+'-'+m.padStart(2,'0')+'-'+d.padStart(2,'0');}
+  const sm=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if(sm){let[,d,m,y]=sm;if(y.length===2)y='20'+y;return y+'-'+m.padStart(2,'0')+'-'+d.padStart(2,'0');}
   const cleaned=s.replace(/[–—]\d+/,'');const d=new Date(cleaned);if(!isNaN(d))return toDateStr(d);return'';
+}
+/* multi-day ranges like "July 12–19, 2026" appear on every day, same as the website */
+function getMultiDayDates(rawDate,firstDateStr){
+  if(!rawDate||!firstDateStr)return[firstDateStr];const s=String(rawDate).trim();
+  const match=s.match(/([A-Za-z]+)\s+(\d+)[–\-](\d+),?\s*(\d{4})/);if(!match)return[firstDateStr];
+  const month=match[1],startDay=parseInt(match[2]),endDay=parseInt(match[3]),year=parseInt(match[4]);
+  const mi=MONTHS.indexOf(month.charAt(0).toUpperCase()+month.slice(1).toLowerCase());if(mi===-1)return[firstDateStr];
+  const dates=[];for(let d=startDay;d<=endDay;d++)dates.push(year+'-'+String(mi+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'));
+  return dates.length>0?dates:[firstDateStr];
 }
 function fmtDate(raw){
   if(!raw) return '';
@@ -280,7 +294,10 @@ async function loadLive(force){
   if(!liveRows.length)el.innerHTML='<span class="spin"></span> Loading…';
   try{
     const out=await api({action:'listEvents'});
-    liveRows=(out.rows||[]).map(ev=>({...ev,dateStr:parseSheetDate(ev.date)}));
+    liveRows=(out.rows||[]).map(ev=>{
+      const dateStr=parseSheetDate(ev.date);
+      return {...ev,dateStr,days:dateStr?getMultiDayDates(String(ev.date||''),dateStr):[]};
+    });
     liveRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));
     document.getElementById('liveCount').textContent=liveRows.length+' events on the website';
     liveLoaded=true;
@@ -328,7 +345,7 @@ function renderAdmCal(){
     else if(i>=firstDay+daysInMonth){date=new Date(admYear,admMonth+1,i-firstDay-daysInMonth+1);isOther=true;}
     else{date=new Date(admYear,admMonth,i-firstDay+1);}
     const dateStr=toDateStr(date);
-    const dayEvs=liveRows.filter(e=>e.dateStr===dateStr);
+    const dayEvs=liveRows.filter(e=>e.days.includes(dateStr));
     const cell=document.createElement('div');
     cell.className='adm-cell'+(isOther?' other':'')+(dateStr===todayStr?' today':'')+(dateStr===admSelDate?' sel':'');
     cell.innerHTML=`<span class="adm-num">${date.getDate()}</span>`;
@@ -341,13 +358,28 @@ function renderAdmCal(){
     grid.appendChild(cell);
   }
   if(!admSelDate)document.getElementById('dayPanel').innerHTML='<p class="hint" style="margin-top:14px">Tap a day to see, edit or delete its events — and to fix map pins.</p>';
+  const bad=liveRows.filter(r=>!r.dateStr);
+  const warn=document.getElementById('badDateWarn');
+  if(bad.length){
+    warn.style.display='block';
+    warn.innerHTML=`⚠️ <b>${bad.length} event${bad.length>1?'s have':' has'} a date I can't read</b>, so they can't be placed on the calendar:<br>`+
+      bad.map(r=>`<span class="badrow">• ${esc(r.name)} — <i>"${esc(r.date)}"</i> <button class="btn ghost small" onclick="fixDate(${r.row})">✏️ Fix</button></span>`).join('<br>');
+  }else{warn.style.display='none';warn.innerHTML='';}
+}
+function fixDate(row){
+  setLiveMode('list');
+  setTimeout(()=>{
+    editEvent(row);
+    const f=document.querySelector('#view-live .form');
+    if(f)f.scrollIntoView({behavior:'smooth',block:'center'});
+  },60);
 }
 
 /* ---------- day panel with editable map ---------- */
 let admMap=null,admMarkers=[];
 function openAdmDay(dateStr){
   const panel=document.getElementById('dayPanel');
-  const dayEvs=liveRows.filter(e=>e.dateStr===dateStr);
+  const dayEvs=liveRows.filter(e=>e.days.includes(dateStr));
   const[y,m,d]=dateStr.split('-');
   const nice=MONTHS[parseInt(m)-1]+' '+parseInt(d)+', '+y;
   if(!dayEvs.length){panel.innerHTML=`<h2>${nice}</h2><p class="hint">No events on this day.</p>`;if(admMap){admMap.remove();admMap=null;}return;}
