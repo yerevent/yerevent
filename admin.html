@@ -56,6 +56,8 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 /* cards */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
 .card.nodesc{border-color:rgba(255,107,107,.55);}
+.card.pub{border-color:rgba(117,255,115,.45);background:rgba(31,77,46,.18);}
+.btn.pubbed{background:#1f4d2e;color:#9fffb3;cursor:default;}
 .card h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--text);margin-bottom:6px;}
 .meta{font-size:0.82rem;color:var(--text-soft);margin-bottom:8px;line-height:1.5;}
 .tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
@@ -488,6 +490,24 @@ async function removeEvent(row, btn){
 
 /* ---------- pending (esora) ---------- */
 let pendingRows=[];
+const PUB_KEY='yerevent_published_esora';
+function pubList(){try{return JSON.parse(localStorage.getItem(PUB_KEY))||[];}catch(_){return[];}}
+function pubAdd(ev){
+  const list=pubList();
+  list.unshift({name:ev.name,date:fmtDate(ev.date),ts:Date.now()});
+  try{localStorage.setItem(PUB_KEY,JSON.stringify(list.slice(0,80)));}catch(_){}
+}
+function fp(ev){return String(ev.name||'').trim().toLowerCase()+'|'+parseSheetDate(ev.date);}
+function renderPending(){
+  const el=document.getElementById('pendingList');
+  let html=pendingRows.map(ev=>cardHTML(ev,'pending')).join('')||'<p class="hint">Nothing pending 🎉</p>';
+  const pubs=pubList();
+  if(pubs.length){
+    html+=`<div class="month-heading" style="color:#75FF73">✔ Already picked & published</div>`+
+      pubs.map(p=>`<div class="card pub"><h3>${esc(p.name)}</h3><div class="meta">${esc(p.date)}</div><div class="cardbtns"><button class="btn pubbed small" disabled>✔ Published</button></div></div>`).join('');
+  }
+  el.innerHTML=html;
+}
 async function loadPending(){
   const el=document.getElementById('pendingList');
   el.innerHTML='<span class="spin"></span> Loading…';
@@ -495,16 +515,31 @@ async function loadPending(){
     const out=await api({action:'listPending'});
     pendingRows=out.rows||[];
     document.getElementById('pendingCount').textContent=pendingRows.length+' waiting for review';
-    el.innerHTML=pendingRows.map(ev=>cardHTML(ev,'pending')).join('')||'<p class="hint">Nothing pending 🎉</p>';
+    renderPending();
     pendingLoaded=true;
   }catch(e){el.innerHTML='';status('Could not load pending: '+e.message,'err');}
 }
 async function approveEvent(row, btn){
-  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Publishing…';
+  const ev=pendingRows.find(r=>r.row===row);
+  if(!ev){status('Could not find that event — refreshing the list.','err');loadPending();return;}
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Publishing… (can take ~30s)';
   try{
-    await api({action:'approve', rows:[row]});
-    status('Published ✔ — on the website within ~5 min');
-    loadPending(); liveLoaded=false;liveRows=[];
+    // Row numbers shift when imports/cleanups run, so re-locate the event
+    // by name + date in the CURRENT sheet right before approving.
+    const fresh=await api({action:'listPending'});
+    const match=(fresh.rows||[]).find(r=>fp(r)===fp(ev));
+    if(!match){
+      pendingRows=fresh.rows||[];renderPending();
+      status('That event is no longer in the pending list (already published or removed). List refreshed.','err');
+      return;
+    }
+    await api({action:'approve', rows:[match.row]});
+    pubAdd(ev);
+    pendingRows=pendingRows.filter(r=>fp(r)!==fp(ev));
+    document.getElementById('pendingCount').textContent=pendingRows.length+' waiting for review';
+    renderPending();
+    status('Published "'+ev.name+'" ✔ — on the website within ~5 min');
+    liveLoaded=false;liveRows=[];
   }catch(e){btn.disabled=false;btn.textContent='✅ Approve & publish';status('Approve failed: '+e.message,'err');}
 }
 
