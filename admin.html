@@ -7,6 +7,8 @@
 <link rel="icon" href="yerevent.png" type="image/png">
 <title>yerevent · admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root {
   --bg: #2b101a;
@@ -23,7 +25,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-.wrap{max-width:720px;margin:0 auto;padding:16px 14px 90px;}
+.wrap{max-width:860px;margin:0 auto;padding:16px 14px 90px;}
 h1{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--gold);text-align:center;padding:14px 0 2px;}
 h1 span{color:var(--accent);}
 .subtitle{text-align:center;color:var(--text-muted);font-size:0.8rem;margin-bottom:14px;}
@@ -34,6 +36,7 @@ h1 span{color:var(--accent);}
 .btn{display:inline-block;border:none;border-radius:100px;padding:12px 22px;font-family:'Outfit',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;background:var(--accent);color:#fff;transition:opacity .15s;}
 .btn:active{opacity:.7;}
 .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text-soft);}
+.btn.ghost.on{border-color:var(--accent);color:#fff;background:var(--accent);}
 .btn.green{background:#2e7d46;color:#eaffea;}
 .btn.red{background:transparent;border:1px solid rgba(255,107,107,.5);color:#ff6b6b;}
 .btn.small{padding:8px 14px;font-size:0.78rem;}
@@ -50,7 +53,7 @@ h1 span{color:var(--accent);}
 textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Outfit',sans-serif;font-size:0.95rem;line-height:1.5;resize:vertical;}
 .hint{font-size:0.75rem;color:var(--text-muted);margin:8px 2px 14px;}
 
-/* cards — same feel as the main site */
+/* cards */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
 .card.nodesc{border-color:rgba(255,107,107,.55);}
 .card h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--text);margin-bottom:6px;}
@@ -61,19 +64,44 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 .desc.open{max-height:none;}
 .nodesc-badge{font-size:0.68rem;color:#ff6b6b;font-weight:600;}
 .cardbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
-.count{font-size:0.78rem;color:var(--text-muted);margin:4px 2px 12px;}
+.count{font-size:0.78rem;color:var(--text-muted);}
+.month-heading{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.05rem;margin:18px 2px 10px;}
 
 /* edit form */
 .form{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
 .form label{display:block;font-size:0.68rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px;}
 .form input,.form select,.form textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Outfit',sans-serif;font-size:0.9rem;}
 .form textarea{min-height:110px;}
-.statusbar{position:fixed;top:0;left:0;right:0;padding:11px;text-align:center;font-size:0.85rem;font-weight:600;z-index:100;display:none;}
+.form .row2{display:flex;gap:10px;}
+.form .row2>div{flex:1;}
+.statusbar{position:fixed;top:0;left:0;right:0;padding:11px;text-align:center;font-size:0.85rem;font-weight:600;z-index:1200;display:none;}
 .statusbar.err{background:#7a2033;color:#ffd9df;}
 .statusbar.ok{background:#1f4d2e;color:#d9ffe3;}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--text-muted);border-top-color:var(--gold);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-2px;margin-right:6px;}
 @keyframes sp{to{transform:rotate(360deg)}}
-.topbtns{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;}
+.topbtns{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;}
+.topbtns .grp{display:flex;gap:6px;}
+
+/* admin calendar */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px;}
+.cal-head span{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--gold);}
+.cal-head button{background:var(--surface);border:1px solid var(--border);color:var(--text-soft);width:38px;height:38px;border-radius:50%;font-size:1rem;cursor:pointer;}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;}
+.cal-dow span{text-align:center;font-size:0.62rem;font-weight:600;letter-spacing:1px;color:var(--text-muted);}
+.adm-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;grid-auto-rows:86px;}
+.adm-cell{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:4px 4px 3px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:border-color .15s;}
+.adm-cell:hover{border-color:var(--accent);}
+.adm-cell.other{opacity:.35;}
+.adm-cell.today{border-color:var(--gold);}
+.adm-cell.sel{border-color:var(--accent);box-shadow:0 0 0 2px rgba(201,82,108,.35);}
+.adm-num{font-size:0.68rem;font-weight:600;color:var(--text-muted);margin-bottom:2px;}
+.adm-chip{display:block;font-size:0.55rem;font-weight:600;padding:1px 4px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
+.adm-more{font-size:0.55rem;color:var(--text-muted);}
+#dayPanel{margin-top:16px;}
+#dayPanel h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.1rem;margin-bottom:10px;}
+#admMap{height:260px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:12px;background:#181018;}
+.pin-hint{font-size:0.72rem;color:var(--text-muted);margin:-6px 0 12px;}
+.leaflet-container{background:#181018;font-family:'Outfit',sans-serif;}
 </style>
 </head>
 <body>
@@ -104,7 +132,22 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
     <div class="view" id="view-live">
       <div class="topbtns">
         <span class="count" id="liveCount"></span>
-        <button class="btn ghost small" onclick="loadLive()">↻ Refresh</button>
+        <div class="grp">
+          <button class="btn ghost small" id="modeCalBtn" onclick="setLiveMode('cal')">📅 Calendar</button>
+          <button class="btn ghost small" id="modeListBtn" onclick="setLiveMode('list')">☰ List</button>
+          <button class="btn ghost small" onclick="loadLive(true)">↻</button>
+        </div>
+      </div>
+      <p class="hint">Edits and deletions land on the website within ~5 minutes (next robot sync). This page always shows the real, current data.</p>
+      <div id="liveCalWrap" style="display:none">
+        <div class="cal-head">
+          <button onclick="admNav(-1)">←</button>
+          <span id="admMonthLabel"></span>
+          <button onclick="admNav(1)">→</button>
+        </div>
+        <div class="cal-dow"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
+        <div class="adm-grid" id="admGrid"></div>
+        <div id="dayPanel"></div>
       </div>
       <div id="liveList"><span class="spin"></span> Loading…</div>
     </div>
@@ -178,7 +221,16 @@ function showTab(v){
   if(v==='pending'&&!pendingLoaded)loadPending();
 }
 
-/* ---------- display helpers ---------- */
+/* ---------- date helpers (same rules as the website) ---------- */
+function toDateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function parseSheetDate(raw){
+  if(!raw)return'';const s=String(raw).trim();if(!s)return'';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){const d=new Date(new Date(s).getTime()+12*60*60*1000);return toDateStr(d);}
+  const dm=s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
+  if(dm){let[,d,m,y]=dm;if(y.length===2)y='20'+y;return y+'-'+m.padStart(2,'0')+'-'+d.padStart(2,'0');}
+  const cleaned=s.replace(/[–—]\d+/,'');const d=new Date(cleaned);if(!isNaN(d))return toDateStr(d);return'';
+}
 function fmtDate(raw){
   if(!raw) return '';
   const s=String(raw);
@@ -191,6 +243,8 @@ function fmtTime(raw){
   if(s.startsWith('1899-12-30T')){const d=new Date(s);let h=d.getUTCHours(),m=d.getUTCMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+String(m).padStart(2,'0')+' '+ap;}
   return s;
 }
+
+/* ---------- cards ---------- */
 function cardHTML(ev, kind){
   const t=(ev.type||'').toLowerCase();
   const c=TYPE_COLOR[t]||'#888';
@@ -218,18 +272,164 @@ function cardHTML(ev, kind){
 }
 
 /* ---------- live events ---------- */
-let liveRows=[];
-async function loadLive(){
+let liveRows=[],liveMode='cal',admYear,admMonth,admSelDate=null;
+async function loadLive(force){
   const el=document.getElementById('liveList');
-  el.innerHTML='<span class="spin"></span> Loading…';
+  if(!liveRows.length)el.innerHTML='<span class="spin"></span> Loading…';
   try{
     const out=await api({action:'listEvents'});
-    liveRows=out.rows||[];
+    liveRows=(out.rows||[]).map(ev=>({...ev,dateStr:parseSheetDate(ev.date)}));
+    liveRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));
     document.getElementById('liveCount').textContent=liveRows.length+' events on the website';
-    el.innerHTML=liveRows.map(ev=>cardHTML(ev,'live')).join('')||'<p class="hint">No events.</p>';
     liveLoaded=true;
+    if(admYear===undefined){const n=new Date();admYear=n.getFullYear();admMonth=n.getMonth();}
+    renderLive();
   }catch(e){el.innerHTML='';status('Could not load events: '+e.message,'err');}
 }
+function setLiveMode(m){liveMode=m;renderLive();}
+function renderLive(){
+  document.getElementById('modeCalBtn').classList.toggle('on',liveMode==='cal');
+  document.getElementById('modeListBtn').classList.toggle('on',liveMode==='list');
+  document.getElementById('liveCalWrap').style.display=liveMode==='cal'?'block':'none';
+  document.getElementById('liveList').style.display=liveMode==='list'?'block':'none';
+  if(liveMode==='list')renderLiveList();else renderAdmCal();
+}
+function renderLiveList(){
+  const el=document.getElementById('liveList');
+  if(!liveRows.length){el.innerHTML='<p class="hint">No events.</p>';return;}
+  let html='',lastKey='';
+  liveRows.forEach(ev=>{
+    const key=ev.dateStr?ev.dateStr.slice(0,7):'unknown';
+    if(key!==lastKey){
+      lastKey=key;
+      const[y,m]=key.split('-');
+      html+=`<div class="month-heading">${m?MONTHS[parseInt(m)-1]+' '+y:'No date'}</div>`;
+    }
+    html+=cardHTML(ev,'live');
+  });
+  el.innerHTML=html;
+}
+
+/* ---------- admin calendar ---------- */
+function admNav(dir){admMonth+=dir;if(admMonth<0){admMonth=11;admYear--;}if(admMonth>11){admMonth=0;admYear++;}admSelDate=null;renderAdmCal();}
+function renderAdmCal(){
+  document.getElementById('admMonthLabel').textContent=MONTHS[admMonth]+' '+admYear;
+  const grid=document.getElementById('admGrid');grid.innerHTML='';
+  const daysInMonth=new Date(admYear,admMonth+1,0).getDate();
+  const prevDays=new Date(admYear,admMonth,0).getDate();
+  const firstDay=((new Date(admYear,admMonth,1).getDay())+6)%7;
+  const totalCells=Math.ceil((firstDay+daysInMonth)/7)*7;
+  const todayStr=toDateStr(new Date());
+  for(let i=0;i<totalCells;i++){
+    let date,isOther=false;
+    if(i<firstDay){date=new Date(admYear,admMonth-1,prevDays-firstDay+i+1);isOther=true;}
+    else if(i>=firstDay+daysInMonth){date=new Date(admYear,admMonth+1,i-firstDay-daysInMonth+1);isOther=true;}
+    else{date=new Date(admYear,admMonth,i-firstDay+1);}
+    const dateStr=toDateStr(date);
+    const dayEvs=liveRows.filter(e=>e.dateStr===dateStr);
+    const cell=document.createElement('div');
+    cell.className='adm-cell'+(isOther?' other':'')+(dateStr===todayStr?' today':'')+(dateStr===admSelDate?' sel':'');
+    cell.innerHTML=`<span class="adm-num">${date.getDate()}</span>`;
+    dayEvs.slice(0,3).forEach(ev=>{
+      const c=TYPE_COLOR[(ev.type||'').toLowerCase()]||'#888';
+      cell.innerHTML+=`<span class="adm-chip" style="color:${c};background:${c}22">${esc(ev.name)}</span>`;
+    });
+    if(dayEvs.length>3)cell.innerHTML+=`<span class="adm-more">+${dayEvs.length-3}</span>`;
+    cell.addEventListener('click',()=>{admSelDate=dateStr;renderAdmCal();openAdmDay(dateStr);});
+    grid.appendChild(cell);
+  }
+  if(!admSelDate)document.getElementById('dayPanel').innerHTML='<p class="hint" style="margin-top:14px">Tap a day to see, edit or delete its events — and to fix map pins.</p>';
+}
+
+/* ---------- day panel with editable map ---------- */
+let admMap=null,admMarkers=[];
+function openAdmDay(dateStr){
+  const panel=document.getElementById('dayPanel');
+  const dayEvs=liveRows.filter(e=>e.dateStr===dateStr);
+  const[y,m,d]=dateStr.split('-');
+  const nice=MONTHS[parseInt(m)-1]+' '+parseInt(d)+', '+y;
+  if(!dayEvs.length){panel.innerHTML=`<h2>${nice}</h2><p class="hint">No events on this day.</p>`;if(admMap){admMap.remove();admMap=null;}return;}
+  panel.innerHTML=`<h2>${nice} · ${dayEvs.length} event${dayEvs.length>1?'s':''}</h2>
+    <div id="admMap"></div>
+    <p class="pin-hint">🔧 Drag a pin to its correct spot, then press "Save pin" on its card. Grey note = address not found (set the pin by hand).</p>
+    <div id="dayCards">${dayEvs.map(ev=>cardHTML(ev,'live')).join('')}</div>`;
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>buildAdmMap(dayEvs),60);
+}
+function buildAdmMap(dayEvs){
+  if(admMap){admMap.remove();admMap=null;}
+  admMarkers=[];
+  const el=document.getElementById('admMap');if(!el)return;
+  admMap=L.map('admMap',{center:[40.1872,44.5136],zoom:12});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(admMap);
+  const bounds=[];
+  let notFound=[];
+  dayEvs.forEach(ev=>{
+    placeEvent(ev).then(ll=>{
+      if(!ll){notFound.push(ev.name);updatePinHint(notFound);return;}
+      const c=TYPE_COLOR[(ev.type||'').toLowerCase()]||'#c9526c';
+      const icon=L.divIcon({className:'',html:`<div style="width:16px;height:16px;background:${c};border-radius:50%;border:2.5px solid rgba(255,255,255,0.6);box-shadow:0 0 0 5px ${c}44;"></div>`,iconSize:[16,16],iconAnchor:[8,8]});
+      const marker=L.marker(ll,{icon,draggable:true}).addTo(admMap);
+      marker.bindPopup(`<b>${esc(ev.name)}</b><br>${esc(ev.place||'')}`);
+      marker.on('dragend',()=>{
+        const p=marker.getLatLng();
+        pinMoved(ev,p.lat,p.lng);
+      });
+      admMarkers.push(marker);
+      bounds.push(ll);
+      if(bounds.length===1)admMap.setView(ll,14);else admMap.fitBounds(bounds,{padding:[28,28],maxZoom:15});
+    });
+  });
+}
+function updatePinHint(notFound){
+  const h=document.querySelector('.pin-hint');
+  if(h&&notFound.length)h.innerHTML=`🔧 Drag a pin to its correct spot, then press "Save pin" on its card.<br>⚠️ <b>Address not found for:</b> ${notFound.map(esc).join(', ')} — open Edit and fill Lat/Lng, or fix the Place name.`;
+}
+function pinMoved(ev,lat,lng){
+  ev._newLat=lat.toFixed(6);ev._newLng=lng.toFixed(6);
+  let form=document.querySelector(`#card-live-${ev.row} + .form`);
+  if(!form){editEvent(ev.row);form=document.querySelector(`#card-live-${ev.row} + .form`);}
+  if(form){
+    const la=form.querySelector('#f-lat'),ln=form.querySelector('#f-lng');
+    if(la)la.value=ev._newLat;if(ln)ln.value=ev._newLng;
+  }
+  status('Pin moved — press 💾 Save changes on the card to keep it.');
+}
+/* place an event on the map: manual Lat/Lng wins, otherwise cached geocoding */
+const GEO_CACHE_KEY='yerevent_geo_cache_v1';
+let _geoCache=null,_geoQueue=Promise.resolve();
+function geoCache(){if(_geoCache)return _geoCache;try{_geoCache=JSON.parse(localStorage.getItem(GEO_CACHE_KEY))||{};}catch(_){_geoCache={};}return _geoCache;}
+function geoCacheSave(){try{localStorage.setItem(GEO_CACHE_KEY,JSON.stringify(_geoCache));}catch(_){}}
+function placeEvent(ev){
+  const lat=parseFloat(ev.lat),lng=parseFloat(ev.lng);
+  if(!isNaN(lat)&&!isNaN(lng))return Promise.resolve([lat,lng]);
+  if(!ev.place)return Promise.resolve(null);
+  const query=`${ev.place}${ev.city?', '+ev.city:''}, Armenia`;
+  const cache=geoCache(),hit=cache[query];
+  if(hit&&hit.ll)return Promise.resolve(hit.ll);
+  if(hit&&hit.miss&&Date.now()-hit.t<24*60*60*1000)return Promise.resolve(null);
+  const job=_geoQueue.then(async()=>{
+    for(let attempt=0;attempt<2;attempt++){
+      try{
+        const r=await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lang=en`);
+        if(r.status===429)throw new Error('rate limited');
+        const geo=await r.json();
+        if(geo.features&&geo.features.length){
+          const[lng2,lat2]=geo.features[0].geometry.coordinates;
+          cache[query]={ll:[lat2,lng2]};geoCacheSave();
+          return[lat2,lng2];
+        }
+        cache[query]={miss:true,t:Date.now()};geoCacheSave();
+        return null;
+      }catch(e){await new Promise(res=>setTimeout(res,900));}
+    }
+    return null;
+  });
+  _geoQueue=job.then(()=>new Promise(res=>setTimeout(res,300)),()=>new Promise(res=>setTimeout(res,300)));
+  return job;
+}
+
+/* ---------- edit / delete ---------- */
 function formHTML(ev, submitLabel, submitFn){
   const opts=(list,sel)=>list.map(v=>`<option ${String(sel||'').toLowerCase()===v.toLowerCase()?'selected':''}>${v}</option>`).join('');
   return `<div class="form">
@@ -241,6 +441,10 @@ function formHTML(ev, submitLabel, submitFn){
     <label>Type</label><select id="f-type">${opts(TYPES, ev.type||'nightlife')}</select>
     <label>Price (e.g. 5000 AMD or Free)</label><input id="f-price" value="${esc(ev.price)}">
     <label>Link</label><input id="f-link" value="${esc(ev.link)}">
+    <div class="row2">
+      <div><label>Lat (map pin)</label><input id="f-lat" value="${esc(ev._newLat||ev.lat||'')}" placeholder="auto"></div>
+      <div><label>Lng (map pin)</label><input id="f-lng" value="${esc(ev._newLng||ev.lng||'')}" placeholder="auto"></div>
+    </div>
     <label>Description</label><textarea id="f-desc">${esc(ev.description)}</textarea>
     <div class="cardbtns">
       <button class="btn" onclick="${submitFn}">${submitLabel}</button>
@@ -250,27 +454,35 @@ function formHTML(ev, submitLabel, submitFn){
 }
 function readForm(){
   return {name:v('f-name'),date:v('f-date'),time:v('f-time'),city:v('f-city'),place:v('f-place'),
-          type:v('f-type'),price:v('f-price'),link:v('f-link'),description:v('f-desc')};
-  function v(id){return document.getElementById(id).value.trim();}
+          type:v('f-type'),price:v('f-price'),link:v('f-link'),description:v('f-desc'),
+          lat:v('f-lat'),lng:v('f-lng')};
+  function v(id){const el=document.getElementById(id);return el?el.value.trim():'';}
 }
 function editEvent(row){
   const ev=liveRows.find(r=>r.row===row);if(!ev)return;
   document.querySelectorAll('#view-live .form').forEach(f=>f.remove());
   const card=document.getElementById('card-live-'+row);
-  card.insertAdjacentHTML('afterend', formHTML(ev,'💾 Save changes',`saveEdit(${row})`));
+  if(card)card.insertAdjacentHTML('afterend', formHTML(ev,'💾 Save changes',`saveEdit(${row})`));
 }
 async function saveEdit(row){
   try{
     status('Saving…');
     await api({action:'updateRow', sheet:'Events', row, event:readForm()});
-    status('Saved ✔'); loadLive();
+    status('Saved ✔ — on the website within ~5 min');
+    await loadLive(true);
+    if(admSelDate&&liveMode==='cal')openAdmDay(admSelDate);
   }catch(e){status('Save failed: '+e.message,'err');}
 }
 async function removeEvent(row, btn){
   const ev=liveRows.find(r=>r.row===row);
   if(!confirm('Delete "'+(ev?ev.name:'this event')+'" from the website?'))return;
   btn.disabled=true;
-  try{ await api({action:'removeEvent', row}); status('Deleted ✔'); loadLive(); }
+  try{
+    await api({action:'removeEvent', row});
+    status('Deleted ✔ — off the website within ~5 min');
+    await loadLive(true);
+    if(admSelDate&&liveMode==='cal')openAdmDay(admSelDate);
+  }
   catch(e){btn.disabled=false;status('Delete failed: '+e.message,'err');}
 }
 
@@ -291,8 +503,8 @@ async function approveEvent(row, btn){
   btn.disabled=true;btn.innerHTML='<span class="spin"></span>Publishing…';
   try{
     await api({action:'approve', rows:[row]});
-    status('Published to the website ✔');
-    loadPending(); liveLoaded=false;
+    status('Published ✔ — on the website within ~5 min');
+    loadPending(); liveLoaded=false;liveRows=[];
   }catch(e){btn.disabled=false;btn.textContent='✅ Approve & publish';status('Approve failed: '+e.message,'err');}
 }
 
@@ -318,10 +530,10 @@ async function publishNew(){
     if(!ev.name||!ev.date){status('Name and date are required.','err');return;}
     status('Publishing…');
     await api({action:'addEvent', event:ev});
-    status('Event published ✔');
+    status('Event published ✔ — on the website within ~5 min');
     document.getElementById('extractResult').innerHTML='';
     document.getElementById('postText').value='';
-    liveLoaded=false;
+    liveLoaded=false;liveRows=[];
   }catch(e){status('Publish failed: '+e.message,'err');}
 }
 </script>
