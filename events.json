@@ -1,5 +1,19 @@
 [
  {
+  "name": "OmniQuiz Intellectual Game",
+  "Date": "July 6, 2026",
+  "Time": "7:30 PM",
+  "City": "Yerevan",
+  "Place": "Ilik",
+  "Type": "social",
+  "Price": "3000 AMD",
+  "Link": "https://eventhub.am/am/e/event/e-949fa83b-1178-4efc-ba26-97b31c1aa5d1",
+  "Description": "Gather your team to test your knowledge and logic in an intellectual quiz. The winning teams will receive beer sets from 379 Brewing Company as a prize.\n\nDoors open at 19:30.\n\nTo participate, fill out the application or purchase tickets through eventhub.am.",
+  "Status": "✅ Live",
+  "Completeness": "✅ Complete",
+  "source": ""
+ },
+ {
   "name": "KVISION at  The Gate Club",
   "Date": "July 4, 2026",
   "Time": "11 PM",
@@ -1563,8 +1577,8 @@
   "Price": "20000 AMD",
   "Link": "https://www.instagram.com/p/DZziREvmnLS/",
   "Description": "Another jazz evening on the roof of the Aram Khachaturian Concert Hall featuring the beloved Levon Malkhasyan and his band.\n\nA summer night filled with signature jazz sounds and city views.\n\nFor ticket reservations and inquiries, contact +374 99 955 225.",
-  "Status": "",
-  "Completeness": "",
+  "Status": "✅ Live",
+  "Completeness": "✅ Complete",
   "source": "esora"
  },
  {
@@ -1577,8 +1591,8 @@
   "Price": "",
   "Link": "https://www.instagram.com/p/DY7H3sWAmQx/",
   "Description": "A tent camp for children aged 7–14, located in a pine grove near Stepanavan at the Լոռէ active recreation area.\n\nProgram includes:\n• Ropes course challenges\n• Climbing and river crossing\n• Hiking and discovery walks in Stepanavan\n• Games and evening bonfires\n\nWhile sleeping is in tents, high-quality meals (3 times a day) are served indoors. The site is equipped with bathrooms, showers, and all necessary facilities. Security is ensured through video surveillance and night shifts.\n\nDetails and registration: https://4peaks.am/tent-camp-stepanavan/",
-  "Status": "",
-  "Completeness": "",
+  "Status": "✅ Live",
+  "Completeness": "⚠️ Missing: Price",
   "source": "esora"
  }
 ]
