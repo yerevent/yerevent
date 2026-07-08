@@ -540,8 +540,14 @@ function parseSheetDate(raw){
   const cleaned=s.replace(/[–—]\d+/,'');const d=new Date(cleaned);if(!isNaN(d))return toDateStr(d);return'';
 }
 function parseSheetTime(raw){
-  if(!raw)return'';const s=String(raw).trim();if(!s)return'';
-  if(s.startsWith('1899-12-30T')){const d=new Date(s);let h=d.getUTCHours(),m=d.getUTCMinutes();const ampm=h>=12?'PM':'AM';h=h%12||12;return`${h}:${String(m).padStart(2,'0')} ${ampm}`;}
+  if(raw==null)return'';let s=String(raw).trim();if(!s)return'';
+  const fmt=(h24,min)=>{const ap=h24>=12?'PM':'AM';let h=h24%12;if(h===0)h=12;return min?`${h}:${String(min).padStart(2,'0')} ${ap}`:`${h} ${ap}`;};
+  const one=(p)=>{const m=String(p).trim().match(/(\d{1,2})(?::(\d{2}))?(?::\d{2})?\s*(am|pm|a\.m\.|p\.m\.)?/i);if(!m)return'';let h=parseInt(m[1],10),min=m[2]?parseInt(m[2],10):0;const ap=m[3]?m[3].toLowerCase().replace(/\./g,''):'';if(ap==='am'){if(h===12)h=0;}else if(ap==='pm'){if(h!==12)h+=12;}if(h>23)h=h%24;return fmt(h,min);};
+  if(/^1899-12-30T/.test(s)){const d=new Date(s);return fmt(d.getUTCHours(),d.getUTCMinutes());}
+  const parts=s.split(/\s*(?:–|—|-|to|until)\s*/i);
+  const out=parts.map(one).filter(Boolean);
+  if(out.length>=2)return`${out[0]} – ${out[1]}`;
+  if(out.length===1)return out[0];
   return s;
 }
 function formatPrice(raw){
