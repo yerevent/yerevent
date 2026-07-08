@@ -164,6 +164,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .list-month-heading{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--text-soft);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
 .event-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:8px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:start;cursor:pointer;transition:border-color 0.2s,transform 0.15s;animation:fadeIn 0.3s ease both;}
 .event-card:hover{border-color:rgba(201,82,108,0.4);transform:translateX(3px);}
+.event-thumb{float:right;width:56px;height:56px;object-fit:cover;border-radius:8px;margin:0 0 6px 12px;border:1px solid var(--border);}
+.detail-poster{width:100%;max-height:320px;object-fit:cover;border-radius:var(--radius);margin-bottom:14px;border:1px solid var(--border);}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 .event-date-block{min-width:50px;text-align:center;background:var(--bg);border-radius:10px;padding:8px 6px;}
 .event-date-day{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;line-height:1;color:var(--accent);}
@@ -560,6 +562,7 @@ function normaliseEvent(raw){
   return{name:raw['name']||'',date:dateStr,rawDate,time:parseSheetTime(raw['Time']),city:raw['City']||'',
     location:raw['Place']||'',type:(raw['Type']||'').toLowerCase(),price:formatPrice(raw['Price']),
     link:raw['Link']||'',description:raw['Description']||'',
+    image:raw['image']||raw['Image']||'',
     lat:isNaN(lat)?null:lat,lng:isNaN(lng)?null:lng};
 }
 let _spanSeq=0;
@@ -855,7 +858,7 @@ function openDetail(ev){
       </div>`
     :`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.85rem;padding:20px;">No location info</div>`;
 
-  document.getElementById('detailBody').innerHTML=`<div class="modal-body-left"><div class="detail-event-name">${esc(ev.name)}</div><div class="detail-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div><div class="detail-meta"><div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>${ev.time?`<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>`:''}${ev.location?`<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> <a href="${esc(gmapsUrl)}" target="_blank" rel="noopener" class="detail-address-link">${esc(ev.location)}</a></div>`:''}</div>${ev.description?`<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>`:''}</div><div class="modal-body-right">${mapHTML}<div class="detail-actions"><button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>${ev.link?`<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>`:''}</div></div>`;
+  document.getElementById('detailBody').innerHTML=`<div class="modal-body-left">${ev.image?`<img class="detail-poster" src="${esc(ev.image)}" alt="" loading="lazy" onerror="this.remove()">`:''}<div class="detail-event-name">${esc(ev.name)}</div><div class="detail-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div><div class="detail-meta"><div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>${ev.time?`<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>`:''}${ev.location?`<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> <a href="${esc(gmapsUrl)}" target="_blank" rel="noopener" class="detail-address-link">${esc(ev.location)}</a></div>`:''}</div>${ev.description?`<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>`:''}</div><div class="modal-body-right">${mapHTML}<div class="detail-actions"><button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>${ev.link?`<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>`:''}</div></div>`;
   document.getElementById('gcalBtn').addEventListener('click',()=>addToGCal(currentEvent));
 
   if(ev.location&&gmapsUrl){
@@ -901,7 +904,7 @@ function renderList(){
     group.innerHTML=`<div class="list-month-heading">${MONTHS_LONG[parseInt(m)-1]} ${y}</div>`;
     evs.forEach((ev,idx)=>{
       const d=parseInt(ev.date.split('-')[2]);const card=document.createElement('div');card.className='event-card';card.style.animationDelay=`${idx*40}ms`;
-      card.innerHTML=`<div class="event-date-block"><div class="event-date-day">${d}</div><div class="event-date-month">${MONTHS_SHORT[parseInt(m)-1]}</div></div><div class="event-info"><div class="event-name">${esc(ev.name)}</div><div class="event-meta">${ev.time?`<span>🕐 ${esc(ev.time)}</span>`:''} ${ev.location?`<span>📍 ${esc(ev.location)}</span>`:''}</div><div class="event-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div></div><div class="event-action"><button class="gcal-btn">+ GCal</button></div>`;
+      card.innerHTML=`<div class="event-date-block"><div class="event-date-day">${d}</div><div class="event-date-month">${MONTHS_SHORT[parseInt(m)-1]}</div></div><div class="event-info">${ev.image?`<img class="event-thumb" src="${esc(ev.image)}" alt="" loading="lazy" onerror="this.remove()">`:''}<div class="event-name">${esc(ev.name)}</div><div class="event-meta">${ev.time?`<span>🕐 ${esc(ev.time)}</span>`:''} ${ev.location?`<span>📍 ${esc(ev.location)}</span>`:''}</div><div class="event-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div></div><div class="event-action"><button class="gcal-btn">+ GCal</button></div>`;
       card.querySelector('.gcal-btn').addEventListener('click',e=>{e.stopPropagation();addToGCal(ev);});
       card.addEventListener('click',()=>{document.getElementById('backBtn').style.display='none';document.getElementById('detailOverlay').classList.add('open');openDetail(ev);});
       group.appendChild(card);
