@@ -595,38 +595,33 @@ function adoptRaw(raw){
   allEvents=expandEvents(raw.map(normaliseEvent).filter(ev=>ev.name&&ev.date));
   lastFetchedAt=new Date();setSyncStatus('live');
 }
-function refreshFromApiInBackground(){
-  // The snapshot can lag admin edits by a few minutes — quietly double-check
-  // with the live API and re-render if anything changed (delete, edit, add).
-  fetch(API_URL+'?t='+Date.now()).then(r=>r.json()).then(raw=>{
-    if(!Array.isArray(raw))return;
-    if(JSON.stringify(raw)===_lastRawJSON)return;
-    adoptRaw(raw);applyFilters();
-  }).catch(()=>{});
+function fetchWithTimeout(url,ms){
+  const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),ms);
+  return fetch(url,{signal:ctrl.signal}).finally(()=>clearTimeout(t));
 }
 async function fetchEvents(isRefresh=false){
   if(!isRefresh){const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();showLoading();}
   setSyncStatus('loading');
+  // 1) LIVE sheet first — it is authoritative, so edits & deletions are always correct
+  //    on the very first paint (no stale "flash of old data").
   try{
-    let raw=null;
-    try{
-      const res=await fetch(EVENTS_JSON_URL+'?t='+Date.now());
-      if(!res.ok)throw new Error('snapshot unavailable');
-      raw=await res.json();
-    }catch(snapErr){
-      const res=await fetch(API_URL+'?t='+Date.now());raw=await res.json();
-    }
-    if(!Array.isArray(raw))throw new Error('bad data');
-    adoptRaw(raw);
-    refreshFromApiInBackground();
-  }catch(e){
-    let cached=null;
-    try{cached=JSON.parse(localStorage.getItem(LAST_GOOD_KEY));}catch(_){}
-    if(Array.isArray(cached)&&cached.length){
-      allEvents=expandEvents(cached.map(normaliseEvent).filter(ev=>ev.name&&ev.date));
-      setSyncStatus('cached');
-    }else{allEvents=[];setSyncStatus('error');}
-  }
+    const res=await fetchWithTimeout(API_URL+'?t='+Date.now(),6000);
+    const raw=await res.json();
+    if(Array.isArray(raw)){adoptRaw(raw);applyFilters();scheduleNextRefresh();return;}
+  }catch(e){/* live slow or down — fall back to the snapshot below */}
+  // 2) Fall back to the GitHub snapshot (served by GitHub Pages, effectively always up)
+  try{
+    const res=await fetch(EVENTS_JSON_URL+'?t='+Date.now());
+    const raw=await res.json();
+    if(Array.isArray(raw)){adoptRaw(raw);setSyncStatus('cached');applyFilters();scheduleNextRefresh();return;}
+  }catch(e){/* snapshot also unavailable — use last good below */}
+  // 3) Last resort: whatever we cached in this browser previously
+  let cached=null;
+  try{cached=JSON.parse(localStorage.getItem(LAST_GOOD_KEY));}catch(_){}
+  if(Array.isArray(cached)&&cached.length){
+    allEvents=expandEvents(cached.map(normaliseEvent).filter(ev=>ev.name&&ev.date));
+    setSyncStatus('cached');
+  }else{allEvents=[];setSyncStatus('error');}
   applyFilters();scheduleNextRefresh();
 }
 function setSyncStatus(state){
