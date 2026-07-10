@@ -1,5 +1,19 @@
 [
  {
+  "name": "ZZZDEDUPE TEST DELETE ME",
+  "Date": "December 31, 2026",
+  "Time": "9 PM",
+  "City": "Yerevan",
+  "Place": "Test Venue",
+  "Type": "social",
+  "Price": "Free",
+  "Link": "",
+  "Description": "dedupe test row",
+  "Status": "✅ Live",
+  "Completeness": "⚠️ Missing: Link",
+  "source": ""
+ },
+ {
   "name": "Dr. Martic Live + DJ Set",
   "Date": "July 19, 2025",
   "Time": "9 PM",
