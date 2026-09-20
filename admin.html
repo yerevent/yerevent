@@ -161,19 +161,24 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 
     <!-- PENDING -->
     <div class="view" id="view-pending">
-      <p class="hint">Events imported from Esora, waiting for your approval — <strong>upcoming ones only</strong>, soonest first. A red border means the description is missing — check the original post. Approving publishes to the website.</p>
+      <p class="hint">Everything imported from Esora. <strong>Upcoming</strong> is what still needs your decision; <strong>Past</strong> keeps everything that has already happened. A red border means the description is missing — check the original post. Approving publishes to the website.</p>
       <div class="topbtns">
-        <span class="count" id="pendingCount"></span>
+        <div class="grp">
+          <button class="btn ghost small on" id="penUpcomingBtn" onclick="setPendingWhen('upcoming')">Upcoming</button>
+          <button class="btn ghost small" id="penPastBtn" onclick="setPendingWhen('past')">Past</button>
+        </div>
         <button class="btn ghost small" onclick="loadPending()">↻ Refresh</button>
       </div>
+      <div class="topbtns"><span class="count" id="pendingCount"></span></div>
       <div id="pendingList"><span class="spin"></span> Loading…</div>
+      <div id="pendingFooter"></div>
     </div>
   </div>
 
   <div class="tabs">
     <button class="tab active" data-v="add" onclick="showTab('add')">➕ Add</button>
     <button class="tab" data-v="live" onclick="showTab('live')">📅 Live events</button>
-    <button class="tab" data-v="pending" onclick="showTab('pending')">⏳ Esora</button>
+    <button class="tab" data-v="pending" onclick="showTab('pending')">🗄 Database</button>
   </div>
 </div>
 
@@ -181,7 +186,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v1.1';
+const APP_VERSION = 'v1.2';
 const APP_DATE = '20 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -292,6 +297,8 @@ function cardHTML(ev, kind){
   const btns = kind==='live'
     ? `<button class="btn ghost small" onclick="editEvent(${ev.row})">✏️ Edit</button>
        <button class="btn red small" onclick="removeEvent(${ev.row}, this)">🗑 Delete</button>`
+    : kind==='past'
+    ? ''   /* already happened — kept to look back at, nothing to decide */
     : `<button class="btn green small" onclick="approveEvent(${ev.row}, this)">✅ Approve & publish</button>
        <button class="btn red small" onclick="dismissEvent(${ev.row})">🗑 Not interested</button>`;
   return `<div class="card ${noDesc?'nodesc':''}" id="card-${kind}-${ev.row}">
@@ -524,17 +531,26 @@ async function saveEdit(row){
     if(admSelDate&&liveMode==='cal')openAdmDay(admSelDate);
   }catch(e){status('Save failed: '+e.message,'err');}
 }
+/* Same idea as approving: the card goes immediately, Google is told after. */
 async function removeEvent(row, btn){
   const ev=liveRows.find(r=>r.row===row);
   if(!confirm('Delete "'+(ev?ev.name:'this event')+'" from the website?'))return;
   btn.disabled=true;
+  const card=document.getElementById('card-live-'+row);
+  if(card)card.remove();
+  liveRows=liveRows.filter(r=>r.row!==row);
+  document.getElementById('liveCount').textContent=liveRows.length+' events on the website';
+  status('Deleting "'+(ev?ev.name:'event')+'"…');
   try{
     await api({action:'removeEvent', row});
     status('Deleted ✔ — off the website within ~5 min');
     await loadLive(true);
     if(admSelDate&&liveMode==='cal')openAdmDay(admSelDate);
   }
-  catch(e){btn.disabled=false;status('Delete failed: '+e.message,'err');}
+  catch(e){
+    status('Delete failed: '+e.message+' — putting it back.','err');
+    await loadLive(true);
+  }
 }
 
 /* ---------- pending (esora) ---------- */
@@ -546,52 +562,107 @@ function pubAdd(ev){
   list.unshift({name:ev.name,date:fmtDate(ev.date),ts:Date.now()});
   try{localStorage.setItem(PUB_KEY,JSON.stringify(list.slice(0,80)));}catch(_){}
 }
+function pubRemove(ev){
+  const name=String(ev.name||''),date=fmtDate(ev.date);
+  try{localStorage.setItem(PUB_KEY,JSON.stringify(pubList().filter(p=>!(p.name===name&&p.date===date))));}catch(_){}
+}
 function fp(ev){return String(ev.name||'').trim().toLowerCase()+'|'+parseSheetDate(ev.date);}
 const HIDE_KEY='yerevent_dismissed_esora';
 function hideList(){try{return JSON.parse(localStorage.getItem(HIDE_KEY))||[];}catch(_){return[];}}
 function hideSave(list){try{localStorage.setItem(HIDE_KEY,JSON.stringify(list.slice(0,300)));}catch(_){}}
+/* Taking a card off the screen must never wait for the network: the card goes
+   straight away and the counts are patched, instead of redrawing the list. */
+function dropCard(row){
+  const card=document.getElementById('card-pending-'+row);
+  if(card){card.remove();return true;}
+  return false;
+}
 function dismissEvent(row){
   const ev=pendingRows.find(r=>r.row===row);if(!ev)return;
   const list=hideList();
   list.unshift({fp:fp(ev),name:ev.name,date:fmtDate(ev.date)});
   hideSave(list);
-  renderPending();
-  status('Hidden "'+ev.name+'" — find it under "Not interested" below if you change your mind.');
+  if(!dropCard(row))renderPending();else{pendingCounts();renderPendingFooter();}
+  status('Hidden "'+ev.name+'" — find it under "Not interested" at the bottom if you change your mind.');
 }
 function restoreEvent(fpVal){
   hideSave(hideList().filter(h=>h.fp!==fpVal));
   renderPending();
 }
-let showHidden=false,showUndated=false;
-function toggleHidden(){showHidden=!showHidden;renderPending();}
+let showHidden=false,showUndated=false,pendingWhen='upcoming',pastShown=0;
+const PAST_PAGE=100;
+function toggleHidden(){showHidden=!showHidden;renderPendingFooter();}
 function toggleUndated(){showUndated=!showUndated;renderPending();}
-/* The Pending sheet keeps every event ever imported, including ones that have
-   already happened. Only what is still to come is worth reviewing, so past
-   events are counted but not drawn — that's thousands of cards saved. */
-function renderPending(){
-  const el=document.getElementById('pendingList');
-  const hidden=hideList(),hiddenFps=new Set(hidden.map(h=>h.fp));
+function setPendingWhen(w){
+  pendingWhen=w;pastShown=PAST_PAGE;
+  document.getElementById('penUpcomingBtn').classList.toggle('on',w==='upcoming');
+  document.getElementById('penPastBtn').classList.toggle('on',w==='past');
+  renderPending();
+}
+function showMorePast(){pastShown+=PAST_PAGE;renderPending();}
+/* The Pending sheet keeps every event ever imported. Splitting it in two keeps
+   the review list short, and nothing is ever thrown away — the past ones stay
+   one tap away under "Past". */
+function pendingSplit(){
+  const hiddenFps=new Set(hideList().map(h=>h.fp));
   const today=toDateStr(new Date());
   const kept=pendingRows.filter(ev=>!hiddenFps.has(fp(ev)));
-  const upcoming=kept.filter(ev=>ev.dateStr&&ev.endStr>=today);
-  const undated=kept.filter(ev=>!ev.dateStr);
-  const past=kept.length-upcoming.length-undated.length;
-  document.getElementById('pendingCount').textContent=upcoming.length+' upcoming to review';
+  return {
+    upcoming:kept.filter(ev=>ev.dateStr&&ev.endStr>=today),
+    past:kept.filter(ev=>ev.dateStr&&ev.endStr<today),
+    undated:kept.filter(ev=>!ev.dateStr)
+  };
+}
+function pendingCounts(){
+  const s=pendingSplit();
+  document.getElementById('penUpcomingBtn').textContent='Upcoming ('+s.upcoming.length+')';
+  document.getElementById('penPastBtn').textContent='Past ('+s.past.length+')';
+  document.getElementById('pendingCount').textContent = pendingWhen==='upcoming'
+    ? s.upcoming.length+' waiting for your decision'
+    : s.past.length+' already happened — kept for reference';
+  return s;
+}
+function monthRun(list,kind){
   let html='',lastKey='';
-  upcoming.forEach(ev=>{
+  list.forEach(ev=>{
     const key=ev.dateStr.slice(0,7);
     if(key!==lastKey){
       lastKey=key;const[y,m]=key.split('-');
       html+=`<div class="month-heading">${MONTHS[parseInt(m)-1]+' '+y}</div>`;
     }
-    html+=cardHTML(ev,'pending');
+    html+=cardHTML(ev,kind);
   });
-  if(!upcoming.length)html='<p class="hint">Nothing upcoming to review 🎉</p>';
-  if(past)html+=`<p class="hint" style="margin-top:14px">${past} past event${past===1?' is':'s are'} in the sheet but not shown here — they have already happened.</p>`;
-  if(undated.length){
-    html+=`<div class="month-heading" style="cursor:pointer" onclick="toggleUndated()">📅 Date unclear (${undated.length}) ${showUndated?'▾':'▸'}</div>`;
-    if(showUndated)html+=undated.map(ev=>cardHTML(ev,'pending')).join('');
+  return html;
+}
+function renderPending(){
+  const el=document.getElementById('pendingList');
+  const s=pendingCounts();
+  let html='';
+  if(pendingWhen==='past'){
+    /* newest first, and only a slice at a time — 4000 cards at once freezes the phone */
+    const past=s.past.slice().reverse();
+    if(!pastShown)pastShown=PAST_PAGE;
+    const slice=past.slice(0,pastShown);
+    html=slice.length?monthRun(slice,'past'):'<p class="hint">Nothing here yet.</p>';
+    if(past.length>slice.length){
+      html+=`<div style="text-align:center;margin:16px 0"><button class="btn ghost small" onclick="showMorePast()">Show ${Math.min(PAST_PAGE,past.length-slice.length)} more (${past.length-slice.length} left)</button></div>`;
+    }
+  }else{
+    html=s.upcoming.length?monthRun(s.upcoming,'pending'):'<p class="hint">Nothing upcoming to review 🎉</p>';
+    if(s.undated.length){
+      html+=`<div class="month-heading" style="cursor:pointer" onclick="toggleUndated()">📅 Date unclear (${s.undated.length}) ${showUndated?'▾':'▸'}</div>`;
+      if(showUndated)html+=s.undated.map(ev=>cardHTML(ev,'pending')).join('');
+    }
   }
+  el.innerHTML=html;
+  renderPendingFooter();
+}
+/* The "published" and "not interested" lists live in their own box so a single
+   card being removed doesn't mean redrawing everything above them. */
+function renderPendingFooter(){
+  const el=document.getElementById('pendingFooter');
+  const hidden=hideList();
+  let html='';
   const pubs=pubList();
   if(pubs.length){
     html+=`<div class="month-heading" style="color:#75FF73">✔ Already picked & published</div>`+
@@ -621,28 +692,42 @@ async function loadPending(){
     pendingLoaded=true;
   }catch(e){el.innerHTML='';status('Could not load pending: '+e.message,'err');}
 }
-async function approveEvent(row, btn){
+/* Approvals run one after another in the background: the card leaves the screen
+   the moment you tap, and Google is told afterwards. One at a time matters —
+   row numbers shift with every publish, so two at once could publish the wrong
+   event. If one fails, its card comes back. */
+let approveQueue=Promise.resolve(),approvePending=0;
+function approveEvent(row, btn){
   const ev=pendingRows.find(r=>r.row===row);
   if(!ev){status('Could not find that event — refreshing the list.','err');loadPending();return;}
-  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Publishing… (can take ~30s)';
+  if(btn)btn.disabled=true;
+  pubAdd(ev);
+  pendingRows=pendingRows.filter(r=>r.row!==row);
+  if(!dropCard(row))renderPending();else{pendingCounts();renderPendingFooter();}
+  approvePending++;
+  status('Publishing "'+ev.name+'"…'+(approvePending>1?' ('+approvePending+' in the queue)':''));
+  approveQueue=approveQueue.then(()=>approveOne(ev)).catch(()=>{});
+}
+async function approveOne(ev){
   try{
-    // Row numbers shift when imports/cleanups run, so re-locate the event
-    // by name + date in the CURRENT sheet right before approving.
+    /* Row numbers shift when imports or cleanups run, so re-locate the event
+       by name + date in the CURRENT sheet right before approving. */
     const fresh=await api({action:'listPending'});
     const match=(fresh.rows||[]).find(r=>fp(r)===fp(ev));
     if(!match){
-      pendingRows=fresh.rows||[];renderPending();
-      status('That event is no longer in the pending list (already published or removed). List refreshed.','err');
+      status('"'+ev.name+'" was no longer in the list — it may already be published.','err');
       return;
     }
     await api({action:'approve', rows:[match.row]});
-    pubAdd(ev);
-    pendingRows=pendingRows.filter(r=>fp(r)!==fp(ev));
-    document.getElementById('pendingCount').textContent=pendingRows.length+' waiting for review';
-    renderPending();
     status('Published "'+ev.name+'" ✔ — on the website within ~5 min');
     liveLoaded=false;liveRows=[];
-  }catch(e){btn.disabled=false;btn.textContent='✅ Approve & publish';status('Approve failed: '+e.message,'err');}
+  }catch(e){
+    /* put it back so nothing is silently lost */
+    pubRemove(ev);
+    if(!pendingRows.some(r=>fp(r)===fp(ev))){pendingRows.push(ev);pendingRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));}
+    renderPending();
+    status('Could not publish "'+ev.name+'": '+e.message+' — it is back in the list.','err');
+  }finally{approvePending=Math.max(0,approvePending-1);}
 }
 
 /* ---------- extractor ---------- */
