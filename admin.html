@@ -83,6 +83,17 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 .statusbar.ok{background:#1f4d2e;color:#d9ffe3;}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--text-muted);border-top-color:var(--gold);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-2px;margin-right:6px;}
 @keyframes sp{to{transform:rotate(360deg)}}
+
+/* a press must be visible even before anything has happened */
+.btn.tapped{transform:scale(0.96);opacity:.65;}
+.btn.busy{opacity:.8;cursor:progress;}
+.btn.busy .spin{border-color:rgba(255,255,255,.35);border-top-color:#fff;}
+.btn.ghost.busy .spin{border-color:var(--text-muted);border-top-color:var(--gold);}
+/* a thin bar across the top for as long as anything is talking to Google */
+#busybar{position:fixed;top:0;left:0;right:0;height:3px;z-index:1300;display:none;overflow:hidden;background:rgba(252,204,132,.15);}
+#busybar.on{display:block;}
+#busybar::after{content:'';position:absolute;top:0;left:0;height:100%;width:35%;background:var(--gold);animation:slide 1.1s ease-in-out infinite;}
+@keyframes slide{0%{left:-35%}100%{left:100%}}
 /* type filter chips */
 .chiprow{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;-webkit-overflow-scrolling:touch;}
 .chip{flex:0 0 auto;border:1px solid var(--border);background:transparent;color:var(--text-soft);
@@ -131,6 +142,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 </style>
 </head>
 <body>
+<div id="busybar"></div>
 <div class="statusbar" id="statusbar"></div>
 
 <div id="loginView">
@@ -165,7 +177,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
         <div class="grp">
           <button class="btn ghost small" id="modeCalBtn" onclick="setLiveMode('cal')">📅 Calendar</button>
           <button class="btn ghost small" id="modeListBtn" onclick="setLiveMode('list')">☰ List</button>
-          <button class="btn ghost small" onclick="loadLive(true)">↻</button>
+          <button class="btn ghost small" onclick="runBtn(this,()=>loadLive(true),'')">↻</button>
         </div>
       </div>
       <p class="hint">Edits and deletions land on the website within ~5 minutes (next robot sync). This page always shows the real, current data.</p>
@@ -191,7 +203,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
           <button class="btn ghost small on" id="penUpcomingBtn" onclick="setPendingWhen('upcoming')">Upcoming</button>
           <button class="btn ghost small" id="penPastBtn" onclick="setPendingWhen('past')">Past</button>
         </div>
-        <button class="btn ghost small" onclick="loadPending()">↻ Refresh</button>
+        <button class="btn ghost small" onclick="runBtn(this,()=>loadPending(),'Loading…')">↻ Refresh</button>
       </div>
       <div class="chiprow" id="pendingTypes"></div>
       <div class="topbtns"><span class="count" id="pendingCount"></span></div>
@@ -211,7 +223,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v1.9';
+const APP_VERSION = 'v2.0';
 const APP_DATE = '20 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -236,12 +248,47 @@ function status(msg, kind){
   b.textContent=msg;b.className='statusbar '+(kind||'ok');b.style.display='block';
   clearTimeout(status._t);status._t=setTimeout(()=>b.style.display='none', kind==='err'?6000:3000);
 }
+/* ---------- showing that something is happening ----------
+   Google can take several seconds. Without a sign of life it looks like the
+   tap missed, so it gets pressed again. Three things answer that: the button
+   flashes on touch, a button that starts real work goes into a spinner until
+   it finishes, and a bar sits at the top of the screen for as long as
+   anything at all is talking to Google — including work running in the
+   background after a card has already left the screen. */
+let apiBusy=0;
+function busyBar(delta){
+  apiBusy=Math.max(0,apiBusy+delta);
+  const el=document.getElementById('busybar');
+  if(el)el.classList.toggle('on',apiBusy>0);
+}
+document.addEventListener('pointerdown',e=>{
+  const b=e.target.closest('.btn,.chip,.day-head');
+  if(!b||b.disabled)return;
+  b.classList.add('tapped');
+  setTimeout(()=>b.classList.remove('tapped'),220);
+});
+/* wraps a click handler: the button spins and cannot be pressed twice */
+async function runBtn(btn,fn,label){
+  if(!btn)return fn();
+  if(btn.dataset.busy)return;          /* already running — ignore the retap */
+  const was=btn.innerHTML;
+  btn.dataset.busy='1';btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span>'+(label||'Working…');
+  try{ return await fn(); }
+  finally{
+    delete btn.dataset.busy;
+    if(document.body.contains(btn)){btn.disabled=false;btn.innerHTML=was;}
+  }
+}
 async function api(payload){
   payload.password = localStorage.getItem(PW_KEY) || '';
-  const res = await fetch(API_URL, {method:'POST', body: JSON.stringify(payload)});
-  const out = await res.json();
-  if(!out.ok) throw new Error(out.error || 'Something went wrong');
-  return out;
+  busyBar(1);
+  try{
+    const res = await fetch(API_URL, {method:'POST', body: JSON.stringify(payload)});
+    const out = await res.json();
+    if(!out.ok) throw new Error(out.error || 'Something went wrong');
+    return out;
+  } finally { busyBar(-1); }
 }
 
 /* ---------- login ---------- */
@@ -370,7 +417,7 @@ function cardHTML(ev, kind){
        <button class="btn red small" onclick="removeEvent(${ev.row}, this)">🗑 Delete</button>`
     : kind==='past'
     ? ''   /* already happened — kept to look back at, nothing to decide */
-    : `<button class="btn green small" onclick="approveEvent(${ev.row}, this)">✅ Approve & publish</button>
+    : `<button class="btn green small" onclick="runBtn(this,()=>approveEvent(${ev.row},null),'Publishing…')">✅ Approve &amp; publish</button>
        <button class="btn ghost small" onclick="editPending(${ev.row})">✏️ Edit</button>
        <button class="btn red small" onclick="dismissEvent(${ev.row})">🗑 Not interested</button>`;
   return `<div class="card ${noDesc?'nodesc':''}" id="card-${kind}-${ev.row}">
@@ -577,7 +624,7 @@ function formHTML(ev, submitLabel, submitFn, extraBtn){
     </div>
     <label>Description</label><textarea id="f-desc">${esc(ev.description)}</textarea>
     <div class="cardbtns">
-      <button class="btn" onclick="${submitFn}">${submitLabel}</button>
+      <button class="btn" onclick="runBtn(this,()=>${submitFn},'Saving…')">${submitLabel}</button>
       ${extraBtn||''}
       <button class="btn ghost" onclick="this.closest('.form').remove()">Cancel</button>
     </div>
@@ -813,7 +860,7 @@ function editPending(row){
   if(!anchor)return;
   anchor.insertAdjacentHTML('afterend',
     formHTML(ev,'🚀 Save &amp; publish',`savePendingEdit(${row},true)`,
-      `<button class="btn ghost" onclick="savePendingEdit(${row},false)">💾 Save, don't publish yet</button>`));
+      `<button class="btn ghost" onclick="runBtn(this,()=>savePendingEdit(${row},false),'Saving…')">💾 Save, don't publish yet</button>`));
 }
 async function savePendingEdit(row,publish){
   const ev=pendingRows.find(r=>r.row===row);
@@ -862,7 +909,7 @@ function dismissGroup(key){
 function versionLine(ev,key,kind){
   const bits=[fmtTime(ev.time),ev.place?('📍 '+ev.place):'',ev.price||''].filter(Boolean).map(esc).join(' · ');
   const pick=kind==='past'?'':
-    `<button class="btn green small" onclick="approveVersion(${ev.row},'${key}')">✅ Use this one</button>
+    `<button class="btn green small" onclick="runBtn(this,()=>approveVersion(${ev.row},'${key}'),'Publishing…')">✅ Use this one</button>
      <button class="btn ghost small" onclick="editPending(${ev.row})">✏️ Edit</button>`;
   return `<div class="version" id="ver-${ev.row}">
     <h3 style="font-size:0.92rem">${esc(ev.name)}</h3>
