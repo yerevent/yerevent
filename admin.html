@@ -114,6 +114,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 <div id="loginView">
   <h1>yer<span>event</span> admin</h1>
   <p class="subtitle">enter your admin password</p>
+  <p class="subtitle version-stamp"></p>
   <input type="password" id="pwInput" placeholder="password" autocomplete="current-password">
   <button class="btn" id="loginBtn" onclick="doLogin()">Enter</button>
 </div>
@@ -121,6 +122,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 <div id="appView" style="display:none">
   <div class="wrap">
     <h1>yer<span>event</span> admin</h1>
+    <p class="subtitle version-stamp"></p>
 
     <!-- ADD -->
     <div class="view active" id="view-add">
@@ -178,6 +180,9 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
+/* Bump both of these on every edit, so the page always says which version it is. */
+const APP_VERSION = 'v1.1';
+const APP_DATE = '20 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
@@ -185,6 +190,17 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 let liveLoaded=false, pendingLoaded=false;
 
 function esc(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;}
+/* A copy saved to the laptop can't talk to Google (the browser blocks it) and
+   goes stale the moment the real page changes — so say so, loudly. */
+const IS_LOCAL_COPY = location.protocol === 'file:';
+document.querySelectorAll('.version-stamp').forEach(el=>{
+  el.textContent = APP_VERSION + ' · ' + APP_DATE;
+  if(IS_LOCAL_COPY){
+    el.innerHTML = APP_VERSION + ' · ' + APP_DATE +
+      '<br><strong style="color:#ff6b6b">This is a downloaded copy — it can\'t load your events.</strong>' +
+      '<br>Open <a href="https://yerevent.club/admin.html" style="color:var(--gold)">yerevent.club/admin.html</a> instead.';
+  }
+});
 function status(msg, kind){
   const b=document.getElementById('statusbar');
   b.textContent=msg;b.className='statusbar '+(kind||'ok');b.style.display='block';
