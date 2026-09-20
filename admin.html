@@ -211,7 +211,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v1.7';
+const APP_VERSION = 'v1.8';
 const APP_DATE = '20 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -370,6 +370,7 @@ function cardHTML(ev, kind){
     : kind==='past'
     ? ''   /* already happened — kept to look back at, nothing to decide */
     : `<button class="btn green small" onclick="approveEvent(${ev.row}, this)">✅ Approve & publish</button>
+       <button class="btn ghost small" onclick="editPending(${ev.row})">✏️ Edit</button>
        <button class="btn red small" onclick="dismissEvent(${ev.row})">🗑 Not interested</button>`;
   return `<div class="card ${noDesc?'nodesc':''}" id="card-${kind}-${ev.row}">
     <h3>${esc(ev.name)}</h3>
@@ -558,7 +559,7 @@ function placeEvent(ev){
 }
 
 /* ---------- edit / delete ---------- */
-function formHTML(ev, submitLabel, submitFn){
+function formHTML(ev, submitLabel, submitFn, extraBtn){
   const opts=(list,sel)=>list.map(v=>`<option ${String(sel||'').toLowerCase()===v.toLowerCase()?'selected':''}>${v}</option>`).join('');
   return `<div class="form">
     <label>Name</label><input id="f-name" value="${esc(ev.name)}">
@@ -576,6 +577,7 @@ function formHTML(ev, submitLabel, submitFn){
     <label>Description</label><textarea id="f-desc">${esc(ev.description)}</textarea>
     <div class="cardbtns">
       <button class="btn" onclick="${submitFn}">${submitLabel}</button>
+      ${extraBtn||''}
       <button class="btn ghost" onclick="this.closest('.form').remove()">Cancel</button>
     </div>
   </div>`;
@@ -783,6 +785,47 @@ function groupPending(list){
 let openGroups=new Set();
 function toggleGroup(key){openGroups.has(key)?openGroups.delete(key):openGroups.add(key);renderPending();}
 function rowsOf(it){return it.versions;}
+/* ---------- fix a listing before it goes live ----------
+   Imported text is often nearly right: a messy name, a price from the wrong
+   post, a missing venue. Editing writes the correction back to the database
+   row first, so publishing sends the corrected version — and so the fix is
+   still there if it is published later instead.
+
+   Row numbers move whenever something is published, so the row is found
+   again by name+date at the moment of saving. Writing to a stale row number
+   is what overwrote an event back in July. */
+function editPending(row){
+  const ev=pendingRows.find(r=>r.row===row);if(!ev)return;
+  document.querySelectorAll('#view-pending .form').forEach(f=>f.remove());
+  const anchor=document.getElementById('card-pending-'+row)||document.getElementById('ver-'+row);
+  if(!anchor)return;
+  anchor.insertAdjacentHTML('afterend',
+    formHTML(ev,'🚀 Save &amp; publish',`savePendingEdit(${row},true)`,
+      `<button class="btn ghost" onclick="savePendingEdit(${row},false)">💾 Save, don't publish yet</button>`));
+}
+async function savePendingEdit(row,publish){
+  const ev=pendingRows.find(r=>r.row===row);
+  if(!ev){status('Could not find that listing — refreshing.','err');loadPending();return;}
+  const data=readForm();
+  if(!data.name){status('Give it a name first.','err');return;}
+  status('Saving…');
+  try{
+    const fresh=await api({action:'listPending'});
+    const match=(fresh.rows||[]).find(r=>fp(r)===fp(ev));
+    if(!match){
+      status('That listing is no longer in the database — it may already be published. Refreshing.','err');
+      loadPending();return;
+    }
+    await api({action:'updateRow', sheet:'Pending', row:match.row, event:data});
+    Object.assign(ev,data,{row:match.row});
+    ev.dateStr=parseSheetDate(ev.date);
+    const days=ev.dateStr?getMultiDayDates(String(ev.date||''),ev.dateStr):[];
+    ev.endStr=days.length?days[days.length-1]:ev.dateStr;
+    document.querySelectorAll('#view-pending .form').forEach(f=>f.remove());
+    if(publish){approveEvent(match.row,null);}
+    else{renderPending();status('Saved to the database ✔ — still waiting for your decision');}
+  }catch(e){status('Save failed: '+e.message,'err');}
+}
 /* picking one version publishes it and drops the rest out of the way */
 function approveVersion(row,key){
   const it=(window._pendingItems||[]).find(i=>i.key===key);
@@ -806,8 +849,10 @@ function dismissGroup(key){
 }
 function versionLine(ev,key,kind){
   const bits=[fmtTime(ev.time),ev.place?('📍 '+ev.place):'',ev.price||''].filter(Boolean).map(esc).join(' · ');
-  const pick=kind==='past'?'':`<button class="btn green small" onclick="approveVersion(${ev.row},'${key}')">✅ Use this one</button>`;
-  return `<div class="version">
+  const pick=kind==='past'?'':
+    `<button class="btn green small" onclick="approveVersion(${ev.row},'${key}')">✅ Use this one</button>
+     <button class="btn ghost small" onclick="editPending(${ev.row})">✏️ Edit</button>`;
+  return `<div class="version" id="ver-${ev.row}">
     <h3 style="font-size:0.92rem">${esc(ev.name)}</h3>
     <div class="meta">${bits||'<i>nothing filled in</i>'}</div>
     <div class="tagrow">${linkTag(ev)}</div>
@@ -967,7 +1012,11 @@ async function approveOne(ev){
     const fresh=await api({action:'listPending'});
     const match=(fresh.rows||[]).find(r=>fp(r)===fp(ev));
     if(!match){
-      status('"'+ev.name+'" was no longer in the list — it may already be published.','err');
+      /* nothing was sent, so put it back rather than leaving it marked done */
+      pubRemove(ev);
+      if(!pendingRows.some(r=>fp(r)===fp(ev))){pendingRows.push(ev);pendingRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));}
+      renderPending();
+      status('Could not find "'+ev.name+'" in the database, so nothing was published — it is back in the list.','err');
       return;
     }
     await api({action:'approve', rows:[match.row]});
