@@ -83,6 +83,23 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 .statusbar.ok{background:#1f4d2e;color:#d9ffe3;}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--text-muted);border-top-color:var(--gold);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-2px;margin-right:6px;}
 @keyframes sp{to{transform:rotate(360deg)}}
+/* type filter chips */
+.chiprow{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;-webkit-overflow-scrolling:touch;}
+.chip{flex:0 0 auto;border:1px solid var(--border);background:transparent;color:var(--text-soft);
+  border-radius:100px;padding:6px 13px;font-family:'Outfit',sans-serif;font-size:0.75rem;font-weight:600;
+  cursor:pointer;text-transform:capitalize;white-space:nowrap;}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* one day at a time */
+.day{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden;background:var(--surface);}
+.day.open{border-color:rgba(252,204,132,.35);}
+.day-head{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:13px 15px;background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;text-align:left;}
+.day-name{color:var(--gold);font-weight:600;font-size:0.9rem;}
+.day-count{color:var(--text-muted);font-size:0.74rem;white-space:nowrap;}
+.day-body{padding:2px 12px 4px;border-top:1px solid var(--border);}
+.day-body .card{background:var(--surface2);}
+
 /* grouped cards: versions of one event, or the dates of a weekly series */
 .versions{margin-top:12px;border-top:1px solid var(--border);}
 .version{padding:12px 0 2px;border-bottom:1px dashed var(--border);}
@@ -176,6 +193,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
         </div>
         <button class="btn ghost small" onclick="loadPending()">↻ Refresh</button>
       </div>
+      <div class="chiprow" id="pendingTypes"></div>
       <div class="topbtns"><span class="count" id="pendingCount"></span></div>
       <div id="pendingList"><span class="spin"></span> Loading…</div>
       <div id="pendingFooter"></div>
@@ -193,7 +211,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v1.6';
+const APP_VERSION = 'v1.7';
 const APP_DATE = '20 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -641,17 +659,15 @@ function restoreEvent(fpVal){
   hideSave(hideList().filter(h=>h.fp!==fpVal));
   renderPending();
 }
-let showHidden=false,showUndated=false,pendingWhen='upcoming',pastShown=0;
-const PAST_PAGE=100;
+let showHidden=false,showUndated=false,pendingWhen='upcoming';
 function toggleHidden(){showHidden=!showHidden;renderPendingFooter();}
 function toggleUndated(){showUndated=!showUndated;renderPending();}
 function setPendingWhen(w){
-  pendingWhen=w;pastShown=PAST_PAGE;
+  pendingWhen=w;openDays=new Set();daysShown=DAYS_PAGE;
   document.getElementById('penUpcomingBtn').classList.toggle('on',w==='upcoming');
   document.getElementById('penPastBtn').classList.toggle('on',w==='past');
   renderPending();
 }
-function showMorePast(){pastShown+=PAST_PAGE;renderPending();}
 /* The Pending sheet keeps every event ever imported. Splitting it in two keeps
    the review list short, and nothing is ever thrown away — the past ones stay
    one tap away under "Past". */
@@ -665,15 +681,40 @@ function pendingSplit(){
     undated:kept.filter(ev=>!ev.dateStr)
   };
 }
+/* ---------- filter by type ---------- */
+let typeFilter='';
+function typeFiltered(list){
+  return typeFilter?list.filter(ev=>String(ev.type||'').trim().toLowerCase()===typeFilter):list;
+}
+function setTypeFilter(t){
+  typeFilter=(t===typeFilter)?'':t;
+  openDays=new Set();daysShown=DAYS_PAGE;
+  renderPending();
+}
+function renderTypeFilter(s){
+  const el=document.getElementById('pendingTypes');
+  if(!el)return;
+  const rows=pendingWhen==='upcoming'?s.upcoming:s.past;
+  const counts={};
+  rows.forEach(ev=>{const t=String(ev.type||'').trim().toLowerCase();if(t)counts[t]=(counts[t]||0)+1;});
+  const present=TYPES.filter(t=>counts[t]).sort((a,b)=>counts[b]-counts[a]);
+  el.innerHTML=
+    `<button class="chip ${typeFilter?'':'on'}" onclick="setTypeFilter('')">All (${rows.length})</button>`+
+    present.map(t=>{
+      const c=TYPE_COLOR[t]||'#888';
+      return `<button class="chip ${typeFilter===t?'on':''}" style="${typeFilter===t?`background:${c};border-color:${c};color:#1f0d15`:`color:${c};border-color:${c}66`}" onclick="setTypeFilter('${t}')">${esc(t)} (${counts[t]})</button>`;
+    }).join('');
+}
 function pendingCounts(){
   const s=pendingSplit();
   document.getElementById('penUpcomingBtn').textContent='Upcoming ('+s.upcoming.length+')';
   document.getElementById('penPastBtn').textContent='Past ('+s.past.length+')';
-  const rows=pendingWhen==='upcoming'?s.upcoming:s.past;
+  const rows=typeFiltered(pendingWhen==='upcoming'?s.upcoming:s.past);
   const cards=groupPending(rows).length;
+  const what=typeFilter?typeFilter+' events':'events';
   document.getElementById('pendingCount').textContent = pendingWhen==='upcoming'
-    ? cards+' to review'+(cards<rows.length?' ('+rows.length+' rows — repeats and weekly series grouped)':'')
-    : cards+' already happened — kept for reference'+(cards<rows.length?' ('+rows.length+' rows)':'');
+    ? cards+' '+what+' to review'+(cards<rows.length?' ('+rows.length+' listings, repeats grouped)':'')
+    : cards+' '+what+' already happened — kept for reference';
   return s;
 }
 /* ---------- grouping ----------
@@ -685,7 +726,6 @@ function pendingCounts(){
    versions side by side, and a name that runs on 3+ dates becomes one series
    card that opens up. Nothing is merged in the sheet — this is only how the
    list is drawn. */
-const SERIES_MIN=3;
 function normName(s){return String(s||'').toLowerCase().replace(/[^a-z0-9Ѐ-ӿ԰-֏]/g,'');}
 /* the version with the most filled in is the one worth showing first */
 function versionScore(ev){
@@ -732,24 +772,17 @@ function groupPending(list){
     d.otherNames=[...new Set(d.versions.map(v=>String(v.name||'').trim()))]
                    .filter(n=>n&&normName(n)!==normName(d.name));
   });
-  const byName=new Map();
-  days.forEach(d=>{
-    const k=normName(d.name);
-    if(!byName.has(k))byName.set(k,[]);
-    byName.get(k).push(d);
-  });
-  const items=[];
-  byName.forEach((days,k)=>{
-    days.sort((a,b)=>a.dateStr.localeCompare(b.dateStr));
-    if(days.length>=SERIES_MIN)items.push({type:'series',key:'s'+k,name:days[0].name,days});
-    else days.forEach(d=>items.push({type:d.versions.length>1?'versions':'one',...d}));
-  });
-  return items.sort((a,b)=>(a.type==='series'?a.days[0].dateStr:a.dateStr).localeCompare(b.type==='series'?b.days[0].dateStr:b.dateStr));
+  /* a name that comes back week after week is worth saying so on the card,
+     now that the list opens a day at a time */
+  const runs=new Map();
+  days.forEach(d=>{const k=normName(d.name);runs.set(k,(runs.get(k)||0)+1);});
+  days.forEach(d=>{d.recurs=runs.get(normName(d.name))||1;});
+  return days.map(d=>({type:d.versions.length>1?'versions':'one',...d}))
+             .sort((a,b)=>a.dateStr.localeCompare(b.dateStr));
 }
 let openGroups=new Set();
 function toggleGroup(key){openGroups.has(key)?openGroups.delete(key):openGroups.add(key);renderPending();}
-function itemDate(it){return it.type==='series'?it.days[0].dateStr:it.dateStr;}
-function rowsOf(it){return it.type==='series'?it.days.flatMap(d=>d.versions):it.versions;}
+function rowsOf(it){return it.versions;}
 /* picking one version publishes it and drops the rest out of the way */
 function approveVersion(row,key){
   const it=(window._pendingItems||[]).find(i=>i.key===key);
@@ -799,42 +832,55 @@ function versionsCardHTML(g,kind){
     ${open?`<div class="versions">${g.versions.map(ev=>versionLine(ev,g.key,kind)).join('')}</div>`:''}
   </div>`;
 }
-function seriesCardHTML(s,kind){
-  const open=openGroups.has(s.key);
-  const first=s.days[0],last=s.days[s.days.length-1];
-  const place=first.versions[0].place;
-  const dismiss=kind==='past'?'':`<button class="btn red small" onclick="dismissGroup('${s.key}')">🗑 Not interested</button>`;
-  return `<div class="card" id="card-pending-${first.versions[0].row}">
-    <h3>${esc(s.name)}</h3>
-    <div class="meta">${esc(fmtDate(first.versions[0].date))} – ${esc(fmtDate(last.versions[0].date))}${place?' · 📍 '+esc(place):''}</div>
-    <div class="tagrow"><span class="tag" style="color:#60a5fa;background:#60a5fa22">🔁 runs on ${s.days.length} dates</span></div>
-    <div class="cardbtns">
-      <button class="btn ghost small" onclick="toggleGroup('${s.key}')">${open?'▾ Hide the dates':'▸ Show the '+s.days.length+' dates'}</button>
-      ${dismiss}
-    </div>
-    ${open?`<div class="versions">${s.days.map(d=>d.versions.length>1
-        ?versionsCardHTML(d,kind)
-        :`<div class="version"><div class="meta">${esc(fmtDate(d.versions[0].date))} · ${esc(fmtTime(d.versions[0].time))}</div>
-           <div class="cardbtns">${kind==='past'?'':`<button class="btn green small" onclick="approveEvent(${d.versions[0].row},null)">✅ Publish this date</button>`}</div></div>`
-      ).join('')}</div>`:''}
-  </div>`;
+function itemCardHTML(it,kind){
+  return it.type==='versions'?versionsCardHTML(it,kind):cardHTML(it.versions[0],kind);
 }
-function monthRun(list,kind){
-  return itemsHTML(groupPending(list),kind);
+/* ---------- one day at a time ----------
+   Hundreds of cards in one scroll is unreadable. The list is now a row of
+   days; opening one shows that day's events and nothing else. */
+const DAYS_PAGE=30;
+let openDays=new Set(),daysShown=0;
+function toggleDay(d){openDays.has(d)?openDays.delete(d):openDays.add(d);renderPending();}
+function showMoreDays(){daysShown+=DAYS_PAGE;renderPending();}
+function dayLabel(dateStr){
+  const [y,m,d]=dateStr.split('-').map(Number);
+  const dt=new Date(y,m-1,d);
+  const dow=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dt.getDay()];
+  const today=toDateStr(new Date());
+  const tom=toDateStr(new Date(Date.now()+864e5));
+  const when=dateStr===today?'Today · ':dateStr===tom?'Tomorrow · ':'';
+  return when+dow+', '+d+' '+MONTHS[m-1];
 }
-function itemsHTML(items,kind){
+function daysHTML(items,kind){
   window._pendingItems=(window._pendingItems||[]).concat(items);
-  let html='',lastKey='';
-  items.forEach(it=>{
-    const key=itemDate(it).slice(0,7);
-    if(key!==lastKey){
-      lastKey=key;const[y,m]=key.split('-');
+  const byDate=new Map();
+  items.forEach(it=>{if(!byDate.has(it.dateStr))byDate.set(it.dateStr,[]);byDate.get(it.dateStr).push(it);});
+  let days=[...byDate.keys()].sort();
+  if(kind==='past')days.reverse();
+  if(!daysShown)daysShown=DAYS_PAGE;
+  /* the soonest day starts open, so the tab is never a wall of closed rows */
+  if(!openDays.size&&days.length)openDays.add(days[0]);
+  const shown=days.slice(0,daysShown);
+  let html='',lastMonth='';
+  shown.forEach(d=>{
+    const mk=d.slice(0,7);
+    if(mk!==lastMonth){
+      lastMonth=mk;const[y,m]=mk.split('-');
       html+=`<div class="month-heading">${MONTHS[parseInt(m)-1]+' '+y}</div>`;
     }
-    html+= it.type==='series' ? seriesCardHTML(it,kind)
-         : it.type==='versions' ? versionsCardHTML(it,kind)
-         : cardHTML(it.versions[0],kind);
+    const list=byDate.get(d),open=openDays.has(d);
+    const rows=list.reduce((n,it)=>n+it.versions.length,0);
+    html+=`<div class="day ${open?'open':''}">
+      <button class="day-head" onclick="toggleDay('${d}')">
+        <span class="day-name">${esc(dayLabel(d))}</span>
+        <span class="day-count">${list.length} event${list.length===1?'':'s'}${rows>list.length?' · '+rows+' listings':''} ${open?'▾':'▸'}</span>
+      </button>
+      ${open?`<div class="day-body">${list.map(it=>itemCardHTML(it,kind)).join('')}</div>`:''}
+    </div>`;
   });
+  if(days.length>shown.length){
+    html+=`<div style="text-align:center;margin:16px 0"><button class="btn ghost small" onclick="showMoreDays()">Show more days (${days.length-shown.length} left)</button></div>`;
+  }
   return html;
 }
 function renderPending(){
@@ -842,22 +888,19 @@ function renderPending(){
   window._pendingItems=[];
   _liveIx=(liveRows&&liveRows.length)?liveIndex():null;
   const s=pendingCounts();
+  renderTypeFilter(s);
   let html='';
   if(pendingWhen==='past'){
-    /* newest first, and only a slice at a time — thousands of cards at once
-       freezes the phone. Grouped first, so a weekly series stays one card. */
-    if(!pastShown)pastShown=PAST_PAGE;
-    const items=groupPending(s.past).reverse();
-    const slice=items.slice(0,pastShown);
-    html=slice.length?itemsHTML(slice,'past'):'<p class="hint">Nothing here yet.</p>';
-    if(items.length>slice.length){
-      html+=`<div style="text-align:center;margin:16px 0"><button class="btn ghost small" onclick="showMorePast()">Show ${Math.min(PAST_PAGE,items.length-slice.length)} more (${items.length-slice.length} left)</button></div>`;
-    }
+    const items=groupPending(typeFiltered(s.past));
+    html=items.length?daysHTML(items,'past'):'<p class="hint">Nothing here for this type.</p>';
   }else{
-    html=s.upcoming.length?monthRun(s.upcoming,'pending'):'<p class="hint">Nothing upcoming to review 🎉</p>';
-    if(s.undated.length){
-      html+=`<div class="month-heading" style="cursor:pointer" onclick="toggleUndated()">📅 Date unclear (${s.undated.length}) ${showUndated?'▾':'▸'}</div>`;
-      if(showUndated)html+=s.undated.map(ev=>cardHTML(ev,'pending')).join('');
+    const items=groupPending(typeFiltered(s.upcoming));
+    html=items.length?daysHTML(items,'pending')
+       :`<p class="hint">Nothing upcoming ${typeFilter?'of this type':'to review'} 🎉</p>`;
+    const undated=typeFiltered(s.undated);
+    if(undated.length){
+      html+=`<div class="month-heading" style="cursor:pointer" onclick="toggleUndated()">📅 Date unclear (${undated.length}) ${showUndated?'▾':'▸'}</div>`;
+      if(showUndated)html+=undated.map(ev=>cardHTML(ev,'pending')).join('');
     }
   }
   el.innerHTML=html;
