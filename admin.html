@@ -211,13 +211,13 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v1.8';
+const APP_VERSION = 'v1.9';
 const APP_DATE = '20 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-let liveLoaded=false, pendingLoaded=false;
+let liveLoaded=false, pendingLoaded=false, pendingLoadedAt=0;
 
 function esc(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;}
 /* A copy saved to the laptop can't talk to Google (the browser blocks it) and
@@ -279,7 +279,8 @@ function showTab(v){
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.v===v));
   document.getElementById('view-'+v).classList.add('active');
   if(v==='live'&&!liveLoaded)loadLive();
-  if(v==='pending'&&!pendingLoaded)loadPending();
+  /* a list left open for a while goes stale — the sheet moves under it */
+  if(v==='pending'&&(!pendingLoaded||Date.now()-pendingLoadedAt>10*60*1000))loadPending();
 }
 
 /* ---------- date helpers (same rules as the website) ---------- */
@@ -785,6 +786,17 @@ function groupPending(list){
 let openGroups=new Set();
 function toggleGroup(key){openGroups.has(key)?openGroups.delete(key):openGroups.add(key);renderPending();}
 function rowsOf(it){return it.versions;}
+/* Find this listing again in a freshly fetched database. Exact name+date
+   first; then the same names compared loosely, so a stray double space or a
+   date Sheets re-typed doesn't count as "gone". */
+function locatePending(ev,rows){
+  const want=fp(ev);
+  let m=(rows||[]).find(r=>fp(r)===want);
+  if(m)return m;
+  const n=normName(ev.name),d=ev.dateStr||parseSheetDate(ev.date);
+  m=(rows||[]).find(r=>normName(r.name)===n&&parseSheetDate(r.date)===d);
+  return m||null;
+}
 /* ---------- fix a listing before it goes live ----------
    Imported text is often nearly right: a messy name, a price from the wrong
    post, a missing venue. Editing writes the correction back to the database
@@ -811,7 +823,7 @@ async function savePendingEdit(row,publish){
   status('Saving…');
   try{
     const fresh=await api({action:'listPending'});
-    const match=(fresh.rows||[]).find(r=>fp(r)===fp(ev));
+    const match=locatePending(ev,fresh.rows);
     if(!match){
       status('That listing is no longer in the database — it may already be published. Refreshing.','err');
       loadPending();return;
@@ -983,7 +995,7 @@ async function loadPending(){
     });
     pendingRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));
     renderPending();
-    pendingLoaded=true;
+    pendingLoaded=true;pendingLoadedAt=Date.now();
     /* the website's own events, so already-published ones can be marked —
        fetched quietly afterwards, never holding up the list */
     if(!liveLoaded)loadLive().then(()=>renderPending()).catch(()=>{});
@@ -1010,13 +1022,17 @@ async function approveOne(ev){
     /* Row numbers shift when imports or cleanups run, so re-locate the event
        by name + date in the CURRENT sheet right before approving. */
     const fresh=await api({action:'listPending'});
-    const match=(fresh.rows||[]).find(r=>fp(r)===fp(ev));
+    const match=locatePending(ev,fresh.rows);
     if(!match){
-      /* nothing was sent, so put it back rather than leaving it marked done */
+      /* Nothing was sent. Rather than leave a card stranded, reload from the
+         database — the usual cause is a list loaded before a cleanup or
+         before the event was published from another device. */
       pubRemove(ev);
-      if(!pendingRows.some(r=>fp(r)===fp(ev))){pendingRows.push(ev);pendingRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));}
-      renderPending();
-      status('Could not find "'+ev.name+'" in the database, so nothing was published — it is back in the list.','err');
+      await loadPending();
+      const stillThere=locatePending(ev,pendingRows);
+      status(stillThere
+        ? 'The list was out of date, so nothing was published. It has been refreshed — try "'+ev.name+'" again.'
+        : '"'+ev.name+'" is no longer in the database — it was already published or moved to Duplicates. Nothing was published twice.','err');
       return;
     }
     await api({action:'approve', rows:[match.row]});
