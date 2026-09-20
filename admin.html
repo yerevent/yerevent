@@ -115,7 +115,9 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
   <h1>yer<span>event</span> admin</h1>
   <p class="subtitle">enter your admin password</p>
   <p class="subtitle version-stamp"></p>
-  <input type="password" id="pwInput" placeholder="password" autocomplete="current-password">
+  <!-- phones capitalise the first letter by default, which silently fails the login -->
+  <input type="password" id="pwInput" placeholder="password" autocomplete="current-password"
+         autocapitalize="none" autocorrect="off" spellcheck="false">
   <button class="btn" id="loginBtn" onclick="doLogin()">Enter</button>
 </div>
 
@@ -186,7 +188,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v1.2';
+const APP_VERSION = 'v1.3';
 const APP_DATE = '20 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -225,8 +227,18 @@ async function doLogin(){
   if(!pw) return;
   const btn=document.getElementById('loginBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>Checking…';
   localStorage.setItem(PW_KEY, pw);
-  try{ await api({action:'ping'}); enterApp(); }
-  catch(e){ localStorage.removeItem(PW_KEY); status(e.message==='Wrong password.'?'Wrong password — try again.':('Connection problem: '+e.message),'err'); }
+  try{ await api({action:'ping'}); enterApp(); return; }
+  catch(e){
+    /* a phone that capitalised the first letter is the usual culprit — try the
+       all-lowercase version once before telling her it's wrong */
+    const alt = pw.toLowerCase();
+    if(e.message==='Wrong password.' && alt!==pw){
+      localStorage.setItem(PW_KEY, alt);
+      try{ await api({action:'ping'}); enterApp(); btn.disabled=false;btn.textContent='Enter'; return; }catch(_){}
+    }
+    localStorage.removeItem(PW_KEY);
+    status(e.message==='Wrong password.'?'Wrong password — check it is all lowercase, with no spaces.':('Connection problem: '+e.message),'err');
+  }
   btn.disabled=false;btn.textContent='Enter';
 }
 function enterApp(){
