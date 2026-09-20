@@ -193,7 +193,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v1.5';
+const APP_VERSION = 'v1.6';
 const APP_DATE = '20 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -299,6 +299,40 @@ function fmtTime(raw){
 }
 
 /* ---------- cards ---------- */
+/* Only Instagram links belong on the site. Anything else is flagged so the
+   right post can be found by hand, and the foreign link stays visible until
+   then so it can be opened to go looking. */
+function isIgLink(u){return /(^|\.)instagram\.com\//i.test(String(u||''));}
+function linkTag(ev){
+  const u=String(ev.link||'').trim();
+  if(!u)return `<span class="tag" style="color:#ffb84d;background:#ffb84d22">🔗 no link yet</span>`;
+  if(isIgLink(u))return '';
+  let host=u;try{host=new URL(u).hostname.replace(/^www\./,'');}catch(_){}
+  return `<span class="tag" style="color:#ffb84d;background:#ffb84d22">⚠ not Instagram — ${esc(host)}</span>`;
+}
+/* an event already on the website, matched the way duplicates are matched */
+function liveIndex(){
+  const ix=new Set();
+  (liveRows||[]).forEach(ev=>{
+    const d=ev.dateStr||parseSheetDate(ev.date);
+    if(!d)return;
+    ix.add(d+'|n:'+normName(ev.name));
+    if(String(ev.place||'').trim())ix.add(d+'|p:'+normName(ev.place));
+  });
+  return ix;
+}
+let _liveIx=null;
+function isOnSite(ev){
+  if(!_liveIx)return false;
+  const d=ev.dateStr||parseSheetDate(ev.date);
+  if(!d)return false;
+  return _liveIx.has(d+'|n:'+normName(ev.name))||
+         (String(ev.place||'').trim()&&_liveIx.has(d+'|p:'+normName(ev.place)));
+}
+function onSiteTag(ev,kind){
+  return kind!=='live'&&isOnSite(ev)
+    ? `<span class="tag" style="color:#75FF73;background:#75FF7322">✓ already on the website</span>`:'';
+}
 function cardHTML(ev, kind){
   const t=(ev.type||'').toLowerCase();
   const c=TYPE_COLOR[t]||'#888';
@@ -306,7 +340,8 @@ function cardHTML(ev, kind){
   const tags =
     (ev.type?`<span class="tag" style="color:${c};background:${c}22">${esc(ev.type)}</span>`:'')+
     (ev.city?`<span class="tag" style="color:#e05c5c;background:#e05c5c22">${esc(ev.city)}</span>`:'')+
-    (ev.price?`<span class="tag" style="color:#ff9966;background:#ff996622">${esc(ev.price)}</span>`:'');
+    (ev.price?`<span class="tag" style="color:#ff9966;background:#ff996622">${esc(ev.price)}</span>`:'')+
+    linkTag(ev)+onSiteTag(ev,kind);
   const meta=[fmtDate(ev.date), fmtTime(ev.time), ev.place?('📍 '+esc(ev.place)):''].filter(Boolean).join(' · ');
   const desc = noDesc
     ? '<span class="nodesc-badge">⚠ no description — check the original post</span>'
@@ -742,6 +777,7 @@ function versionLine(ev,key,kind){
   return `<div class="version">
     <h3 style="font-size:0.92rem">${esc(ev.name)}</h3>
     <div class="meta">${bits||'<i>nothing filled in</i>'}</div>
+    <div class="tagrow">${linkTag(ev)}</div>
     ${ev.description?`<div class="desc" onclick="this.classList.toggle('open')">${esc(ev.description)}</div>`:''}
     <div class="cardbtns">${pick}${ev.link?`<a class="btn ghost small" href="${esc(ev.link)}" target="_blank">the post ↗</a>`:''}</div>
   </div>`;
@@ -753,7 +789,7 @@ function versionsCardHTML(g,kind){
   return `<div class="card" id="card-pending-${best.row}">
     <h3>${esc(g.name)}</h3>
     <div class="meta">${esc(fmtDate(best.date))}${best.place?' · 📍 '+esc(best.place):''}</div>
-    <div class="tagrow"><span class="tag" style="color:#ffb84d;background:#ffb84d22">⚠ ${g.versions.length} listings, same place &amp; day</span></div>
+    <div class="tagrow"><span class="tag" style="color:#ffb84d;background:#ffb84d22">⚠ ${g.versions.length} listings, same place &amp; day</span>${onSiteTag(best,kind)}</div>
     ${g.otherNames&&g.otherNames.length?`<p class="hint" style="margin:0 0 6px">also posted as: ${g.otherNames.slice(0,6).map(esc).join(' · ')}${g.otherNames.length>6?' …':''}</p>`:''}
     <p class="hint" style="margin:6px 0 0">One row per post announcing it. Pick the listing with the right name and price — or open them if this is really two different events.</p>
     <div class="cardbtns">
@@ -804,6 +840,7 @@ function itemsHTML(items,kind){
 function renderPending(){
   const el=document.getElementById('pendingList');
   window._pendingItems=[];
+  _liveIx=(liveRows&&liveRows.length)?liveIndex():null;
   const s=pendingCounts();
   let html='';
   if(pendingWhen==='past'){
@@ -859,6 +896,9 @@ async function loadPending(){
     pendingRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));
     renderPending();
     pendingLoaded=true;
+    /* the website's own events, so already-published ones can be marked —
+       fetched quietly afterwards, never holding up the list */
+    if(!liveLoaded)loadLive().then(()=>renderPending()).catch(()=>{});
   }catch(e){el.innerHTML='';status('Could not load pending: '+e.message,'err');}
 }
 /* Approvals run one after another in the background: the card leaves the screen
