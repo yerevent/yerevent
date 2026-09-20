@@ -193,7 +193,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v1.4';
+const APP_VERSION = 'v1.5';
 const APP_DATE = '20 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -658,15 +658,45 @@ function versionScore(ev){
   return (price&&!/^check/i.test(price)?3:0)+(String(ev.place||'').trim()?2:0)+
          (String(ev.time||'').trim()?1:0)+Math.min(2,String(ev.description||'').length/400);
 }
+/* Posts about the same night are named after whatever each post was about
+   ("Haddaway", "Dr. Alban", "Retro Stars Fest Vol.1"), so the name can't be
+   what ties them together. The venue and the date can: one place on one day
+   is nearly always one event. Without a venue, fall back to the name. */
+function dayKey(ev){
+  const place=normName(ev.place);
+  return ev.dateStr+'|'+(place?'p:'+place:'n:'+normName(ev.name));
+}
+/* Which of the names should head the card? Not simply the fullest listing —
+   at Adana Complex on 19 September that would be a hillwalk that happens to
+   name the same venue. Take the name with most words in common with the
+   others: seventeen "Retro Stars Fest …" listings outvote the odd one out. */
+function words(s){return String(s||'').toLowerCase().split(/[^a-z0-9Ѐ-ӿ԰-֏]+/).filter(w=>w.length>=3);}
+function groupTitle(versions){
+  if(versions.length===1)return versions[0].name;
+  let best=versions[0],bestScore=-1;
+  versions.forEach(v=>{
+    const mine=new Set(words(v.name));
+    let shared=0;
+    versions.forEach(o=>{if(o!==v)shared+=words(o.name).filter(w=>mine.has(w)).length;});
+    const score=shared*10+versionScore(v);
+    if(score>bestScore){bestScore=score;best=v;}
+  });
+  return best.name;
+}
 function groupPending(list){
   const byDay=new Map();
   list.forEach(ev=>{
-    const k=normName(ev.name)+'|'+ev.dateStr;
+    const k=dayKey(ev);
     if(!byDay.has(k))byDay.set(k,{key:k,name:ev.name,dateStr:ev.dateStr,versions:[]});
     byDay.get(k).versions.push(ev);
   });
   const days=[...byDay.values()];
-  days.forEach(d=>d.versions.sort((a,b)=>versionScore(b)-versionScore(a)));
+  days.forEach(d=>{
+    d.versions.sort((a,b)=>versionScore(b)-versionScore(a));
+    d.name=groupTitle(d.versions);
+    d.otherNames=[...new Set(d.versions.map(v=>String(v.name||'').trim()))]
+                   .filter(n=>n&&normName(n)!==normName(d.name));
+  });
   const byName=new Map();
   days.forEach(d=>{
     const k=normName(d.name);
@@ -710,6 +740,7 @@ function versionLine(ev,key,kind){
   const bits=[fmtTime(ev.time),ev.place?('📍 '+ev.place):'',ev.price||''].filter(Boolean).map(esc).join(' · ');
   const pick=kind==='past'?'':`<button class="btn green small" onclick="approveVersion(${ev.row},'${key}')">✅ Use this one</button>`;
   return `<div class="version">
+    <h3 style="font-size:0.92rem">${esc(ev.name)}</h3>
     <div class="meta">${bits||'<i>nothing filled in</i>'}</div>
     ${ev.description?`<div class="desc" onclick="this.classList.toggle('open')">${esc(ev.description)}</div>`:''}
     <div class="cardbtns">${pick}${ev.link?`<a class="btn ghost small" href="${esc(ev.link)}" target="_blank">the post ↗</a>`:''}</div>
@@ -722,8 +753,9 @@ function versionsCardHTML(g,kind){
   return `<div class="card" id="card-pending-${best.row}">
     <h3>${esc(g.name)}</h3>
     <div class="meta">${esc(fmtDate(best.date))}${best.place?' · 📍 '+esc(best.place):''}</div>
-    <div class="tagrow"><span class="tag" style="color:#ffb84d;background:#ffb84d22">⚠ ${g.versions.length} versions of this event</span></div>
-    <p class="hint" style="margin:6px 0 0">Imported once per post announcing it. Pick the one with the right price and place.</p>
+    <div class="tagrow"><span class="tag" style="color:#ffb84d;background:#ffb84d22">⚠ ${g.versions.length} listings, same place &amp; day</span></div>
+    ${g.otherNames&&g.otherNames.length?`<p class="hint" style="margin:0 0 6px">also posted as: ${g.otherNames.slice(0,6).map(esc).join(' · ')}${g.otherNames.length>6?' …':''}</p>`:''}
+    <p class="hint" style="margin:6px 0 0">One row per post announcing it. Pick the listing with the right name and price — or open them if this is really two different events.</p>
     <div class="cardbtns">
       <button class="btn ghost small" onclick="toggleGroup('${g.key}')">${open?'▾ Hide the versions':'▸ Compare the '+g.versions.length+' versions'}</button>
       ${dismiss}
