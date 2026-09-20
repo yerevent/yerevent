@@ -83,6 +83,11 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 .statusbar.ok{background:#1f4d2e;color:#d9ffe3;}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--text-muted);border-top-color:var(--gold);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-2px;margin-right:6px;}
 @keyframes sp{to{transform:rotate(360deg)}}
+/* grouped cards: versions of one event, or the dates of a weekly series */
+.versions{margin-top:12px;border-top:1px solid var(--border);}
+.version{padding:12px 0 2px;border-bottom:1px dashed var(--border);}
+.version:last-child{border-bottom:none;}
+.version .card{margin:0;padding:12px;background:var(--surface2);}
 .topbtns{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;}
 .topbtns .grp{display:flex;gap:6px;}
 
@@ -188,7 +193,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v1.3';
+const APP_VERSION = 'v1.4';
 const APP_DATE = '20 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -629,35 +634,155 @@ function pendingCounts(){
   const s=pendingSplit();
   document.getElementById('penUpcomingBtn').textContent='Upcoming ('+s.upcoming.length+')';
   document.getElementById('penPastBtn').textContent='Past ('+s.past.length+')';
+  const rows=pendingWhen==='upcoming'?s.upcoming:s.past;
+  const cards=groupPending(rows).length;
   document.getElementById('pendingCount').textContent = pendingWhen==='upcoming'
-    ? s.upcoming.length+' waiting for your decision'
-    : s.past.length+' already happened — kept for reference';
+    ? cards+' to review'+(cards<rows.length?' ('+rows.length+' rows — repeats and weekly series grouped)':'')
+    : cards+' already happened — kept for reference'+(cards<rows.length?' ('+rows.length+' rows)':'');
   return s;
 }
-function monthRun(list,kind){
-  let html='',lastKey='';
+/* ---------- grouping ----------
+   The same event gets imported once per Instagram post announcing it, so a
+   concert can arrive four times with four different prices. And a weekly party
+   is one row per night — correct, but it buries everything else.
+
+   So: rows with the same name on the same day become one card showing the
+   versions side by side, and a name that runs on 3+ dates becomes one series
+   card that opens up. Nothing is merged in the sheet — this is only how the
+   list is drawn. */
+const SERIES_MIN=3;
+function normName(s){return String(s||'').toLowerCase().replace(/[^a-z0-9Ѐ-ӿ԰-֏]/g,'');}
+/* the version with the most filled in is the one worth showing first */
+function versionScore(ev){
+  const price=String(ev.price||'').trim();
+  return (price&&!/^check/i.test(price)?3:0)+(String(ev.place||'').trim()?2:0)+
+         (String(ev.time||'').trim()?1:0)+Math.min(2,String(ev.description||'').length/400);
+}
+function groupPending(list){
+  const byDay=new Map();
   list.forEach(ev=>{
-    const key=ev.dateStr.slice(0,7);
+    const k=normName(ev.name)+'|'+ev.dateStr;
+    if(!byDay.has(k))byDay.set(k,{key:k,name:ev.name,dateStr:ev.dateStr,versions:[]});
+    byDay.get(k).versions.push(ev);
+  });
+  const days=[...byDay.values()];
+  days.forEach(d=>d.versions.sort((a,b)=>versionScore(b)-versionScore(a)));
+  const byName=new Map();
+  days.forEach(d=>{
+    const k=normName(d.name);
+    if(!byName.has(k))byName.set(k,[]);
+    byName.get(k).push(d);
+  });
+  const items=[];
+  byName.forEach((days,k)=>{
+    days.sort((a,b)=>a.dateStr.localeCompare(b.dateStr));
+    if(days.length>=SERIES_MIN)items.push({type:'series',key:'s'+k,name:days[0].name,days});
+    else days.forEach(d=>items.push({type:d.versions.length>1?'versions':'one',...d}));
+  });
+  return items.sort((a,b)=>(a.type==='series'?a.days[0].dateStr:a.dateStr).localeCompare(b.type==='series'?b.days[0].dateStr:b.dateStr));
+}
+let openGroups=new Set();
+function toggleGroup(key){openGroups.has(key)?openGroups.delete(key):openGroups.add(key);renderPending();}
+function itemDate(it){return it.type==='series'?it.days[0].dateStr:it.dateStr;}
+function rowsOf(it){return it.type==='series'?it.days.flatMap(d=>d.versions):it.versions;}
+/* picking one version publishes it and drops the rest out of the way */
+function approveVersion(row,key){
+  const it=(window._pendingItems||[]).find(i=>i.key===key);
+  if(it){
+    rowsOf(it).filter(ev=>ev.row!==row).forEach(ev=>{
+      const list=hideList();
+      if(!list.some(h=>h.fp===fp(ev))){list.unshift({fp:fp(ev),name:ev.name,date:fmtDate(ev.date)});hideSave(list);}
+    });
+  }
+  approveEvent(row,null);
+  renderPending();
+}
+function dismissGroup(key){
+  const it=(window._pendingItems||[]).find(i=>i.key===key);if(!it)return;
+  const rows=rowsOf(it);
+  const list=hideList();
+  rows.forEach(ev=>{if(!list.some(h=>h.fp===fp(ev)))list.unshift({fp:fp(ev),name:ev.name,date:fmtDate(ev.date)});});
+  hideSave(list);
+  renderPending();
+  status('Hidden '+rows.length+' × "'+it.name+'" — under "Not interested" at the bottom if you change your mind.');
+}
+function versionLine(ev,key,kind){
+  const bits=[fmtTime(ev.time),ev.place?('📍 '+ev.place):'',ev.price||''].filter(Boolean).map(esc).join(' · ');
+  const pick=kind==='past'?'':`<button class="btn green small" onclick="approveVersion(${ev.row},'${key}')">✅ Use this one</button>`;
+  return `<div class="version">
+    <div class="meta">${bits||'<i>nothing filled in</i>'}</div>
+    ${ev.description?`<div class="desc" onclick="this.classList.toggle('open')">${esc(ev.description)}</div>`:''}
+    <div class="cardbtns">${pick}${ev.link?`<a class="btn ghost small" href="${esc(ev.link)}" target="_blank">the post ↗</a>`:''}</div>
+  </div>`;
+}
+function versionsCardHTML(g,kind){
+  const open=openGroups.has(g.key);
+  const best=g.versions[0];
+  const dismiss=kind==='past'?'':`<button class="btn red small" onclick="dismissGroup('${g.key}')">🗑 Not interested</button>`;
+  return `<div class="card" id="card-pending-${best.row}">
+    <h3>${esc(g.name)}</h3>
+    <div class="meta">${esc(fmtDate(best.date))}${best.place?' · 📍 '+esc(best.place):''}</div>
+    <div class="tagrow"><span class="tag" style="color:#ffb84d;background:#ffb84d22">⚠ ${g.versions.length} versions of this event</span></div>
+    <p class="hint" style="margin:6px 0 0">Imported once per post announcing it. Pick the one with the right price and place.</p>
+    <div class="cardbtns">
+      <button class="btn ghost small" onclick="toggleGroup('${g.key}')">${open?'▾ Hide the versions':'▸ Compare the '+g.versions.length+' versions'}</button>
+      ${dismiss}
+    </div>
+    ${open?`<div class="versions">${g.versions.map(ev=>versionLine(ev,g.key,kind)).join('')}</div>`:''}
+  </div>`;
+}
+function seriesCardHTML(s,kind){
+  const open=openGroups.has(s.key);
+  const first=s.days[0],last=s.days[s.days.length-1];
+  const place=first.versions[0].place;
+  const dismiss=kind==='past'?'':`<button class="btn red small" onclick="dismissGroup('${s.key}')">🗑 Not interested</button>`;
+  return `<div class="card" id="card-pending-${first.versions[0].row}">
+    <h3>${esc(s.name)}</h3>
+    <div class="meta">${esc(fmtDate(first.versions[0].date))} – ${esc(fmtDate(last.versions[0].date))}${place?' · 📍 '+esc(place):''}</div>
+    <div class="tagrow"><span class="tag" style="color:#60a5fa;background:#60a5fa22">🔁 runs on ${s.days.length} dates</span></div>
+    <div class="cardbtns">
+      <button class="btn ghost small" onclick="toggleGroup('${s.key}')">${open?'▾ Hide the dates':'▸ Show the '+s.days.length+' dates'}</button>
+      ${dismiss}
+    </div>
+    ${open?`<div class="versions">${s.days.map(d=>d.versions.length>1
+        ?versionsCardHTML(d,kind)
+        :`<div class="version"><div class="meta">${esc(fmtDate(d.versions[0].date))} · ${esc(fmtTime(d.versions[0].time))}</div>
+           <div class="cardbtns">${kind==='past'?'':`<button class="btn green small" onclick="approveEvent(${d.versions[0].row},null)">✅ Publish this date</button>`}</div></div>`
+      ).join('')}</div>`:''}
+  </div>`;
+}
+function monthRun(list,kind){
+  return itemsHTML(groupPending(list),kind);
+}
+function itemsHTML(items,kind){
+  window._pendingItems=(window._pendingItems||[]).concat(items);
+  let html='',lastKey='';
+  items.forEach(it=>{
+    const key=itemDate(it).slice(0,7);
     if(key!==lastKey){
       lastKey=key;const[y,m]=key.split('-');
       html+=`<div class="month-heading">${MONTHS[parseInt(m)-1]+' '+y}</div>`;
     }
-    html+=cardHTML(ev,kind);
+    html+= it.type==='series' ? seriesCardHTML(it,kind)
+         : it.type==='versions' ? versionsCardHTML(it,kind)
+         : cardHTML(it.versions[0],kind);
   });
   return html;
 }
 function renderPending(){
   const el=document.getElementById('pendingList');
+  window._pendingItems=[];
   const s=pendingCounts();
   let html='';
   if(pendingWhen==='past'){
-    /* newest first, and only a slice at a time — 4000 cards at once freezes the phone */
-    const past=s.past.slice().reverse();
+    /* newest first, and only a slice at a time — thousands of cards at once
+       freezes the phone. Grouped first, so a weekly series stays one card. */
     if(!pastShown)pastShown=PAST_PAGE;
-    const slice=past.slice(0,pastShown);
-    html=slice.length?monthRun(slice,'past'):'<p class="hint">Nothing here yet.</p>';
-    if(past.length>slice.length){
-      html+=`<div style="text-align:center;margin:16px 0"><button class="btn ghost small" onclick="showMorePast()">Show ${Math.min(PAST_PAGE,past.length-slice.length)} more (${past.length-slice.length} left)</button></div>`;
+    const items=groupPending(s.past).reverse();
+    const slice=items.slice(0,pastShown);
+    html=slice.length?itemsHTML(slice,'past'):'<p class="hint">Nothing here yet.</p>';
+    if(items.length>slice.length){
+      html+=`<div style="text-align:center;margin:16px 0"><button class="btn ghost small" onclick="showMorePast()">Show ${Math.min(PAST_PAGE,items.length-slice.length)} more (${items.length-slice.length} left)</button></div>`;
     }
   }else{
     html=s.upcoming.length?monthRun(s.upcoming,'pending'):'<p class="hint">Nothing upcoming to review 🎉</p>';
