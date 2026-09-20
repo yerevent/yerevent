@@ -159,7 +159,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 
     <!-- PENDING -->
     <div class="view" id="view-pending">
-      <p class="hint">Events imported from Esora, waiting for your approval. A red border means the description is missing — check the original post. Approving publishes to the website.</p>
+      <p class="hint">Events imported from Esora, waiting for your approval — <strong>upcoming ones only</strong>, soonest first. A red border means the description is missing — check the original post. Approving publishes to the website.</p>
       <div class="topbtns">
         <span class="count" id="pendingCount"></span>
         <button class="btn ghost small" onclick="loadPending()">↻ Refresh</button>
@@ -546,14 +546,36 @@ function restoreEvent(fpVal){
   hideSave(hideList().filter(h=>h.fp!==fpVal));
   renderPending();
 }
-let showHidden=false;
+let showHidden=false,showUndated=false;
 function toggleHidden(){showHidden=!showHidden;renderPending();}
+function toggleUndated(){showUndated=!showUndated;renderPending();}
+/* The Pending sheet keeps every event ever imported, including ones that have
+   already happened. Only what is still to come is worth reviewing, so past
+   events are counted but not drawn — that's thousands of cards saved. */
 function renderPending(){
   const el=document.getElementById('pendingList');
   const hidden=hideList(),hiddenFps=new Set(hidden.map(h=>h.fp));
-  const visible=pendingRows.filter(ev=>!hiddenFps.has(fp(ev)));
-  document.getElementById('pendingCount').textContent=visible.length+' waiting for review';
-  let html=visible.map(ev=>cardHTML(ev,'pending')).join('')||'<p class="hint">Nothing pending 🎉</p>';
+  const today=toDateStr(new Date());
+  const kept=pendingRows.filter(ev=>!hiddenFps.has(fp(ev)));
+  const upcoming=kept.filter(ev=>ev.dateStr&&ev.endStr>=today);
+  const undated=kept.filter(ev=>!ev.dateStr);
+  const past=kept.length-upcoming.length-undated.length;
+  document.getElementById('pendingCount').textContent=upcoming.length+' upcoming to review';
+  let html='',lastKey='';
+  upcoming.forEach(ev=>{
+    const key=ev.dateStr.slice(0,7);
+    if(key!==lastKey){
+      lastKey=key;const[y,m]=key.split('-');
+      html+=`<div class="month-heading">${MONTHS[parseInt(m)-1]+' '+y}</div>`;
+    }
+    html+=cardHTML(ev,'pending');
+  });
+  if(!upcoming.length)html='<p class="hint">Nothing upcoming to review 🎉</p>';
+  if(past)html+=`<p class="hint" style="margin-top:14px">${past} past event${past===1?' is':'s are'} in the sheet but not shown here — they have already happened.</p>`;
+  if(undated.length){
+    html+=`<div class="month-heading" style="cursor:pointer" onclick="toggleUndated()">📅 Date unclear (${undated.length}) ${showUndated?'▾':'▸'}</div>`;
+    if(showUndated)html+=undated.map(ev=>cardHTML(ev,'pending')).join('');
+  }
   const pubs=pubList();
   if(pubs.length){
     html+=`<div class="month-heading" style="color:#75FF73">✔ Already picked & published</div>`+
@@ -572,8 +594,13 @@ async function loadPending(){
   el.innerHTML='<span class="spin"></span> Loading…';
   try{
     const out=await api({action:'listPending'});
-    pendingRows=out.rows||[];
-    document.getElementById('pendingCount').textContent=pendingRows.length+' waiting for review';
+    pendingRows=(out.rows||[]).map(ev=>{
+      const dateStr=parseSheetDate(ev.date);
+      const days=dateStr?getMultiDayDates(String(ev.date||''),dateStr):[];
+      /* a festival running July 12–19 stays "upcoming" until its last day */
+      return {...ev,dateStr,endStr:days.length?days[days.length-1]:dateStr};
+    });
+    pendingRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));
     renderPending();
     pendingLoaded=true;
   }catch(e){el.innerHTML='';status('Could not load pending: '+e.message,'err');}
