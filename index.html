@@ -806,7 +806,7 @@ function openDayModal(dateStr){
   setTimeout(()=>{
     if(!dayMap){
       dayMap=L.map('dayMap',{center:[40.1872,44.5136],zoom:13,zoomControl:true});
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19}).addTo(dayMap);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_3ttc_1_7980370ddda10f4b903a6478',{attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19}).addTo(dayMap);
     }
     dayMap.invalidateSize();
     dayMapMarkers.forEach(m=>m.remove());dayMapMarkers=[];
@@ -871,7 +871,7 @@ function openDetail(ev){
       // Destroy old map instance
       if(detailMap){detailMap.remove();detailMap=null;detailMapMarker=null;}
       detailMap=L.map('detailMapEl',{center:[40.1872,44.5136],zoom:15,zoomControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false});
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19}).addTo(detailMap);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_3ttc_1_7980370ddda10f4b903a6478',{attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19}).addTo(detailMap);
       detailMap.invalidateSize();
 
       const s=TYPE_STYLE[ev.type]||{color:'#c9526c'};
