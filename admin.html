@@ -205,6 +205,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
         </div>
         <button class="btn ghost small" onclick="runBtn(this,()=>loadPending(),'Loading…')">↻ Refresh</button>
       </div>
+      <div class="chiprow" id="pendingSources"></div>
       <div class="chiprow" id="pendingTypes"></div>
       <div class="topbtns"><span class="count" id="pendingCount"></span></div>
       <div id="pendingList"><span class="spin"></span> Loading…</div>
@@ -223,8 +224,8 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v2.0';
-const APP_DATE = '20 Sep 2026';
+const APP_VERSION = 'v2.1';
+const APP_DATE = '30 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
@@ -731,20 +732,46 @@ function pendingSplit(){
     undated:kept.filter(ev=>!ev.dateStr)
   };
 }
-/* ---------- filter by type ---------- */
-let typeFilter='';
+/* ---------- filters: where it came from, and what kind it is ---------- */
+let typeFilter='',sourceFilter='';
+/* what put the row in the database: the import robot, Esora, or older rows
+   from before anything was labelled */
+function srcOf(ev){return String(ev.source||'').trim().toLowerCase();}
+const SRC_LABEL={instagram:'📸 Instagram',esora:'Esora','':'Older rows'};
 function typeFiltered(list){
-  return typeFilter?list.filter(ev=>String(ev.type||'').trim().toLowerCase()===typeFilter):list;
+  let out=list;
+  if(sourceFilter)out=out.filter(ev=>srcOf(ev)===(sourceFilter==='none'?'':sourceFilter));
+  if(typeFilter)out=out.filter(ev=>String(ev.type||'').trim().toLowerCase()===typeFilter);
+  return out;
 }
 function setTypeFilter(t){
   typeFilter=(t===typeFilter)?'':t;
   openDays=new Set();daysShown=DAYS_PAGE;
   renderPending();
 }
+function setSourceFilter(s){
+  sourceFilter=(s===sourceFilter)?'':s;
+  openDays=new Set();daysShown=DAYS_PAGE;
+  renderPending();
+}
+function renderSourceFilter(s){
+  const el=document.getElementById('pendingSources');
+  if(!el)return;
+  const rows=pendingWhen==='upcoming'?s.upcoming:s.past;
+  const counts={};
+  rows.forEach(ev=>{const k=srcOf(ev)||'none';counts[k]=(counts[k]||0)+1;});
+  const keys=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+  if(keys.length<2){el.innerHTML='';return;}   /* one source only: no point */
+  el.innerHTML=
+    `<button class="chip ${sourceFilter?'':'on'}" onclick="setSourceFilter('')">Everything (${rows.length})</button>`+
+    keys.map(k=>`<button class="chip ${sourceFilter===k?'on':''}" onclick="setSourceFilter('${k}')">${esc(SRC_LABEL[k==='none'?'':k]||k)} (${counts[k]})</button>`).join('');
+}
 function renderTypeFilter(s){
   const el=document.getElementById('pendingTypes');
   if(!el)return;
-  const rows=pendingWhen==='upcoming'?s.upcoming:s.past;
+  /* counts follow the chosen source, so "concert (12)" means 12 of those */
+  const all=pendingWhen==='upcoming'?s.upcoming:s.past;
+  const rows=sourceFilter?all.filter(ev=>srcOf(ev)===(sourceFilter==='none'?'':sourceFilter)):all;
   const counts={};
   rows.forEach(ev=>{const t=String(ev.type||'').trim().toLowerCase();if(t)counts[t]=(counts[t]||0)+1;});
   const present=TYPES.filter(t=>counts[t]).sort((a,b)=>counts[b]-counts[a]);
@@ -992,6 +1019,7 @@ function renderPending(){
   window._pendingItems=[];
   _liveIx=(liveRows&&liveRows.length)?liveIndex():null;
   const s=pendingCounts();
+  renderSourceFilter(s);
   renderTypeFilter(s);
   let html='';
   if(pendingWhen==='past'){
