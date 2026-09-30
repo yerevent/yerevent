@@ -94,6 +94,22 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 #busybar.on{display:block;}
 #busybar::after{content:'';position:absolute;top:0;left:0;height:100%;width:35%;background:var(--gold);animation:slide 1.1s ease-in-out infinite;}
 @keyframes slide{0%{left:-35%}100%{left:100%}}
+/* the watched accounts */
+.addsrc{display:flex;gap:8px;margin-bottom:12px;}
+.addsrc input{flex:1;padding:11px 13px;border-radius:var(--radius);border:1px solid var(--border);
+  background:var(--surface);color:var(--text);font-family:'Outfit',sans-serif;font-size:0.9rem;}
+.srcfilter{width:100%;padding:10px 13px;margin-bottom:10px;border-radius:var(--radius);
+  border:1px solid var(--border);background:var(--surface);color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:0.85rem;}
+.src{display:flex;align-items:center;gap:10px;padding:11px 13px;margin-bottom:7px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);}
+.src.off{opacity:.5;}
+.src .who{flex:1;min-width:0;}
+.src .handle{font-weight:600;font-size:0.88rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.src .stat{font-size:0.7rem;color:var(--text-muted);margin-top:2px;}
+.src .stat b{color:var(--ok);font-weight:600;}
+.src .stat .bad{color:#ff6b6b;font-weight:600;}
+
 /* type filter chips */
 .chiprow{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;-webkit-overflow-scrolling:touch;}
 .chip{flex:0 0 auto;border:1px solid var(--border);background:transparent;color:var(--text-soft);
@@ -211,12 +227,28 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
       <div id="pendingList"><span class="spin"></span> Loading…</div>
       <div id="pendingFooter"></div>
     </div>
+
+    <!-- SOURCES: the Instagram accounts the robot watches -->
+    <div class="view" id="view-sources">
+      <p class="hint">The Instagram accounts the import robot reads every morning. Pausing one keeps it on the list but stops it being read; removing takes it off entirely.</p>
+      <div class="addsrc">
+        <input id="srcInput" placeholder="instagram account, e.g. malkhasclub" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <button class="btn small" onclick="runBtn(this,()=>addSource(),'Adding…')">➕ Add</button>
+      </div>
+      <div class="topbtns">
+        <span class="count" id="srcCount"></span>
+        <button class="btn ghost small" onclick="runBtn(this,()=>loadSources(),'Loading…')">↻ Refresh</button>
+      </div>
+      <input id="srcFilter" class="srcfilter" placeholder="🔍 find an account" oninput="renderSources()" autocapitalize="none" autocorrect="off">
+      <div id="srcList"><span class="spin"></span> Loading…</div>
+    </div>
   </div>
 
   <div class="tabs">
     <button class="tab active" data-v="add" onclick="showTab('add')">➕ Add</button>
-    <button class="tab" data-v="live" onclick="showTab('live')">📅 Live events</button>
+    <button class="tab" data-v="live" onclick="showTab('live')">📅 Live</button>
     <button class="tab" data-v="pending" onclick="showTab('pending')">🗄 Database</button>
+    <button class="tab" data-v="sources" onclick="showTab('sources')">📸 Sources</button>
   </div>
 </div>
 
@@ -224,13 +256,13 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v2.1';
+const APP_VERSION = 'v2.2';
 const APP_DATE = '30 Sep 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-let liveLoaded=false, pendingLoaded=false, pendingLoadedAt=0;
+let liveLoaded=false, pendingLoaded=false, pendingLoadedAt=0, sourcesLoaded=false;
 
 function esc(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;}
 /* A copy saved to the laptop can't talk to Google (the browser blocks it) and
@@ -329,6 +361,7 @@ function showTab(v){
   if(v==='live'&&!liveLoaded)loadLive();
   /* a list left open for a while goes stale — the sheet moves under it */
   if(v==='pending'&&(!pendingLoaded||Date.now()-pendingLoadedAt>10*60*1000))loadPending();
+  if(v==='sources'&&!sourcesLoaded)loadSources();
 }
 
 /* ---------- date helpers (same rules as the website) ---------- */
@@ -1120,6 +1153,82 @@ async function approveOne(ev){
     renderPending();
     status('Could not publish "'+ev.name+'": '+e.message+' — it is back in the list.','err');
   }finally{approvePending=Math.max(0,approvePending-1);}
+}
+
+/* ---------- sources: the accounts the robot watches ----------
+   The list itself lives in the "Sources" tab of the spreadsheet; this is just
+   a friendlier way in. Row numbers shift whenever one is removed, so the list
+   is refetched after every change rather than patched in place. */
+let srcRows=[];
+async function loadSources(){
+  const el=document.getElementById('srcList');
+  if(!srcRows.length)el.innerHTML='<span class="spin"></span> Loading…';
+  try{
+    const out=await api({action:'listSources'});
+    srcRows=out.rows||[];
+    sourcesLoaded=true;
+    renderSources();
+  }catch(e){el.innerHTML='';status('Could not load the accounts: '+e.message,'err');}
+}
+function renderSources(){
+  const el=document.getElementById('srcList');
+  const q=(document.getElementById('srcFilter').value||'').trim().toLowerCase();
+  const on=srcRows.filter(s=>s.active).length;
+  const posting=srcRows.filter(s=>s.posts>0).length;
+  document.getElementById('srcCount').textContent=
+    srcRows.length+' accounts · '+on+' being read · '+posting+' have posted';
+  const list=srcRows
+    .filter(s=>!q||s.handle.includes(q))
+    .slice()
+    .sort((a,b)=>(b.active-a.active)||(b.events-a.events)||(b.posts-a.posts)||a.handle.localeCompare(b.handle));
+  if(!list.length){el.innerHTML='<p class="hint">Nothing matches.</p>';return;}
+  el.innerHTML=list.map(s=>{
+    const bits=[];
+    if(s.events)bits.push('<b>'+s.events+' event'+(s.events===1?'':'s')+'</b>');
+    if(s.posts)bits.push(s.posts+' post'+(s.posts===1?'':'s')+' read');
+    if(/error/i.test(s.lastStatus))bits.push('<span class="bad">couldn\'t be read</span>');
+    if(!s.posts)bits.push('nothing yet');
+    if(s.lastSeen)bits.push('last '+esc(s.lastSeen));
+    return `<div class="src ${s.active?'':'off'}" id="src-${s.row}">
+      <div class="who">
+        <div class="handle">@${esc(s.handle)}</div>
+        <div class="stat">${bits.join(' · ')}</div>
+      </div>
+      <button class="btn ghost small" onclick="runBtn(this,()=>toggleSource(${s.row},${s.active?'false':'true'}),'…')">${s.active?'⏸ Pause':'▶ Watch'}</button>
+      <button class="btn red small" onclick="removeSource(${s.row},'${esc(s.handle)}',this)">🗑</button>
+    </div>`;
+  }).join('');
+}
+async function addSource(){
+  const input=document.getElementById('srcInput');
+  const handle=(input.value||'').trim();
+  if(!handle){status('Type an Instagram account name first.','err');return;}
+  try{
+    const out=await api({action:'addSource', handle});
+    input.value='';
+    status(out.added&&out.added.already
+      ? '@'+out.added.handle+' was already on the list.'
+      : 'Added @'+((out.added&&out.added.handle)||handle)+' — it will be read tomorrow morning.');
+    await loadSources();
+  }catch(e){status('Could not add it: '+e.message,'err');}
+}
+async function toggleSource(row,active){
+  try{
+    await api({action:'setSource', row, active});
+    const s=srcRows.find(r=>r.row===row);
+    if(s)s.active=active;
+    renderSources();
+    status(active?'Back on the list.':'Paused — it stays here but is no longer read.');
+  }catch(e){status('Could not change it: '+e.message,'err');loadSources();}
+}
+async function removeSource(row,handle,btn){
+  if(!confirm('Remove @'+handle+' from the list? Events already found are not affected.'))return;
+  btn.disabled=true;
+  try{
+    await api({action:'removeSource', row});
+    status('Removed @'+handle+'.');
+    await loadSources();
+  }catch(e){btn.disabled=false;status('Could not remove it: '+e.message,'err');}
 }
 
 /* ---------- extractor ---------- */
