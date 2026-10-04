@@ -218,6 +218,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
         <div class="grp">
           <button class="btn ghost small on" id="penUpcomingBtn" onclick="setPendingWhen('upcoming')">Upcoming</button>
           <button class="btn ghost small" id="penPastBtn" onclick="setPendingWhen('past')">Past</button>
+          <button class="btn ghost small" id="penApprBtn" onclick="setPendingWhen('approved')">✅ Approved</button>
         </div>
         <button class="btn ghost small" onclick="runBtn(this,()=>loadPending(),'Loading…')">↻ Refresh</button>
       </div>
@@ -256,7 +257,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v2.5';
+const APP_VERSION = 'v2.6';
 const APP_DATE = '4 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -313,11 +314,14 @@ async function runBtn(btn,fn,label){
     if(document.body.contains(btn)){btn.disabled=false;btn.innerHTML=was;}
   }
 }
-async function api(payload){
+/* `lasting` marks a request that must finish even if the page is closed or
+   the phone locks: the browser keeps it alive after the tab goes away. That
+   is what stops a publish dying halfway when you put the phone in a pocket. */
+async function api(payload, lasting){
   payload.password = localStorage.getItem(PW_KEY) || '';
   busyBar(1);
   try{
-    const res = await fetch(API_URL, {method:'POST', body: JSON.stringify(payload)});
+    const res = await fetch(API_URL, {method:'POST', body: JSON.stringify(payload), keepalive: !!lasting});
     const out = await res.json();
     if(!out.ok) throw new Error(out.error || 'Something went wrong');
     return out;
@@ -750,15 +754,18 @@ function setPendingWhen(w){
   pendingWhen=w;openDays=new Set();daysShown=DAYS_PAGE;
   document.getElementById('penUpcomingBtn').classList.toggle('on',w==='upcoming');
   document.getElementById('penPastBtn').classList.toggle('on',w==='past');
+  document.getElementById('penApprBtn').classList.toggle('on',w==='approved');
   renderPending();
+  if(w==='approved')syncApproved(true);
 }
 /* The Pending sheet keeps every event ever imported. Splitting it in two keeps
    the review list short, and nothing is ever thrown away — the past ones stay
    one tap away under "Past". */
 function pendingSplit(){
   const hiddenFps=new Set(hideList().map(h=>h.fp));
+  const done=apprKeys();          /* approved events live in their own list now */
   const today=toDateStr(new Date());
-  const kept=pendingRows.filter(ev=>!hiddenFps.has(fp(ev)));
+  const kept=pendingRows.filter(ev=>!hiddenFps.has(fp(ev))&&!done.has(apprKey(ev)));
   return {
     upcoming:kept.filter(ev=>ev.dateStr&&ev.endStr>=today),
     past:kept.filter(ev=>ev.dateStr&&ev.endStr<today),
@@ -817,8 +824,17 @@ function renderTypeFilter(s){
 }
 function pendingCounts(){
   const s=pendingSplit();
+  const appr=apprList();
   document.getElementById('penUpcomingBtn').textContent='Upcoming ('+s.upcoming.length+')';
   document.getElementById('penPastBtn').textContent='Past ('+s.past.length+')';
+  const waiting=appr.filter(a=>a.state!=='live').length;
+  document.getElementById('penApprBtn').textContent='✅ Approved ('+appr.length+')'+(waiting?' •':'');
+  if(pendingWhen==='approved'){
+    const live=appr.filter(a=>a.state==='live').length;
+    document.getElementById('pendingCount').textContent=
+      appr.length?(live+' of '+appr.length+' confirmed live on the website'):'Nothing approved yet';
+    return s;
+  }
   const rows=typeFiltered(pendingWhen==='upcoming'?s.upcoming:s.past);
   const cards=groupPending(rows).length;
   const what=typeFilter?typeFilter+' events':'events';
@@ -904,6 +920,98 @@ function locatePending(ev,rows){
   m=(rows||[]).find(r=>normName(r.name)===n&&parseSheetDate(r.date)===d);
   return m||null;
 }
+const APPR_STATE={
+  sending:{label:'⏳ Publishing…',   color:'#fccc84', note:'Sent to Google. This finishes even if you close the page.'},
+  sent:   {label:'📤 Sent',          color:'#60a5fa', note:'Waiting for the website to confirm it — up to 5 minutes.'},
+  live:   {label:'🌐 Live on the website', color:'#75FF73', note:''},
+  missing:{label:'❓ Not on the site yet', color:'#ffb84d', note:'Sent a while ago but still not showing. Try again, or check the Live events tab.'},
+  failed: {label:'⚠️ Did not publish', color:'#ff6b6b', note:''}
+};
+function approvedHTML(){
+  const list=apprList();
+  if(!list.length)return '<p class="hint">Nothing approved yet. Events you publish from Upcoming appear here, and stay here.</p>';
+  return list.map(a=>{
+    const st=APPR_STATE[a.state]||APPR_STATE.sent;
+    const when=a.date?fmtDate(a.date):'';
+    const retry=(a.state==='failed'||a.state==='missing')
+      ? `<button class="btn green small" onclick="runBtn(this,()=>retryApproved('${esc(a.key).replace(/'/g,"\\'")}'),'Trying…')">↻ Try again</button>` : '';
+    const forget=(a.state==='live')
+      ? `<button class="btn ghost small" onclick="forgetApproved('${esc(a.key).replace(/'/g,"\\'")}')">Clear</button>` : '';
+    return `<div class="card">
+      <h3>${esc(a.name)}</h3>
+      <div class="meta">${[esc(when),a.place?'📍 '+esc(a.place):''].filter(Boolean).join(' · ')}</div>
+      <div class="tagrow"><span class="tag" style="color:${st.color};background:${st.color}22">${st.label}</span></div>
+      ${st.note?`<p class="hint" style="margin:0 0 4px">${st.note}</p>`:''}
+      ${a.error?`<p class="hint" style="margin:0 0 4px;color:#ff9a9a">${esc(a.error)}</p>`:''}
+      ${retry||forget?`<div class="cardbtns">${retry}${forget}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function forgetApproved(key){
+  apprSave(apprList().filter(a=>a.key!==key));
+  renderPending();
+}
+/* a retry re-publishes from the database if it is still there; if it is not,
+   the website check decides whether the first attempt actually worked */
+async function retryApproved(key){
+  const a=apprFind(key);
+  if(!a)return;
+  apprPatch(key,{state:'sending',error:''});
+  status('Trying "'+a.name+'" again…');
+  try{
+    const fresh=await api({action:'listPending'});
+    const ev={name:a.name,date:a.date,dateStr:a.dateStr,place:a.place};
+    const match=locatePending(ev,fresh.rows);
+    if(match){
+      await api({action:'approve', rows:[match.row]}, true);
+      apprPatch(key,{state:'sent',error:'',sentAt:Date.now()});
+      status('Sent again — the website confirms it within ~5 min.');
+    }else{
+      apprPatch(key,{state:'sent',error:'No longer in the database; checking the website.',sentAt:Date.now()});
+    }
+    setTimeout(()=>syncApproved(true),15000);
+  }catch(e){
+    apprPatch(key,{state:'failed',error:e.message||'something went wrong'});
+    status('Still failing: '+e.message,'err');
+  }
+}
+
+/* ---------- is it actually on the website? ----------
+   The only trustworthy answer comes from the site's own list, so the Approved
+   items are checked against it: on opening the tab, when you come back to the
+   page, and every few minutes while anything is still unconfirmed. Quiet once
+   everything is live. */
+let _apprSyncAt=0,_apprSyncing=false;
+async function syncApproved(force){
+  const list=apprList();
+  const waiting=list.filter(a=>a.state!=='live');
+  if(!waiting.length||_apprSyncing)return;
+  if(!force&&Date.now()-_apprSyncAt<120000)return;      /* at most every 2 min */
+  _apprSyncing=true;
+  try{
+    const out=await api({action:'listEvents'});
+    const live=new Set((out.rows||[]).map(r=>normName(r.name)+'|'+parseSheetDate(r.date)));
+    _apprSyncAt=Date.now();
+    let changed=0;
+    const next=apprList().map(a=>{
+      if(a.state!=='live'&&live.has(a.key)){changed++;return Object.assign({},a,{state:'live',error:'',liveAt:Date.now()});}
+      /* sent a while ago and still not on the site: say so rather than spin */
+      if(a.state==='sent'&&a.sentAt&&Date.now()-a.sentAt>15*60000&&!live.has(a.key)){
+        return Object.assign({},a,{state:'missing'});
+      }
+      return a;
+    });
+    apprSave(next);
+    if(changed){
+      if(pendingWhen==='approved')renderPending();else pendingCounts();
+      status(changed===1?'1 event confirmed live on the website ✔':changed+' events confirmed live ✔');
+    }else if(pendingWhen==='approved')renderPending();
+  }catch(e){/* a failed check is not a failed publish — leave the states alone */}
+  finally{_apprSyncing=false;}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncApproved();});
+setInterval(()=>{if(!document.hidden)syncApproved();},150000);
+
 /* ---------- fix a listing before it goes live ----------
    Imported text is often nearly right: a messy name, a price from the wrong
    post, a missing venue. Editing writes the correction back to the database
@@ -1052,6 +1160,13 @@ function renderPending(){
   window._pendingItems=[];
   _liveIx=(liveRows&&liveRows.length)?liveIndex():null;
   const s=pendingCounts();
+  if(pendingWhen==='approved'){
+    document.getElementById('pendingSources').innerHTML='';
+    document.getElementById('pendingTypes').innerHTML='';
+    el.innerHTML=approvedHTML();
+    renderPendingFooter();
+    return;
+  }
   renderSourceFilter(s);
   renderTypeFilter(s);
   let html='';
@@ -1077,11 +1192,8 @@ function renderPendingFooter(){
   const el=document.getElementById('pendingFooter');
   const hidden=hideList();
   let html='';
-  const pubs=pubList();
-  if(pubs.length){
-    html+=`<div class="month-heading" style="color:#75FF73">✔ Already picked & published</div>`+
-      pubs.map(p=>`<div class="card pub"><h3>${esc(p.name)}</h3><div class="meta">${esc(p.date)}</div><div class="cardbtns"><button class="btn pubbed small" disabled>✔ Published</button></div></div>`).join('');
-  }
+  /* published events used to be listed down here; they have their own
+     ✅ Approved tab now, where their real status is shown */
   if(hidden.length){
     html+=`<div class="month-heading" style="color:#ff6b6b;cursor:pointer" onclick="toggleHidden()">🗑 Not interested (${hidden.length}) ${showHidden?'▾':'▸'}</div>`;
     if(showHidden){
@@ -1114,44 +1226,67 @@ async function loadPending(){
    row numbers shift with every publish, so two at once could publish the wrong
    event. If one fails, its card comes back. */
 let approveQueue=Promise.resolve(),approvePending=0;
+/* ---------- the Approved list ----------
+   Everything you approve moves here the moment you press the button and stays
+   here: first as "publishing", then "sent", then "live on the website" once
+   the site itself confirms it. A failure stays here too, with a Try again
+   button — nothing is ever dropped back among the events still to review,
+   which is what made a failed publish on a phone so confusing. */
+const APPR_KEY='yerevent_approved_v1';
+function apprKey(ev){return normName(ev.name)+'|'+(ev.dateStr||parseSheetDate(ev.date));}
+function apprList(){try{return JSON.parse(localStorage.getItem(APPR_KEY))||[];}catch(_){return[];}}
+function apprSave(list){try{localStorage.setItem(APPR_KEY,JSON.stringify(list.slice(0,300)));}catch(_){}}
+function apprFind(key){return apprList().find(a=>a.key===key)||null;}
+function apprPut(item){
+  const list=apprList().filter(a=>a.key!==item.key);
+  list.unshift(item);apprSave(list);
+}
+function apprPatch(key,patch){
+  const list=apprList();
+  const i=list.findIndex(a=>a.key===key);
+  if(i<0)return;
+  list[i]=Object.assign({},list[i],patch);
+  apprSave(list);
+  if(pendingWhen==='approved')renderPending();else pendingCounts();
+}
+function apprKeys(){return new Set(apprList().map(a=>a.key));}
+
 function approveEvent(row, btn){
   const ev=pendingRows.find(r=>r.row===row);
   if(!ev){status('Could not find that event — refreshing the list.','err');loadPending();return;}
   if(btn)btn.disabled=true;
-  pubAdd(ev);
+  const key=apprKey(ev);
+  apprPut({key,name:ev.name,date:ev.date,dateStr:ev.dateStr,place:ev.place||'',
+           link:ev.link||'',type:ev.type||'',price:ev.price||'',
+           state:'sending',at:Date.now(),error:''});
   pendingRows=pendingRows.filter(r=>r.row!==row);
   if(!dropCard(row))renderPending();else{pendingCounts();renderPendingFooter();}
   approvePending++;
-  status('Publishing "'+ev.name+'"…'+(approvePending>1?' ('+approvePending+' in the queue)':''));
-  approveQueue=approveQueue.then(()=>approveOne(ev)).catch(()=>{});
+  status('Publishing "'+ev.name+'"… it carries on even if you close this page.');
+  approveQueue=approveQueue.then(()=>approveOne(ev,key)).catch(()=>{});
 }
-async function approveOne(ev){
+async function approveOne(ev,key){
+  key=key||apprKey(ev);
   try{
     /* Row numbers shift when imports or cleanups run, so re-locate the event
        by name + date in the CURRENT sheet right before approving. */
     const fresh=await api({action:'listPending'});
     const match=locatePending(ev,fresh.rows);
     if(!match){
-      /* Nothing was sent. Rather than leave a card stranded, reload from the
-         database — the usual cause is a list loaded before a cleanup or
-         before the event was published from another device. */
-      pubRemove(ev);
-      await loadPending();
-      const stillThere=locatePending(ev,pendingRows);
-      status(stillThere
-        ? 'The list was out of date, so nothing was published. It has been refreshed — try "'+ev.name+'" again.'
-        : '"'+ev.name+'" is no longer in the database — it was already published or moved to Duplicates. Nothing was published twice.','err');
+      /* Not in the database any more — usually because it was already
+         published, from here or from the phone. The website check will settle
+         it either way, so it stays in this list rather than bouncing back. */
+      apprPatch(key,{state:'sent',error:'It was no longer waiting in the database — checking the website.'});
       return;
     }
-    await api({action:'approve', rows:[match.row]});
-    status('Published "'+ev.name+'" ✔ — on the website within ~5 min');
+    await api({action:'approve', rows:[match.row]}, true);
+    apprPatch(key,{state:'sent',error:'',sentAt:Date.now()});
+    status('Sent "'+ev.name+'" — the website confirms it within ~5 min.');
     liveLoaded=false;liveRows=[];
+    setTimeout(syncApproved,20000);
   }catch(e){
-    /* put it back so nothing is silently lost */
-    pubRemove(ev);
-    if(!pendingRows.some(r=>fp(r)===fp(ev))){pendingRows.push(ev);pendingRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));}
-    renderPending();
-    status('Could not publish "'+ev.name+'": '+e.message+' — it is back in the list.','err');
+    apprPatch(key,{state:'failed',error:e.message||'something went wrong'});
+    status('Could not publish "'+ev.name+'": '+e.message+' — it is waiting under ✅ Approved, with a Try again button.','err');
   }finally{approvePending=Math.max(0,approvePending-1);}
 }
 
