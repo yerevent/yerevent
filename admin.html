@@ -256,7 +256,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v2.4';
+const APP_VERSION = 'v2.5';
 const APP_DATE = '4 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -1261,12 +1261,11 @@ async function doExtract(){
       }else{
         const ev=r.event||{};
         document.getElementById('postText').value='';
-        el.innerHTML='<p class="hint" style="margin-top:16px">✅ Read and saved to the Database under 🔗 My links. Check it, then approve it there to put it on the website:</p>'+
-          `<div class="card"><h3>${esc(ev.name||'(no name)')}</h3>
-            <div class="meta">${[esc(fmtDate(ev.date)),esc(ev.time||''),ev.place?'📍 '+esc(ev.place):''].filter(Boolean).join(' · ')}</div>
-            <div class="tagrow">${ev.type?`<span class="tag" style="color:${TYPE_COLOR[(ev.type||'').toLowerCase()]||'#888'};background:${(TYPE_COLOR[(ev.type||'').toLowerCase()]||'#888')}22">${esc(ev.type)}</span>`:''}${ev.price?`<span class="tag" style="color:#ff9966;background:#ff996622">${esc(ev.price)}</span>`:''}</div>
-            ${ev.description?`<div class="desc" onclick="this.classList.toggle('open')">${esc(ev.description)}</div>`:''}
-          </div>`;
+        /* it is in the Database already; the form is here so it can go
+           straight to the website instead, without a second trip */
+        linkSaved={name:ev.name,date:ev.date};
+        el.innerHTML='<p class="hint" style="margin-top:16px">✅ Read and saved to 🗄 Database under 🔗 My links. Fix anything below and publish it now, or leave it there for later:</p>'+
+          formHTML(ev,'🚀 Publish to website','publishFromLink()');
         status('Saved to the Database ✔');
         pendingLoaded=false;
       }
@@ -1279,9 +1278,11 @@ async function doExtract(){
     const out=await api({action:'extract', caption:text});
     const ev=out.event||{};
     ev.description=ev.description||text;
+    linkSaved=null;
     document.getElementById('extractResult').innerHTML=
-      '<p class="hint" style="margin-top:16px">Check the details, fix anything, then publish:</p>'+
-      formHTML(ev,'🚀 Publish to website','publishNew()');
+      '<p class="hint" style="margin-top:16px">Check the details, fix anything, then publish — or keep it in the Database to decide later:</p>'+
+      formHTML(ev,'🚀 Publish to website','publishNew()',
+        `<button class="btn ghost" onclick="runBtn(this,()=>saveToDatabase(),'Saving…')">🗄 Save to Database</button>`);
   }catch(e){status('Extraction failed: '+e.message,'err');}
   btn.disabled=false;btn.textContent='✨ Extract event';
 }
@@ -1295,6 +1296,40 @@ async function publishNew(){
     document.getElementById('extractResult').innerHTML='';
     document.getElementById('postText').value='';
     liveLoaded=false;liveRows=[];
+  }catch(e){status('Publish failed: '+e.message,'err');}
+}
+/* which Database row this form came from, so publishing can take it out of
+   the review list instead of leaving a copy behind */
+let linkSaved=null;
+async function saveToDatabase(){
+  try{
+    const ev=readForm();
+    if(!ev.name||!ev.date){status('Name and date are required.','err');return;}
+    status('Saving…');
+    await api({action:'addPending', event:ev});
+    status('Saved to 🗄 Database under 🔗 My links ✔');
+    document.getElementById('extractResult').innerHTML='';
+    document.getElementById('postText').value='';
+    pendingLoaded=false;
+  }catch(e){status('Could not save it: '+e.message,'err');}
+}
+async function publishFromLink(){
+  try{
+    const ev=readForm();
+    if(!ev.name||!ev.date){status('Name and date are required.','err');return;}
+    status('Publishing…');
+    await api({action:'addEvent', event:ev});
+    /* it was filed in the Database when the post was read; take that copy out
+       so the same event isn't waiting for a decision it has already had */
+    if(linkSaved){
+      try{ await api({action:'dropPending', event:linkSaved}); }
+      catch(e){ status('Published ✔ — but its copy is still in the Database; remove it there.','err'); }
+      linkSaved=null;
+    }
+    status('Event published ✔ — on the website within ~5 min');
+    document.getElementById('extractResult').innerHTML='';
+    document.getElementById('postText').value='';
+    liveLoaded=false;liveRows=[];pendingLoaded=false;
   }catch(e){status('Publish failed: '+e.message,'err');}
 }
 </script>
