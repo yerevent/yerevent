@@ -571,6 +571,54 @@ function normaliseEvent(raw){
     image:raw['image']||raw['Image']||'',
     lat:isNaN(lat)?null:lat,lng:isNaN(lng)?null:lng};
 }
+/* ---------- one address per event ----------
+   The site is a single page, so an event's address is a query on the same
+   page: yerevent.club/?e=jazz-night-2026-10-17. Opening an event writes that
+   address, closing it puts the plain one back, and arriving with one open
+   the event once the list has loaded. Armenian and Russian names leave
+   nothing to slugify, so those fall back to a short code from the name. */
+function slugify(s){
+  return String(s||'').toLowerCase()
+    .replace(/[‘’'"]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+}
+function shortCode(s){
+  let h=0;const str=String(s||'');
+  for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))>>>0;
+  return h.toString(36).slice(0,6);
+}
+function eventSlug(ev){
+  return (slugify(ev.name)||('event-'+shortCode(ev.name)))+'-'+ev.date;
+}
+function eventUrl(ev){
+  return location.origin+location.pathname+'?e='+encodeURIComponent(eventSlug(ev));
+}
+function setUrlForEvent(ev){
+  try{history.pushState({e:eventSlug(ev)},'',eventUrl(ev));}catch(_){}
+}
+function clearEventUrl(){
+  try{if(location.search)history.pushState({},'',location.pathname);}catch(_){}
+}
+let _wantSlug=new URLSearchParams(location.search).get('e')||'';
+function openSlug(slug){
+  if(!slug)return false;
+  const ev=allEvents.find(e=>eventSlug(e)===slug);
+  if(!ev)return false;
+  document.getElementById('backBtn').style.display='none';
+  document.getElementById('detailOverlay').classList.add('open');
+  openDetail(ev,true);
+  return true;
+}
+/* an event linked to before the list arrived, opened as soon as it has */
+function openPendingSlug(){
+  if(!_wantSlug)return;
+  if(openSlug(_wantSlug))_wantSlug='';
+}
+window.addEventListener('popstate',()=>{
+  const slug=new URLSearchParams(location.search).get('e');
+  if(slug){openSlug(slug);}
+  else if(document.getElementById('detailOverlay').classList.contains('open')){closeDetail(true);}
+});
 let _spanSeq=0;
 function expandEvents(events){
   const expanded=[];
@@ -690,6 +738,7 @@ function applyFilters(){
   const n=filteredEvents.length;
   document.getElementById('resultCount').textContent=`${n} event${n!==1?'s':''} found`;
   renderCalendar();renderList();
+  openPendingSlug();   /* someone arrived on a shared link */
 }
 
 /* ---- geocoding: cached + queued so pins stop randomly disappearing ----
@@ -848,8 +897,9 @@ function navigateDay(direction){
 }
 function backToDayModal(){closeDetail();if(lastDayDateStr)openDayModal(lastDayDateStr);}
 
-function openDetail(ev){
+function openDetail(ev,fromUrl){
   currentEvent=ev;const[y,m,d]=ev.date.split('-');
+  if(!fromUrl)setUrlForEvent(ev);   /* the address bar now points at this event */
   const displayDate=ev.rawDate||`${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
   const gmapsUrl=ev.location?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.location+(ev.city?', '+ev.city:'')+', Armenia')}`:'';
   const mapHTML=ev.location
@@ -859,8 +909,9 @@ function openDetail(ev){
       </div>`
     :`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.85rem;padding:20px;">No location info</div>`;
 
-  document.getElementById('detailBody').innerHTML=`<div class="modal-body-left">${ev.image?`<img class="detail-poster" src="${esc(ev.image)}" alt="" loading="lazy" onerror="this.remove()">`:''}<div class="detail-event-name">${esc(ev.name)}</div><div class="detail-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div><div class="detail-meta"><div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>${ev.time?`<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>`:''}${ev.location?`<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> <a href="${esc(gmapsUrl)}" target="_blank" rel="noopener" class="detail-address-link">${esc(ev.location)}</a></div>`:''}</div>${ev.description?`<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>`:''}</div><div class="modal-body-right">${mapHTML}<div class="detail-actions"><button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button>${ev.link?`<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>`:''}</div></div>`;
+  document.getElementById('detailBody').innerHTML=`<div class="modal-body-left">${ev.image?`<img class="detail-poster" src="${esc(ev.image)}" alt="" loading="lazy" onerror="this.remove()">`:''}<div class="detail-event-name">${esc(ev.name)}</div><div class="detail-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div><div class="detail-meta"><div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>${ev.time?`<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>`:''}${ev.location?`<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> <a href="${esc(gmapsUrl)}" target="_blank" rel="noopener" class="detail-address-link">${esc(ev.location)}</a></div>`:''}</div>${ev.description?`<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>`:''}</div><div class="modal-body-right">${mapHTML}<div class="detail-actions"><button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button><button class="btn-gcal-big btn-more" id="shareBtn">↗ Share</button>${ev.link?`<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>`:''}</div></div>`;
   document.getElementById('gcalBtn').addEventListener('click',()=>addToGCal(currentEvent));
+  document.getElementById('shareBtn').addEventListener('click',()=>shareEvent(currentEvent));
 
   if(ev.location&&gmapsUrl){
     // Click anywhere on map → Google Maps
@@ -886,7 +937,40 @@ function openDetail(ev){
     },120);
   }
 }
-function closeDetail(){
+/* Share sheet on a phone, copy-the-link everywhere else. */
+function shareEvent(ev){
+  if(!ev)return;
+  const url=eventUrl(ev);
+  const when=ev.rawDate||ev.date;
+  const text=ev.name+' — '+when+(ev.location?', '+ev.location:'');
+  if(navigator.share){
+    navigator.share({title:ev.name,text,url}).catch(()=>{});
+    return;
+  }
+  const done=()=>toast('Link copied — paste it anywhere');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done).catch(()=>fallbackCopy(url,done));
+  }else fallbackCopy(url,done);
+}
+function fallbackCopy(text,done){
+  const ta=document.createElement('textarea');
+  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');done();}catch(_){prompt('Copy this link:',text);}
+  ta.remove();
+}
+function toast(msg){
+  let el=document.getElementById('toast');
+  if(!el){
+    el=document.createElement('div');el.id='toast';
+    el.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:rgba(20,5,15,0.95);color:#fdf5ec;border:1px solid rgba(252,204,132,0.3);padding:11px 18px;border-radius:100px;font-size:0.85rem;z-index:3000;opacity:0;transition:opacity .2s;pointer-events:none;';
+    document.body.appendChild(el);
+  }
+  el.textContent=msg;el.style.opacity='1';
+  clearTimeout(toast._t);toast._t=setTimeout(()=>{el.style.opacity='0';},2200);
+}
+function closeDetail(fromUrl){
+  if(!fromUrl)clearEventUrl();
   document.getElementById('detailOverlay').classList.remove('open');
   document.getElementById('backBtn').style.display='none';
   currentEvent=null;
