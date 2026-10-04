@@ -257,7 +257,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v2.6';
+const APP_VERSION = 'v2.7';
 const APP_DATE = '4 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -1251,9 +1251,34 @@ function apprPatch(key,patch){
 }
 function apprKeys(){return new Set(apprList().map(a=>a.key));}
 
+/* Would this be the same event twice? The backend refuses an identical name
+   on the same day by itself, but the usual repeat is the SAME event under a
+   different name — two posts about one night at one venue. That one only a
+   person can judge, so it asks. */
+function duplicateWarning(ev){
+  const day=ev.dateStr||parseSheetDate(ev.date);
+  const place=normName(ev.place);
+  const already=apprList().find(a=>a.key===apprKey(ev)||
+    (place&&a.dateStr===day&&normName(a.place)===place));
+  if(already){
+    return already.key===apprKey(ev)
+      ? '"'+ev.name+'" is already in your Approved list ('+(already.state==='live'?'live on the website':'being published')+').'
+      : '"'+already.name+'" is already approved for the same place on the same day.\n\nIf these are two different events, carry on.';
+  }
+  if(_liveIx&&isOnSite(ev)){
+    return 'The website already has something at this place on this day.\n\nIf it is a different event, carry on.';
+  }
+  return '';
+}
 function approveEvent(row, btn){
   const ev=pendingRows.find(r=>r.row===row);
   if(!ev){status('Could not find that event — refreshing the list.','err');loadPending();return;}
+  const warn=duplicateWarning(ev);
+  if(warn&&!confirm(warn+'\n\nPublish it anyway?')){
+    status('Left alone — nothing was published.');
+    if(btn)btn.disabled=false;
+    return;
+  }
   if(btn)btn.disabled=true;
   const key=apprKey(ev);
   apprPut({key,name:ev.name,date:ev.date,dateStr:ev.dateStr,place:ev.place||'',
