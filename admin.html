@@ -257,7 +257,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v2.7';
+const APP_VERSION = 'v2.8';
 const APP_DATE = '4 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -437,6 +437,37 @@ function onSiteTag(ev,kind){
   return kind!=='live'&&isOnSite(ev)
     ? `<span class="tag" style="color:#75FF73;background:#75FF7322">✓ already on the website</span>`:'';
 }
+/* ---------- descriptions that aren't in English ----------
+   Plenty of posts are Armenian or Russian only. Those are flagged, and every
+   description gets a translate button that opens Google Translate with the
+   text already in it — no key, no cost, and it reads the language itself. */
+function scriptOf(s){
+  const t=String(s||'');
+  let arm=0,cyr=0,lat=0;
+  for(const ch of t){
+    const c=ch.codePointAt(0);
+    if(c>=0x0530&&c<=0x058f)arm++;
+    else if(c>=0x0400&&c<=0x04ff)cyr++;
+    else if((c>=65&&c<=90)||(c>=97&&c<=122))lat++;
+  }
+  const total=arm+cyr+lat;
+  if(!total)return '';
+  if(arm/total>0.15)return 'Armenian';
+  if(cyr/total>0.15)return 'Russian';
+  return '';
+}
+function translateUrl(text){
+  return 'https://translate.google.com/?sl=auto&tl=en&op=translate&text='+
+         encodeURIComponent(String(text||'').slice(0,4000));
+}
+function descHTML(ev){
+  const text=String(ev.description||'').trim();
+  if(!text)return '<span class="nodesc-badge">⚠ no description — check the original post</span>';
+  const lang=scriptOf(text);
+  return (lang?`<div class="tagrow"><span class="tag" style="color:#ffb84d;background:#ffb84d22">🌐 ${lang}, not English</span></div>`:'')+
+    `<div class="desc" onclick="this.classList.toggle('open')">${esc(text)}</div>`+
+    `<div style="margin-top:6px"><a class="btn ghost small" href="${esc(translateUrl(text))}" target="_blank" rel="noopener">🌐 Translate</a></div>`;
+}
 function cardHTML(ev, kind){
   const t=(ev.type||'').toLowerCase();
   const c=TYPE_COLOR[t]||'#888';
@@ -447,14 +478,10 @@ function cardHTML(ev, kind){
     (ev.price?`<span class="tag" style="color:#ff9966;background:#ff996622">${esc(ev.price)}</span>`:'')+
     linkTag(ev)+onSiteTag(ev,kind);
   const meta=[fmtDate(ev.date), fmtTime(ev.time), ev.place?('📍 '+esc(ev.place)):''].filter(Boolean).join(' · ');
-  const desc = noDesc
-    ? '<span class="nodesc-badge">⚠ no description — check the original post</span>'
-    : `<div class="desc" onclick="this.classList.toggle('open')">${esc(ev.description)}</div>`;
+  const desc = descHTML(ev);
   const btns = kind==='live'
     ? `<button class="btn ghost small" onclick="editEvent(${ev.row})">✏️ Edit</button>
        <button class="btn red small" onclick="removeEvent(${ev.row}, this)">🗑 Delete</button>`
-    : kind==='past'
-    ? ''   /* already happened — kept to look back at, nothing to decide */
     : `<button class="btn green small" onclick="runBtn(this,()=>approveEvent(${ev.row},null),'Publishing…')">✅ Approve &amp; publish</button>
        <button class="btn ghost small" onclick="editPending(${ev.row})">✏️ Edit</button>
        <button class="btn red small" onclick="dismissEvent(${ev.row})">🗑 Not interested</button>`;
@@ -884,6 +911,60 @@ function groupTitle(versions){
   });
   return best.name;
 }
+/* Are these two names about the same event? Either one contains the other
+   ("Haddaway" inside "Haddaway: Retro Stars Fest"), or they share at least
+   two telling words. Short, common words are ignored so "live at the bar"
+   doesn't marry unrelated gigs. */
+const STOPWORDS=new Set(['the','and','with','live','feat','featuring','presents','night','party','show','concert','yerevan','armenia','vol','part','new','day','days','fest','festival','open','free','event','edition','at','in','on','of','by','a','an']);
+function nameWords(s){
+  return [...new Set(String(s||'').toLowerCase()
+    .split(/[^a-z0-9Ѐ-ӿ԰-֏]+/)
+    .filter(w=>w.length>=4&&!STOPWORDS.has(w)))];
+}
+function sameEventName(a,b){
+  const na=normName(a),nb=normName(b);
+  if(!na||!nb)return false;
+  if(na===nb)return true;
+  if(na.length>=8&&nb.length>=8&&(na.includes(nb)||nb.includes(na)))return true;
+  const wa=nameWords(a),wb=nameWords(b);
+  if(!wa.length||!wb.length)return false;
+  const shared=wa.filter(w=>wb.includes(w));
+  if(shared.length>=2)return true;
+  /* one distinctive word is enough when it is most of both names */
+  return shared.length===1&&wa.length<=2&&wb.length<=2;
+}
+/* The other half of the problem: a separate account posts about one act of a
+   bigger night ("Boney M. live") with no venue and no words in common. The
+   main post almost always names that act in its text, so a group whose
+   description spells out another group's name on the same day absorbs it. */
+function textOf(g){
+  return g.versions.map(v=>(v.name||'')+' '+(v.description||'')).join(' ').toLowerCase();
+}
+function namedInside(host,guest){
+  const words=nameWords(guest.versions[0].name);
+  if(!words.length)return false;
+  const hay=textOf(host);
+  return words.every(w=>hay.includes(w));
+}
+function mergeSameDay(groups){
+  const byDate=new Map();
+  groups.forEach(g=>{if(!byDate.has(g.dateStr))byDate.set(g.dateStr,[]);byDate.get(g.dateStr).push(g);});
+  const out=[];
+  byDate.forEach(list=>{
+    /* biggest first, so the fuller post is the one that absorbs the others */
+    const sorted=list.slice().sort((a,b)=>textOf(b).length-textOf(a).length);
+    const merged=[];
+    sorted.forEach(g=>{
+      const into=merged.find(m=>
+        m.versions.some(v=>g.versions.some(w=>sameEventName(v.name,w.name)))||
+        namedInside(m,g));
+      if(into)into.versions=into.versions.concat(g.versions);
+      else merged.push(g);
+    });
+    merged.forEach(m=>out.push(m));
+  });
+  return out;
+}
 function groupPending(list){
   const byDay=new Map();
   list.forEach(ev=>{
@@ -891,7 +972,11 @@ function groupPending(list){
     if(!byDay.has(k))byDay.set(k,{key:k,name:ev.name,dateStr:ev.dateStr,versions:[]});
     byDay.get(k).versions.push(ev);
   });
-  const days=[...byDay.values()];
+  /* Venue and day catch most repeats, but not all: two accounts posting the
+     same night write the venue differently, or leave it out, and one account
+     often posts about the same night more than once. So groups falling on the
+     same day are merged again when their names are plainly about one event. */
+  const days=mergeSameDay([...byDay.values()]);
   days.forEach(d=>{
     d.versions.sort((a,b)=>versionScore(b)-versionScore(a));
     d.name=groupTitle(d.versions);
@@ -1076,21 +1161,21 @@ function dismissGroup(key){
 }
 function versionLine(ev,key,kind){
   const bits=[fmtTime(ev.time),ev.place?('📍 '+ev.place):'',ev.price||''].filter(Boolean).map(esc).join(' · ');
-  const pick=kind==='past'?'':
+  const pick=
     `<button class="btn green small" onclick="runBtn(this,()=>approveVersion(${ev.row},'${key}'),'Publishing…')">✅ Use this one</button>
      <button class="btn ghost small" onclick="editPending(${ev.row})">✏️ Edit</button>`;
   return `<div class="version" id="ver-${ev.row}">
     <h3 style="font-size:0.92rem">${esc(ev.name)}</h3>
     <div class="meta">${bits||'<i>nothing filled in</i>'}</div>
     <div class="tagrow">${linkTag(ev)}</div>
-    ${ev.description?`<div class="desc" onclick="this.classList.toggle('open')">${esc(ev.description)}</div>`:''}
+    ${ev.description?descHTML(ev):''}
     <div class="cardbtns">${pick}${ev.link?`<a class="btn ghost small" href="${esc(ev.link)}" target="_blank">the post ↗</a>`:''}</div>
   </div>`;
 }
 function versionsCardHTML(g,kind){
   const open=openGroups.has(g.key);
   const best=g.versions[0];
-  const dismiss=kind==='past'?'':`<button class="btn red small" onclick="dismissGroup('${g.key}')">🗑 Not interested</button>`;
+  const dismiss=`<button class="btn red small" onclick="dismissGroup('${g.key}')">🗑 Not interested</button>`;
   return `<div class="card" id="card-pending-${best.row}">
     <h3>${esc(g.name)}</h3>
     <div class="meta">${esc(fmtDate(best.date))}${best.place?' · 📍 '+esc(best.place):''}</div>
