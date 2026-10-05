@@ -1264,7 +1264,7 @@ function renderGuideStages(g){
 }
 function renderGuideMap(g){
   if(guideMap){guideMap.remove();guideMap=null;}
-  guideMap=L.map('guideMap',{scrollWheelZoom:false});
+  guideMap=L.map('guideMap',{scrollWheelZoom:false,zoomSnap:0.25});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_3ttc_1_7980370ddda10f4b903a6478',{attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19}).addTo(guideMap);
   const pts=[];
   g.stages.forEach(st=>{
@@ -1272,7 +1272,7 @@ function renderGuideMap(g){
     L.marker([st.lat,st.lng],{icon}).addTo(guideMap).on('click',()=>focusStage(st.n));
     pts.push([st.lat,st.lng]);
   });
-  guideMap.fitBounds(pts,{padding:[40,40]});
+  guideMap.fitBounds(pts,{padding:[22,22]});
   /* names only once zoomed in: at city scale the central stages sit on top of each other */
   const labels=()=>{if(guideMap)document.getElementById('guideMap').classList.toggle('labels-on',guideMap.getZoom()>=16);};
   guideMap.on('zoomend',labels);labels();
