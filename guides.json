@@ -1,0 +1,111 @@
+[
+  {
+    "slug": "cityday",
+    "title": "Yerevan City Day",
+    "subtitle": "Erebuni–Yerevan 2808",
+    "dates": ["2026-10-09", "2026-10-10"],
+    "blurb": "Seven free stages across the centre on Saturday, a rock warm-up on Friday, and a beer and a wine festival on the side. Everything is within a 20-minute walk.",
+    "price": "Free",
+    "source": "https://www.instagram.com/yerevan_municipality/",
+    "stages": [
+      {
+        "n": 1, "place": "Cascade · Cafesjian Sculpture Garden", "short": "Cascade", "match": ["cascade", "cafesjian"],
+        "lat": 40.18939, "lng": 44.51542, "genre": "Jazz", "type": "concert",
+        "events": [
+          {
+            "name": "City Day Jazz at the Cascade", "date": "2026-10-10", "time": "1 PM – 10 PM", "start": 13, "end": 22,
+            "star": "FKJ (French Kiwi Juice) at 8 PM", "starAt": 20, "starLabel": "FKJ",
+            "lineup": ["Armenian State Jazz Orchestra", "Midnight Avenue & The UltraViolet", "Karen Mamikonyan Trio", "Dialog Big Band & A Chilla", "Vahagn Hayrapetyan · The Armenian Colors Quartet", "Artyom Manukyan Trio", "Malkhas Jazz Trio", "Special guest: FKJ"],
+            "link": "https://www.instagram.com/p/DeCUD39jRgc/",
+            "also": ["https://www.instagram.com/p/DeCY2-Otul_/"]
+          }
+        ]
+      },
+      {
+        "n": 2, "place": "Freedom Square", "short": "Freedom Sq.", "match": ["freedom square", "azatutyan"],
+        "lat": 40.18536, "lng": 44.51505, "genre": "Classical", "type": "concert",
+        "events": [
+          {
+            "name": "City Day Classical: Symphonic Folk", "date": "2026-10-10", "time": "5 PM – 8:30 PM", "start": 17, "end": 20.5,
+            "star": "Symphonic Folk, arranged by C-Rouge",
+            "lineup": ["Yerevan Youth Orchestra", "Armenian State Symphony Orchestra, Symphonic Folk programme arranged by Serouj Baghdasarian (C-Rouge)", "Conductor: Harutyun Arzumanyan", "With the Yerevan State Chamber Choir and the Kamerton vocal studio"],
+            "link": "https://www.instagram.com/p/DeFPvMQDWb4/"
+          }
+        ]
+      },
+      {
+        "n": 3, "place": "Northern Avenue", "short": "Northern Ave.", "match": ["northern avenue", "northern ave", "hyusisayin"],
+        "lat": 40.18235, "lng": 44.51462, "genre": "Folk + Wine", "type": "festival",
+        "events": [
+          {
+            "name": "City Day Folk Music", "date": "2026-10-10", "time": "1 PM – 6 PM", "start": 13, "end": 18, "type": "concert",
+            "lineup": ["Sona Rubenyan", "Arpi & Highway Band", "Tmbata", "Ethno Colors", "Akunk State Ethnographic Ensemble", "Zvartnots kanon ensemble", "Dancing alongside: Menq national dance group and Masunk song & dance group"],
+            "link": "https://www.instagram.com/p/DeEYiMcjTh-/"
+          },
+          {
+            "name": "City Day Wine Festival", "date": "2026-10-10", "time": "12 PM – 11 PM", "start": 12, "end": 23, "type": "festival",
+            "lineup": ["Wine festival all along Northern Avenue"],
+            "link": "https://www.instagram.com/p/DeEYiMcjTh-/"
+          }
+        ]
+      },
+      {
+        "n": 4, "place": "Charles Aznavour Square", "short": "Aznavour Sq.", "match": ["aznavour square", "aznavour sq"],
+        "lat": 40.18169, "lng": 44.51694, "genre": "Pop", "type": "concert",
+        "events": [
+          {
+            "name": "City Day Pop Concert", "date": "2026-10-10", "time": "12 PM – 6 PM", "start": 12, "end": 18,
+            "lineup": ["Yervand Yerznkyan's Orchestra", "Mohana Band", "Aram MP3", "D'Litte", "Project 12", "Yellow Heart", "Kami Friends"],
+            "link": "https://www.instagram.com/p/DeEJ2QeDeAU/"
+          }
+        ]
+      },
+      {
+        "n": 5, "place": "Diana Abgar Park", "short": "Diana Abgar Park", "match": ["diana abgar", "abgar park"],
+        "lat": 40.18323, "lng": 44.50780, "genre": "Rock + Beer", "type": "concert",
+        "events": [
+          {
+            "name": "Diana Arbenina & Nochnye Snaipery", "date": "2026-10-09", "time": "9 PM", "start": 21, "end": 23,
+            "star": "Friday night warm-up",
+            "lineup": ["Diana Arbenina", "Nochnye Snaipery (Night Snipers)"],
+            "link": "https://www.instagram.com/p/Dd64rNmNQyR/"
+          },
+          {
+            "name": "City Day Rock Concert", "date": "2026-10-10", "time": "1 PM – 11 PM", "start": 13, "end": 23,
+            "lineup": ["FairWind", "Another Story Band", "The Beautified Project", "Lav Eli", "Suren Arustamyan", "Gor Sujyan", "Sargis Manukyan & Friends", "Nemra", "Bambir"],
+            "link": "https://www.instagram.com/p/DeCLO7RDdr1/"
+          },
+          {
+            "name": "City Day Beer Festival", "date": "2026-10-09", "endDate": "2026-10-10", "time": "", "type": "festival",
+            "lineup": ["Beer festival in the park on both days"],
+            "link": "https://www.instagram.com/p/DeCLO7RDdr1/"
+          }
+        ]
+      },
+      {
+        "n": 6, "place": "Republic Square · Singing Fountains", "short": "Republic Sq.", "match": ["republic square", "singing fountain"],
+        "lat": 40.17840, "lng": 44.51330, "genre": "Electronic", "type": "nightlife",
+        "events": [
+          {
+            "name": "City Day Electronic Stage", "date": "2026-10-10", "time": "5 PM – 11 PM", "start": 17, "end": 23,
+            "star": "Vanco at 9:30 PM, afrobeats", "starAt": 21.5, "starLabel": "Vanco",
+            "lineup": ["Guevo aka Kai", "Roob", "Socko", "Alber Ensso", "Special guest: Vanco"],
+            "link": "https://www.instagram.com/p/DeClgztDQnN/",
+            "also": ["https://www.instagram.com/p/DeCtPkJt3uz/"]
+          }
+        ]
+      },
+      {
+        "n": 7, "place": "English Park", "short": "English Park", "match": ["english park", "angliakan"],
+        "lat": 40.17396, "lng": 44.50812, "genre": "Rap", "type": "concert",
+        "events": [
+          {
+            "name": "City Day Rap Concert", "date": "2026-10-10", "time": "5 PM – 10 PM", "start": 17, "end": 22,
+            "lineup": ["A Chilla", "Vnas", "Dav", "Galife", "Narek Mets Hayk", "Misht Hasarak", "47", "Felo 3.33", "Serzho"],
+            "link": "https://www.instagram.com/p/DeEte-4DRiF/"
+          }
+        ]
+      }
+    ]
+  }
+]

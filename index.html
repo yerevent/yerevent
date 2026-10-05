@@ -12,7 +12,7 @@
   gtag('js', new Date());
   gtag('config', 'G-C998B8RD5Z');
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Cormorant+Garamond:ital,wght@1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -271,6 +271,93 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 .footer-tell:hover{color:#fccc84;}
 .footer-bottom{border-top:1px solid rgba(252,204,132,0.08);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:0.75rem;color:rgba(252,204,132,0.2);}
 
+/* ── GUIDES: several events bundled into one festival-style page ── */
+:root{--sunset:linear-gradient(155deg,#FFB15C 0%,#F04A5A 52%,#7A1E5C 100%);--apricot:#FFB15C;--pome:#F04A5A;--plum:#7A1E5C;--cream:#F4EADF;}
+.guide-banner{display:flex;align-items:center;gap:16px;background:var(--sunset);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;cursor:pointer;color:#1C0B12;box-shadow:0 8px 30px rgba(240,74,90,0.25);transition:transform .15s,box-shadow .15s;border:none;width:100%;text-align:left;font-family:'Outfit',sans-serif;}
+.guide-banner:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(240,74,90,0.35);}
+.guide-banner-when{font-size:0.66rem;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;opacity:0.75;}
+.guide-banner-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:1.7rem;line-height:1.05;}
+.guide-banner-sub{font-size:0.8rem;font-weight:500;margin-top:3px;}
+.guide-banner-go{margin-left:auto;background:#1C0B12;color:var(--cream);font-weight:600;font-size:0.8rem;padding:9px 16px;border-radius:100px;white-space:nowrap;}
+.cal-guide-chip{background:var(--sunset)!important;color:#1C0B12!important;border-color:transparent!important;font-weight:700;}
+.day-guide-head{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:var(--sunset);color:#1C0B12;cursor:pointer;transition:transform .12s;}
+.day-guide-head:hover{transform:translateX(3px);}
+.day-guide-head b{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.25rem;font-weight:600;display:block;line-height:1.1;}
+.day-guide-head span{font-size:0.74rem;font-weight:500;}
+.day-event-row.in-guide{margin-left:14px;border-left:3px solid var(--pome);}
+.detail-guide-link{display:flex;width:100%;align-items:center;gap:8px;background:var(--sunset);color:#1C0B12;border:none;border-radius:10px;padding:10px 14px;font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;margin-bottom:16px;text-align:left;}
+.guide-overlay{z-index:196;}
+.guide-modal{overflow:hidden;}
+.guide-body{flex:1;overflow-y:auto;min-height:0;}
+.guide-inner{max-width:1040px;margin:0 auto;padding:0 24px 40px;}
+.guide-hero{background:var(--sunset);color:#1C0B12;padding:34px 28px 28px;position:relative;overflow:hidden;}
+.guide-hero svg{position:absolute;right:-10px;bottom:-4px;width:340px;max-width:60%;opacity:0.22;}
+.guide-hero-kicker{font-size:0.7rem;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;opacity:0.75;}
+.guide-hero h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1;margin:6px 0 10px;}
+.guide-hero p{max-width:560px;font-size:0.95rem;line-height:1.55;font-weight:500;position:relative;}
+.guide-stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;position:relative;}
+.guide-stat{background:rgba(28,11,18,0.88);color:var(--cream);font-size:0.76rem;font-weight:600;padding:6px 12px;border-radius:100px;}
+.guide-h{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--gold);margin:28px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.guide-days{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px;}
+.guide-day{font-family:'Outfit',sans-serif;font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:100px;border:none;cursor:pointer;background:transparent;color:var(--text-muted);}
+.guide-day.active{background:var(--pome);color:#fff;}
+.tl{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px 10px;}
+.tl-hours,.tl-row{display:grid;grid-template-columns:150px 1fr;align-items:center;gap:10px;}
+.tl-hours .tl-track{height:18px;}
+.tl-hour{position:absolute;top:0;font-size:0.62rem;color:var(--text-muted);transform:translateX(-50%);}
+.tl-row{padding:5px 0;border-top:1px solid rgba(252,204,132,0.06);cursor:pointer;}
+.tl-row:hover .tl-bar{filter:brightness(1.12);}
+.tl-label{display:flex;align-items:center;gap:8px;min-width:0;font-size:0.8rem;font-weight:600;color:var(--text);}
+.tl-label small{display:block;font-size:0.66rem;font-weight:500;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tl-track{position:relative;height:30px;}
+.tl-grid{position:absolute;top:0;bottom:0;width:1px;background:rgba(252,204,132,0.07);}
+.tl-bar{position:absolute;top:3px;bottom:3px;border-radius:7px;background:var(--sunset);color:#1C0B12;font-size:0.68rem;font-weight:700;display:flex;align-items:center;padding:0 8px;white-space:nowrap;overflow:hidden;}
+.tl-bar.side{background:rgba(255,177,92,0.18);color:var(--apricot);border:1px dashed rgba(255,177,92,0.5);}
+.tl-star{position:absolute;top:-2px;transform:translateX(-50%);font-size:0.62rem;font-weight:700;color:#1C0B12;background:var(--cream);border-radius:100px;padding:1px 6px;white-space:nowrap;z-index:2;box-shadow:0 1px 6px rgba(0,0,0,.4);}
+.tl-now{position:absolute;top:-4px;bottom:-4px;width:2px;background:#34d399;z-index:3;}
+.tl-note{font-size:0.72rem;color:var(--text-muted);margin-top:8px;}
+.guide-num{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--sunset);color:#1C0B12;font-weight:800;font-size:0.78rem;display:inline-flex;align-items:center;justify-content:center;}
+#guideMap{height:400px;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
+.guide-pin{width:30px;height:30px;border-radius:50%;background:var(--sunset);border:2px solid #1C0B12;box-shadow:0 0 0 3px rgba(255,177,92,0.35),0 3px 12px rgba(0,0,0,.6);color:#1C0B12;font:800 14px 'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;}
+.guide-pin-label{display:none;position:absolute;left:34px;top:5px;background:rgba(28,11,18,0.9);color:var(--cream);font:600 11px 'Outfit',sans-serif;padding:3px 7px;border-radius:5px;white-space:nowrap;border:1px solid rgba(255,177,92,0.25);}
+#guideMap.labels-on .guide-pin-label{display:block;}
+.guide-legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.guide-legend button{display:inline-flex;align-items:center;gap:6px;font-family:'Outfit',sans-serif;font-size:0.74rem;font-weight:600;padding:4px 11px 4px 4px;border-radius:100px;border:1px solid var(--border);background:var(--surface);color:var(--text-soft);cursor:pointer;}
+.guide-legend button:hover{border-color:var(--apricot);color:var(--apricot);}
+.guide-stages{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stage-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;transition:border-color .2s,box-shadow .2s;}
+.stage-card.flash{border-color:var(--apricot);box-shadow:0 0 0 3px rgba(255,177,92,0.25);}
+.stage-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.stage-head .guide-num{width:30px;height:30px;font-size:0.95rem;}
+.stage-genre{font-size:0.66rem;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--apricot);}
+.stage-place{font-size:1rem;font-weight:600;color:var(--text);line-height:1.2;}
+.stage-ev{border-top:1px solid rgba(252,204,132,0.08);padding-top:10px;margin-top:10px;}
+.stage-ev-when{font-size:0.78rem;font-weight:600;color:var(--gold);}
+.stage-ev-name{font-size:0.9rem;font-weight:600;color:var(--text);margin:2px 0 6px;cursor:pointer;}
+.stage-ev-name:hover{color:var(--apricot);}
+.stage-star{display:inline-block;font-size:0.72rem;font-weight:700;background:var(--cream);color:#1C0B12;border-radius:100px;padding:2px 9px;margin-bottom:7px;}
+.stage-lineup{display:flex;flex-wrap:wrap;gap:4px;}
+.stage-lineup span{font-size:0.72rem;color:var(--text-soft);background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:3px 9px;}
+.stage-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.stage-actions a,.stage-actions button{font-family:'Outfit',sans-serif;font-size:0.72rem;font-weight:600;padding:6px 12px;border-radius:100px;border:1px solid var(--border);background:var(--bg);color:var(--text-soft);cursor:pointer;text-decoration:none;}
+.stage-actions a:hover,.stage-actions button:hover{border-color:var(--apricot);color:var(--apricot);}
+.guide-foot{font-size:0.74rem;color:var(--text-muted);margin-top:22px;line-height:1.6;}
+.guide-foot a{color:var(--text-soft);}
+@media(max-width:768px){
+  .guide-banner{padding:14px 16px;gap:10px;}
+  .guide-banner-title{font-size:1.35rem;}
+  .guide-banner-go{display:none;}
+  .guide-inner{padding:0 12px 30px;}
+  .guide-hero{padding:24px 16px 20px;}
+  .tl{padding:10px 8px 8px;}
+  .tl-hours,.tl-row{grid-template-columns:92px 1fr;gap:6px;}
+  .tl-label{font-size:0.72rem;gap:5px;}
+  .tl-label small{display:none;}
+  .tl-bar{font-size:0;padding:0;}
+  #guideMap{height:300px;}
+  .guide-stages{grid-template-columns:1fr;}
+}
+
 @media(max-width:768px){
   /* Wider frames — no side padding waste */
   .wrapper{padding:0 4px 80px;}
@@ -332,6 +419,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 </div>
 
 <div class="wrapper">
+  <div id="guideBanner"></div>
   <div class="filters-section">
     <div class="filters-row">
       <div class="filter-group">
@@ -454,6 +542,19 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
       <button class="modal-close" onclick="closeDetail()">&times;</button>
     </div>
     <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<div class="overlay guide-overlay" id="guideOverlay">
+  <div class="modal guide-modal">
+    <div class="modal-header">
+      <div class="modal-header-left"><span class="modal-title" id="guideHeadTitle">Guide</span></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn-back" onclick="shareGuide()">↗ Share</button>
+        <button class="modal-close" onclick="closeGuide()">&times;</button>
+      </div>
+    </div>
+    <div class="guide-body" id="guideBody"></div>
   </div>
 </div>
 
@@ -597,6 +698,8 @@ function setUrlForEvent(ev){
   try{history.pushState({e:eventSlug(ev)},'',eventUrl(ev));}catch(_){}
 }
 function clearEventUrl(){
+  /* closing an event opened from a guide lands back on the guide's address */
+  if(openGuideSlug){try{history.pushState({g:openGuideSlug},'',guideUrl(openGuideSlug));}catch(_){}return;}
   try{if(location.search)history.pushState({},'',location.pathname);}catch(_){}
 }
 let _wantSlug=new URLSearchParams(location.search).get('e')||'';
@@ -615,9 +718,11 @@ function openPendingSlug(){
   if(openSlug(_wantSlug))_wantSlug='';
 }
 window.addEventListener('popstate',()=>{
-  const slug=new URLSearchParams(location.search).get('e');
-  if(slug){openSlug(slug);}
-  else if(document.getElementById('detailOverlay').classList.contains('open')){closeDetail(true);}
+  const q=new URLSearchParams(location.search),slug=q.get('e'),g=q.get('g');
+  if(slug){openSlug(slug);return;}
+  if(document.getElementById('detailOverlay').classList.contains('open')){closeDetail(true);}
+  if(g)openGuide(g,true);
+  else if(openGuideSlug)closeGuide(true);
 });
 let _spanSeq=0;
 function expandEvents(events){
@@ -640,7 +745,7 @@ let _lastRawJSON='';
 function adoptRaw(raw){
   _lastRawJSON=JSON.stringify(raw);
   try{localStorage.setItem(LAST_GOOD_KEY,_lastRawJSON);}catch(_){/* private mode etc. */}
-  allEvents=expandEvents(raw.map(normaliseEvent).filter(ev=>ev.name&&ev.date));
+  allEvents=withGuides(expandEvents(raw.map(normaliseEvent).filter(ev=>ev.name&&ev.date)));
   lastFetchedAt=new Date();setSyncStatus('live');
 }
 function fetchWithTimeout(url,ms){
@@ -667,9 +772,9 @@ async function fetchEvents(isRefresh=false){
   let cached=null;
   try{cached=JSON.parse(localStorage.getItem(LAST_GOOD_KEY));}catch(_){}
   if(Array.isArray(cached)&&cached.length){
-    allEvents=expandEvents(cached.map(normaliseEvent).filter(ev=>ev.name&&ev.date));
+    allEvents=withGuides(expandEvents(cached.map(normaliseEvent).filter(ev=>ev.name&&ev.date)));
     setSyncStatus('cached');
-  }else{allEvents=[];setSyncStatus('error');}
+  }else{allEvents=withGuides([]);setSyncStatus('error');}
   applyFilters();scheduleNextRefresh();
 }
 function setSyncStatus(state){
@@ -801,6 +906,14 @@ function renderCalendar(){
     const dateStr=toDateStr(date),isToday=date.toDateString()===today.toDateString(),isWeekend=(i%7)>=5;
     const holiday=getHoliday(dateStr),cultural=!holiday?getCulturalHoliday(dateStr):null;
     const dayEvs=filteredEvents.filter(e=>e.date===dateStr);
+    /* a guide's events share one chip, so a festival day doesn't bury everything else */
+    const chipItems=[],seenGuide={};
+    dayEvs.forEach(ev=>{
+      if(!ev.guide){chipItems.push(ev);return;}
+      if(seenGuide[ev.guide])return;
+      seenGuide[ev.guide]=true;const g=guideBySlug(ev.guide);
+      chipItems.unshift({guideChip:true,name:'✦ '+(g?g.title:'Guide')});
+    });
     const cell=document.createElement('div');
     cell.className='cal-cell'+(isOther?' other-month':'')+(isToday?' today':'')+(isWeekend?' weekend':'')+(holiday?' public-holiday':'')+(cultural?' cultural-holiday':'');
     if(!isOther)cell.addEventListener('click',()=>openDayModal(dateStr));
@@ -808,17 +921,18 @@ function renderCalendar(){
     if(holiday){const h=document.createElement('span');h.className='holiday-label';h.textContent=holiday;cell.appendChild(h);}
     if(cultural){const c=document.createElement('span');c.className='cultural-label';c.textContent=cultural;cell.appendChild(c);}
     const MAX_CHIPS=3,chipsWrap=document.createElement('div');chipsWrap.className='cal-chips';
-    dayEvs.slice(0,MAX_CHIPS).forEach(ev=>{
+    chipItems.slice(0,MAX_CHIPS).forEach(ev=>{
       const chip=document.createElement('span');chip.className='cal-event-chip';
-      const s=TYPE_STYLE[ev.type]||{color:'#888',bg:'rgba(136,136,136,0.15)'};
-      chip.style.cssText=`color:${s.color};background:${s.bg};border-color:${s.color}33;`;
+      if(ev.guideChip){chip.classList.add('cal-guide-chip');}
+      else{const s=TYPE_STYLE[ev.type]||{color:'#888',bg:'rgba(136,136,136,0.15)'};
+        chip.style.cssText=`color:${s.color};background:${s.bg};border-color:${s.color}33;`;}
       chip.textContent=ev.name;chipsWrap.appendChild(chip);
     });
     cell.appendChild(chipsWrap);
-    if(dayEvs.length>MAX_CHIPS){
+    if(chipItems.length>MAX_CHIPS){
       cell.classList.add('has-more');
       const more=document.createElement('div');more.className='cal-more';
-      more.textContent=`+${dayEvs.length-MAX_CHIPS}`;
+      more.textContent=`+${chipItems.length-MAX_CHIPS}`;
       cell.appendChild(more);
     }
     if(!isOther&&dayEvs.length>0){const hint=document.createElement('div');hint.className='cal-tap-hint';hint.textContent='tap to view';cell.appendChild(hint);}
@@ -830,7 +944,9 @@ function nextMonth(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCale
 
 function openDayModal(dateStr){
   lastDayDateStr=dateStr;
-  const dayEvs=filteredEvents.filter(e=>e.date===dateStr);
+  /* guide events first, in stage order, under one header that opens the guide */
+  const dayEvs=filteredEvents.filter(e=>e.date===dateStr)
+    .map((e,i)=>({e,i})).sort((a,b)=>((a.e.guide?0:1)-(b.e.guide?0:1))||((a.e.stage||0)-(b.e.stage||0))||(a.i-b.i)).map(x=>x.e);
   const[y,m,d]=dateStr.split('-');
   const displayDate=`${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
   const holiday=getHoliday(dateStr),cultural=!holiday?getCulturalHoliday(dateStr):null;
@@ -840,8 +956,17 @@ function openDayModal(dateStr){
   const body=document.getElementById('dayPopupBody');body.innerHTML='';const rowEls=[];
   if(!n){body.innerHTML=`<div class="day-empty">No events on this day.</div>`;}
   else{
+    let lastGuide=null;
     dayEvs.forEach((ev,idx)=>{
-      const row=document.createElement('div');row.className='day-event-row';row.dataset.idx=idx;
+      if(ev.guide&&ev.guide!==lastGuide){
+        const g=guideBySlug(ev.guide),k=dayEvs.filter(x=>x.guide===ev.guide).length;
+        const head=document.createElement('div');head.className='day-guide-head';
+        head.innerHTML=`<div style="flex:1;min-width:0;"><b>✦ ${esc(g?g.title:'Guide')}</b><span>${k} event${k!==1?'s':''} · map, timeline & lineups</span></div><span class="day-event-arrow" style="color:#1C0B12;">→</span>`;
+        head.addEventListener('click',()=>{closeDayModal();openGuide(ev.guide,false,dateStr);});
+        body.appendChild(head);
+      }
+      lastGuide=ev.guide||null;
+      const row=document.createElement('div');row.className='day-event-row'+(ev.guide?' in-guide':'');row.dataset.idx=idx;
       const s=TYPE_STYLE[ev.type]||{color:'#888'};
       row.innerHTML=`<span class="day-event-dot" style="background:${s.color};box-shadow:0 0 0 3px ${s.color}33;"></span><div class="day-event-info"><div class="day-event-name">${esc(ev.name)}</div><div class="day-event-time">${ev.time?esc(ev.time):'Time TBA'}${ev.location?' · 📍 '+esc(ev.location):''}</div></div><span class="day-event-arrow">→</span>`;
       row.addEventListener('click',()=>{document.getElementById('backBtn').style.display='inline-flex';document.getElementById('detailOverlay').classList.add('open');openDetail(ev);});
@@ -895,7 +1020,7 @@ function navigateDay(direction){
   if(d.getMonth()!==calMonth||d.getFullYear()!==calYear){calMonth=d.getMonth();calYear=d.getFullYear();renderCalendar();}
   openDayModal(newStr);
 }
-function backToDayModal(){closeDetail();if(lastDayDateStr)openDayModal(lastDayDateStr);}
+function backToDayModal(){closeDetail();if(!openGuideSlug&&lastDayDateStr)openDayModal(lastDayDateStr);}
 
 function openDetail(ev,fromUrl){
   currentEvent=ev;const[y,m,d]=ev.date.split('-');
@@ -909,9 +1034,16 @@ function openDetail(ev,fromUrl){
       </div>`
     :`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.85rem;padding:20px;">No location info</div>`;
 
-  document.getElementById('detailBody').innerHTML=`<div class="modal-body-left">${ev.image?`<img class="detail-poster" src="${esc(ev.image)}" alt="" loading="lazy" onerror="this.remove()">`:''}<div class="detail-event-name">${esc(ev.name)}</div><div class="detail-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div><div class="detail-meta"><div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>${ev.time?`<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>`:''}${ev.location?`<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> <a href="${esc(gmapsUrl)}" target="_blank" rel="noopener" class="detail-address-link">${esc(ev.location)}</a></div>`:''}</div>${ev.description?`<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>`:''}</div><div class="modal-body-right">${mapHTML}<div class="detail-actions"><button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button><button class="btn-gcal-big btn-more" id="shareBtn">↗ Share</button>${ev.link?`<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>`:''}</div></div>`;
+  const g=ev.guide?guideBySlug(ev.guide):null;
+  const guideLink=g?`<button class="detail-guide-link" id="detailGuideBtn">✦ Part of ${esc(g.title)} · see every stage on one map →</button>`:'';
+  document.getElementById('detailBody').innerHTML=`<div class="modal-body-left">${guideLink}${ev.image?`<img class="detail-poster" src="${esc(ev.image)}" alt="" loading="lazy" onerror="this.remove()">`:''}<div class="detail-event-name">${esc(ev.name)}</div><div class="detail-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div><div class="detail-meta"><div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>${ev.time?`<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>`:''}${ev.location?`<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> <a href="${esc(gmapsUrl)}" target="_blank" rel="noopener" class="detail-address-link">${esc(ev.location)}</a></div>`:''}</div>${ev.description?`<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>`:''}</div><div class="modal-body-right">${mapHTML}<div class="detail-actions"><button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button><button class="btn-gcal-big btn-more" id="shareBtn">↗ Share</button>${ev.link?`<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>`:''}</div></div>`;
   document.getElementById('gcalBtn').addEventListener('click',()=>addToGCal(currentEvent));
   document.getElementById('shareBtn').addEventListener('click',()=>shareEvent(currentEvent));
+  if(g)document.getElementById('detailGuideBtn').addEventListener('click',()=>{
+    const slug=g.slug,date=ev.date;
+    if(openGuideSlug===slug){closeDetail();return;}   /* came from the guide: just go back to it */
+    closeDetail(true);closeDayModal();openGuide(slug,false,date);
+  });
 
   if(ev.location&&gmapsUrl){
     // Click anywhere on map → Google Maps
@@ -978,6 +1110,199 @@ function closeDetail(fromUrl){
   if(detailMap){detailMap.remove();detailMap=null;detailMapMarker=null;}
 }
 
+/* ---------- guides ----------
+   A guide bundles several events (a city festival, a weekend of stages) into
+   one page: hero, a timeline of what runs at the same time, one map with a
+   numbered pin per place, and the lineups. Guides live in guides.json; their
+   events also join the calendar like any other event, and any copy of the
+   same event already in the sheet (same Instagram post, or the same place
+   on the same day) is folded into the guide's version so nothing shows twice. */
+const GUIDES_URL='guides.json';
+let GUIDES=[],GUIDE_EVS=[],openGuideSlug=null,guideMap=null,guideDay=null;
+function guideBySlug(s){return GUIDES.find(g=>g.slug===s)||null;}
+function guideUrl(slug){return location.origin+location.pathname+'?g='+encodeURIComponent(slug);}
+function igCode(u){const m=String(u||'').match(/instagram\.com\/(?:[^\/]+\/)?(?:p|reel|tv)\/([\w-]+)/);return m?m[1]:'';}
+function dateRange(a,b){const out=[];const d=new Date(a+'T12:00:00');const end=new Date((b||a)+'T12:00:00');while(d<=end){out.push(toDateStr(d));d.setDate(d.getDate()+1);}return out;}
+function fmtHour(h){const hh=Math.floor(h),mm=Math.round((h-hh)*60);const ap=hh>=12&&hh<24?'PM':'AM';let x=hh%12;if(x===0)x=12;return mm?`${x}:${String(mm).padStart(2,'0')} ${ap}`:`${x} ${ap}`;}
+function dayLabel(ds,long){const d=new Date(ds+'T12:00:00');return d.toLocaleDateString('en-GB',long?{weekday:'long',day:'numeric',month:'long'}:{weekday:'short',day:'numeric',month:'short'});}
+async function loadGuides(){
+  try{
+    const res=await fetchWithTimeout(GUIDES_URL+'?t='+Date.now(),4000);
+    const data=await res.json();
+    if(Array.isArray(data))GUIDES=data.filter(g=>g&&g.slug&&Array.isArray(g.stages));
+  }catch(_){GUIDES=[];}
+  GUIDE_EVS=[];
+  GUIDES.forEach(g=>g.stages.forEach(st=>st.events.forEach(e=>{
+    const dates=dateRange(e.date,e.endDate);
+    const span=dates.length>1?{id:++_spanSeq,start:dates[0],end:dates[dates.length-1]}:null;
+    const rawDate=span?`${MONTHS_LONG[parseInt(dates[0].slice(5,7))-1]} ${parseInt(dates[0].slice(8))}–${parseInt(dates[dates.length-1].slice(8))}, ${dates[0].slice(0,4)}`:'';
+    const description=[e.star?'★ '+e.star:'',(e.lineup||[]).join('\n'),`Part of ${g.title}${g.subtitle?' — '+g.subtitle:''}.`].filter(Boolean).join('\n\n');
+    const base={name:e.name,rawDate,time:e.time||'',city:'Yerevan',location:st.place,type:e.type||st.type||'concert',
+      price:g.price||'Check website',link:e.link||'',description,image:'',lat:st.lat,lng:st.lng,
+      guide:g.slug,stage:st.n,src:e,stageObj:st};
+    dates.forEach(d=>GUIDE_EVS.push(span?{...base,date:d,span}:{...base,date:d}));
+  })));
+}
+/* drops sheet events the guide already covers, then adds the guide's own */
+function withGuides(list){
+  if(!GUIDES.length)return list;
+  const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ');
+  const absorbed=ev=>GUIDES.some(g=>{
+    if(!g.dates.includes(ev.date))return false;
+    const code=igCode(ev.link);
+    const links=[];g.stages.forEach(st=>st.events.forEach(e=>{links.push(igCode(e.link));(e.also||[]).forEach(a=>links.push(igCode(a)));}));
+    if(code&&links.includes(code))return true;
+    if(!['concert','festival','nightlife'].includes(ev.type))return false;
+    const p=norm(ev.location);
+    return g.stages.some(st=>(st.match||[]).some(k=>p.includes(k)));
+  });
+  return list.filter(ev=>!absorbed(ev)).concat(GUIDE_EVS);
+}
+function renderGuideBanner(){
+  const box=document.getElementById('guideBanner');box.innerHTML='';
+  const today=toDateStr(new Date());
+  GUIDES.forEach(g=>{
+    const first=g.dates[0],last=g.dates[g.dates.length-1];
+    const lead=new Date(first+'T12:00:00');lead.setDate(lead.getDate()-21);
+    if(today>last||today<toDateStr(lead))return;
+    const live=today>=first;
+    const nStages=g.stages.length;
+    const b=document.createElement('button');b.className='guide-banner';
+    b.innerHTML=`<div style="min-width:0;"><div class="guide-banner-when">${live?'Happening now':'Coming up'} · ${esc(dayLabel(first))}${last!==first?' – '+esc(dayLabel(last)):''}</div><div class="guide-banner-title">✦ ${esc(g.title)}</div><div class="guide-banner-sub">${nStages} places, one map · ${esc(g.price||'')}</div></div><span class="guide-banner-go">Open the guide →</span>`;
+    b.addEventListener('click',()=>openGuide(g.slug));
+    box.appendChild(b);
+  });
+}
+function openGuide(slug,fromUrl,preferDate){
+  const g=guideBySlug(slug);if(!g)return;
+  openGuideSlug=slug;
+  if(!fromUrl){try{history.pushState({g:slug},'',guideUrl(slug));}catch(_){}}
+  const timedDays=g.dates.filter(d=>GUIDE_EVS.some(e=>e.guide===slug&&e.date===d&&e.src.start!=null));
+  const today=toDateStr(new Date());
+  guideDay=(preferDate&&timedDays.includes(preferDate))?preferDate:timedDays.includes(today)?today
+    :(timedDays.slice().sort((a,b)=>GUIDE_EVS.filter(e=>e.date===b).length-GUIDE_EVS.filter(e=>e.date===a).length)[0]||g.dates[0]);
+  document.getElementById('guideHeadTitle').textContent=g.title;
+  const artists=new Set();g.stages.forEach(st=>st.events.forEach(e=>(e.lineup||[]).forEach(a=>{if(!/festival/i.test(a))artists.add(a);})));
+  const peaks=`<svg viewBox="0 0 340 120" fill="#1C0B12"><path d="M0 120 L120 30 L150 52 L190 10 L340 120 Z"/><path d="M175 22 L190 10 L206 24 L196 20 L190 26 L183 19 Z" fill="#F4EADF"/></svg>`;
+  document.getElementById('guideBody').innerHTML=`
+    <div class="guide-hero">${peaks}
+      <div class="guide-inner" style="padding:0;">
+        <div class="guide-hero-kicker">${esc(g.subtitle||'')} · ${esc(dayLabel(g.dates[0]))}${g.dates.length>1?' – '+esc(dayLabel(g.dates[g.dates.length-1])):''}</div>
+        <h2>${esc(g.title)}</h2>
+        <p>${esc(g.blurb||'')}</p>
+        <div class="guide-stats"><span class="guide-stat">${g.stages.length} places</span><span class="guide-stat">${artists.size>=20?Math.floor(artists.size/10)*10+'+':artists.size} acts</span>${g.price?`<span class="guide-stat">${esc(g.price)}</span>`:''}</div>
+      </div>
+    </div>
+    <div class="guide-inner">
+      <div class="guide-h"><span>What's on at the same time</span><div class="guide-days" id="guideDays"></div></div>
+      <div class="tl" id="guideTimeline"></div>
+      <div class="guide-h"><span>Where everything is</span></div>
+      <div id="guideMap"></div><div class="guide-legend" id="guideLegend"></div>
+      <div class="guide-h"><span>Stages & lineups</span></div>
+      <div class="guide-stages" id="guideStages"></div>
+      <div class="guide-foot">Lineups and times from the organisers' posts${g.source?` (<a href="${esc(g.source)}" target="_blank" rel="noopener">source</a>)`:''}. Times can shift on the day, so check the stage before you go.</div>
+    </div>`;
+  const daysEl=document.getElementById('guideDays');
+  if(timedDays.length>1){
+    timedDays.forEach(d=>{const b=document.createElement('button');b.className='guide-day'+(d===guideDay?' active':'');b.textContent=dayLabel(d);
+      b.onclick=()=>{guideDay=d;daysEl.querySelectorAll('.guide-day').forEach(x=>x.classList.toggle('active',x===b));renderGuideTimeline(g);};daysEl.appendChild(b);});
+  }else daysEl.style.display='none';
+  renderGuideTimeline(g);
+  renderGuideStages(g);
+  document.getElementById('guideOverlay').classList.add('open');
+  document.getElementById('guideBody').scrollTop=0;
+  setTimeout(()=>renderGuideMap(g),80);
+}
+function renderGuideTimeline(g){
+  const rows=[];
+  g.stages.forEach(st=>st.events.forEach(e=>{if(e.date===guideDay&&e.start!=null)rows.push({st,e});}));
+  /* untimed events on this day (e.g. a beer festival) get a note instead of a bar */
+  const untimed=[];g.stages.forEach(st=>st.events.forEach(e=>{if(e.start==null&&dateRange(e.date,e.endDate).includes(guideDay))untimed.push({st,e});}));
+  rows.sort((a,b)=>a.st.n-b.st.n||a.e.start-b.e.start);
+  const el=document.getElementById('guideTimeline');
+  if(!rows.length){el.innerHTML='<div class="tl-note">No timed events this day.</div>';return;}
+  const h0=Math.floor(Math.min(...rows.map(r=>r.e.start))),h1=Math.ceil(Math.max(...rows.map(r=>r.e.end||r.e.start+2)));
+  const pct=h=>((h-h0)/(h1-h0)*100).toFixed(2)+'%';
+  let grid='';for(let h=h0;h<=h1;h++)grid+=`<div class="tl-grid" style="left:${pct(h)}"></div>`;
+  let hours='';for(let h=h0;h<=h1;h+=(h1-h0>8?2:1))hours+=`<div class="tl-hour" style="left:${pct(h)}">${fmtHour(h).replace(' ',' ')}</div>`;
+  const now=new Date(),nowH=now.getHours()+now.getMinutes()/60;
+  const nowLine=(toDateStr(now)===guideDay&&nowH>=h0&&nowH<=h1)?`<div class="tl-now" style="left:${pct(nowH)}" title="Now"></div>`:'';
+  el.innerHTML=`<div class="tl-hours"><div></div><div class="tl-track">${hours}</div></div>`+rows.map(({st,e})=>{
+    const side=/festival/i.test(e.name)&&!/concert/i.test(e.name);
+    const end=e.end||e.start+2;
+    const star=e.starAt!=null?`<div class="tl-star" style="left:${pct(e.starAt)}">★ ${esc(e.starLabel||'')}</div>`:'';
+    return `<div class="tl-row" data-stage="${st.n}"><div class="tl-label"><span class="guide-num">${st.n}</span><div style="min-width:0;">${esc(side?(e.type==='festival'?e.name.replace(/^City Day /,''):st.genre):st.genre.replace(/ \+ .*/,''))}<small>${esc(st.short)} · ${esc(e.time)}</small></div></div><div class="tl-track">${grid}<div class="tl-bar${side?' side':''}" style="left:${pct(e.start)};width:calc(${pct(end)} - ${pct(e.start)})">${esc(e.time)}</div>${star}${nowLine}</div></div>`;
+  }).join('')+(untimed.length?`<div class="tl-note">All day: ${untimed.map(u=>`${esc(u.e.name.replace(/^City Day /,''))} at ${esc(u.st.short)} (${u.st.n})`).join(', ')}.</div>`:'');
+  el.querySelectorAll('.tl-row').forEach(r=>r.addEventListener('click',()=>focusStage(+r.dataset.stage)));
+}
+function renderGuideStages(g){
+  const box=document.getElementById('guideStages');box.innerHTML='';
+  const multiDay=g.dates.length>1;
+  g.stages.forEach(st=>{
+    const card=document.createElement('div');card.className='stage-card';card.id='stage-'+st.n;
+    const dir=`https://www.google.com/maps/search/?api=1&query=${st.lat},${st.lng}`;
+    card.innerHTML=`<div class="stage-head"><span class="guide-num">${st.n}</span><div><div class="stage-genre">${esc(st.genre)}</div><div class="stage-place">${esc(st.place)}</div></div></div>`+
+      st.events.map((e,i)=>{
+        const ds=dateRange(e.date,e.endDate);
+        const when=(multiDay?(ds.length>1?ds.map(d=>dayLabel(d)).join(' & '):dayLabel(e.date)):'')+(e.time?(multiDay?' · ':'')+e.time:'');
+        return `<div class="stage-ev"><div class="stage-ev-when">${esc(when||'Hours TBA')}</div><div class="stage-ev-name" data-i="${i}">${esc(e.name)}</div>${e.star?`<span class="stage-star">★ ${esc(e.star)}</span>`:''}<div class="stage-lineup">${(e.lineup||[]).map(a=>`<span>${esc(a)}</span>`).join('')}</div><div class="stage-actions"><button data-cal="${i}">📆 Add to calendar</button>${e.link?`<a href="${esc(e.link)}" target="_blank" rel="noopener">📸 Post</a>`:''}</div></div>`;
+      }).join('')+
+      `<div class="stage-actions"><a href="${dir}" target="_blank" rel="noopener">📍 Directions</a><button data-map="1">Show on map</button></div>`;
+    const evFor=i=>GUIDE_EVS.find(x=>x.src===st.events[i]);
+    card.querySelectorAll('[data-cal]').forEach(b=>b.addEventListener('click',()=>addToGCal(evFor(+b.dataset.cal))));
+    card.querySelectorAll('.stage-ev-name').forEach(n=>n.addEventListener('click',()=>{
+      const ev=evFor(+n.dataset.i);if(!ev)return;
+      document.getElementById('backBtn').style.display='inline-flex';
+      document.getElementById('detailOverlay').classList.add('open');openDetail(ev);
+    }));
+    card.querySelector('[data-map]').addEventListener('click',()=>{
+      const m=document.getElementById('guideMap');m.scrollIntoView({behavior:'smooth',block:'center'});
+      if(guideMap){guideMap.setView([st.lat,st.lng],17,{animate:true});}
+    });
+    box.appendChild(card);
+  });
+}
+function renderGuideMap(g){
+  if(guideMap){guideMap.remove();guideMap=null;}
+  guideMap=L.map('guideMap',{scrollWheelZoom:false});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_3ttc_1_7980370ddda10f4b903a6478',{attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19}).addTo(guideMap);
+  const pts=[];
+  g.stages.forEach(st=>{
+    const icon=L.divIcon({className:'',html:`<div style="position:relative;"><div class="guide-pin">${st.n}</div><div class="guide-pin-label">${esc(st.short)} · ${esc(st.genre)}</div></div>`,iconSize:[30,30],iconAnchor:[15,15]});
+    L.marker([st.lat,st.lng],{icon}).addTo(guideMap).on('click',()=>focusStage(st.n));
+    pts.push([st.lat,st.lng]);
+  });
+  guideMap.fitBounds(pts,{padding:[40,40]});
+  /* names only once zoomed in: at city scale the central stages sit on top of each other */
+  const labels=()=>{if(guideMap)document.getElementById('guideMap').classList.toggle('labels-on',guideMap.getZoom()>=16);};
+  guideMap.on('zoomend',labels);labels();
+  const legend=document.getElementById('guideLegend');legend.innerHTML='';
+  g.stages.forEach(st=>{const b=document.createElement('button');
+    b.innerHTML=`<span class="guide-num">${st.n}</span>${esc(st.short)} · ${esc(st.genre)}`;
+    b.onclick=()=>{if(guideMap)guideMap.setView([st.lat,st.lng],17,{animate:true});};legend.appendChild(b);});
+}
+function focusStage(n){
+  const card=document.getElementById('stage-'+n);if(!card)return;
+  card.scrollIntoView({behavior:'smooth',block:'center'});
+  card.classList.add('flash');setTimeout(()=>card.classList.remove('flash'),1600);
+}
+function closeGuide(fromUrl){
+  if(!openGuideSlug)return;
+  openGuideSlug=null;
+  document.getElementById('guideOverlay').classList.remove('open');
+  if(guideMap){guideMap.remove();guideMap=null;}
+  if(!fromUrl){try{history.pushState({},'',location.pathname);}catch(_){}}
+}
+function shareGuide(){
+  const g=guideBySlug(openGuideSlug);if(!g)return;
+  const url=guideUrl(g.slug),text=`${g.title} — every stage on one map`;
+  if(navigator.share){navigator.share({title:g.title,text,url}).catch(()=>{});return;}
+  const done=()=>toast('Link copied — paste it anywhere');
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done).catch(()=>fallbackCopy(url,done));
+  else fallbackCopy(url,done);
+}
+document.getElementById('guideOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeGuide();});
+
 function renderList(){
   const section=document.getElementById('listSection');
   if(!filteredEvents.length){section.innerHTML=`<div class="state-box"><span class="icon">🔍</span><h3>No events found</h3><p>Try adjusting your filters.</p></div>`;return;}
@@ -1017,9 +1342,17 @@ function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').repl
 
 document.getElementById('detailOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDetail();});
 document.getElementById('dayOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDayModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDetail();closeDayModal();}});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;
+  if(document.getElementById('detailOverlay').classList.contains('open')){closeDetail();return;}
+  if(openGuideSlug){closeGuide();return;}
+  closeDayModal();});
 
-fetchEvents();
+/* guides first (a small file on the same site), then the events they bundle */
+loadGuides().then(()=>{
+  renderGuideBanner();
+  const g=new URLSearchParams(location.search).get('g');
+  if(g)openGuide(g,true);
+}).finally(()=>fetchEvents());
 </script>
 </body>
 </html>
