@@ -261,7 +261,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v3.3';
+const APP_VERSION = 'v3.4';
 const APP_DATE = '7 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -278,7 +278,7 @@ document.querySelectorAll('.version-stamp').forEach(el=>{
   if(IS_LOCAL_COPY){
     el.innerHTML = APP_VERSION + ' · ' + APP_DATE +
       '<br><strong style="color:#ff6b6b">This is a downloaded copy — it can\'t load your events.</strong>' +
-      '<br>Open <a href="https://yerevent.club/adminpage-secure.html" style="color:var(--gold)">yerevent.club/adminpage-secure.html</a> instead.';
+      '<br>Open <a href="https://yerevent.club/adminpage-secure-k7m2.html" style="color:var(--gold)">yerevent.club/adminpage-secure-k7m2.html</a> instead.';
   }
 });
 function status(msg, kind){
