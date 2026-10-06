@@ -257,8 +257,8 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v2.8';
-const APP_DATE = '4 Oct 2026';
+const APP_VERSION = 'v2.9';
+const APP_DATE = '7 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
@@ -317,14 +317,35 @@ async function runBtn(btn,fn,label){
 /* `lasting` marks a request that must finish even if the page is closed or
    the phone locks: the browser keeps it alive after the tab goes away. That
    is what stops a publish dying halfway when you put the phone in a pocket. */
+/* Google answers this script with an error page every so often — often enough
+   to matter. Reading something again is harmless, so reads are retried a
+   couple of times before giving up; anything that writes is sent once only,
+   because a retry there could publish the same event twice. */
+/* fromLink is deliberately NOT here: it files a row and spends a Bright Data
+   credit, so a repeat would duplicate the event and pay twice. */
+const SAFE_TO_REPEAT=/^(ping|list|extract)$|^list/;
 async function api(payload, lasting){
   payload.password = localStorage.getItem(PW_KEY) || '';
+  const tries = SAFE_TO_REPEAT.test(payload.action||'') ? 3 : 1;
   busyBar(1);
   try{
-    const res = await fetch(API_URL, {method:'POST', body: JSON.stringify(payload), keepalive: !!lasting});
-    const out = await res.json();
-    if(!out.ok) throw new Error(out.error || 'Something went wrong');
-    return out;
+    let lastErr;
+    for(let i=0;i<tries;i++){
+      try{
+        const res = await fetch(API_URL, {method:'POST', body: JSON.stringify(payload), keepalive: !!lasting});
+        const text = await res.text();
+        let out;
+        try{ out = JSON.parse(text); }
+        catch(_){ throw new Error('Google sent a page instead of an answer'); }
+        if(!out.ok) throw new Error(out.error || 'Something went wrong');
+        return out;
+      }catch(e){
+        lastErr = e;
+        if(/wrong password/i.test(e.message)) throw e;      /* never worth repeating */
+        if(i < tries-1) await new Promise(r=>setTimeout(r, 900*(i+1)));
+      }
+    }
+    throw lastErr;
   } finally { busyBar(-1); }
 }
 
@@ -353,8 +374,22 @@ function enterApp(){
   document.getElementById('appView').style.display='block';
 }
 document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+/* A saved password is forgotten ONLY when Google says it is wrong. Anything
+   else — a hiccup, no signal, an error page — keeps you logged in, because
+   being thrown back to the password screen by a passing glitch is worse than
+   useless on a phone. */
 if(localStorage.getItem(PW_KEY)){
-  api({action:'ping'}).then(enterApp).catch(()=>{localStorage.removeItem(PW_KEY);});
+  api({action:'ping'})
+    .then(enterApp)
+    .catch(e=>{
+      if(/wrong password/i.test(e.message||'')){
+        localStorage.removeItem(PW_KEY);
+        status('Your saved password is no longer right — type it again.','err');
+        return;
+      }
+      enterApp();
+      status('Could not reach Google just now — tap ↻ Refresh in a moment.','err');
+    });
 }
 
 /* ---------- tabs ---------- */
