@@ -257,7 +257,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v2.9';
+const APP_VERSION = 'v3.0';
 const APP_DATE = '7 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -372,6 +372,8 @@ async function doLogin(){
 function enterApp(){
   document.getElementById('loginView').style.display='none';
   document.getElementById('appView').style.display='block';
+  /* anything left mid-publish from a previous visit is settled straight away */
+  setTimeout(()=>{if(apprList().some(a=>a.state!=='live'))syncApproved(true);},1500);
 }
 document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 /* A saved password is forgotten ONLY when Google says it is wrong. Anything
@@ -1045,6 +1047,7 @@ const APPR_STATE={
   sent:   {label:'📤 Sent',          color:'#60a5fa', note:'Waiting for the website to confirm it — up to 5 minutes.'},
   live:   {label:'🌐 Live on the website', color:'#75FF73', note:''},
   missing:{label:'❓ Not on the site yet', color:'#ffb84d', note:'Sent a while ago but still not showing. Try again, or check the Live events tab.'},
+  stalled:{label:'⏸ Never finished', color:'#ffb84d', note:'The page closed before this finished, and it is not on the website. Nothing was published — try again.'},
   failed: {label:'⚠️ Did not publish', color:'#ff6b6b', note:''}
 };
 function approvedHTML(){
@@ -1053,7 +1056,7 @@ function approvedHTML(){
   return list.map(a=>{
     const st=APPR_STATE[a.state]||APPR_STATE.sent;
     const when=a.date?fmtDate(a.date):'';
-    const retry=(a.state==='failed'||a.state==='missing')
+    const retry=(a.state==='failed'||a.state==='missing'||a.state==='stalled')
       ? `<button class="btn green small" onclick="runBtn(this,()=>retryApproved('${esc(a.key).replace(/'/g,"\\'")}'),'Trying…')">↻ Try again</button>` : '';
     const forget=(a.state==='live')
       ? `<button class="btn ghost small" onclick="forgetApproved('${esc(a.key).replace(/'/g,"\\'")}')">Clear</button>` : '';
@@ -1118,6 +1121,12 @@ async function syncApproved(force){
       /* sent a while ago and still not on the site: say so rather than spin */
       if(a.state==='sent'&&a.sentAt&&Date.now()-a.sentAt>15*60000&&!live.has(a.key)){
         return Object.assign({},a,{state:'missing'});
+      }
+      /* "Publishing…" can only be left behind: the page was closed before the
+         answer came back, so nothing will ever move it on. After ten minutes
+         with no sign of it on the site, say so and offer to try again. */
+      if(a.state==='sending'&&Date.now()-(a.at||0)>10*60000&&!live.has(a.key)){
+        return Object.assign({},a,{state:'stalled'});
       }
       return a;
     });
