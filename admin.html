@@ -257,7 +257,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v3.0';
+const APP_VERSION = 'v3.1';
 const APP_DATE = '7 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -1056,8 +1056,15 @@ function approvedHTML(){
   return list.map(a=>{
     const st=APPR_STATE[a.state]||APPR_STATE.sent;
     const when=a.date?fmtDate(a.date):'';
-    const retry=(a.state==='failed'||a.state==='missing'||a.state==='stalled')
+    const stuck=(a.state==='failed'||a.state==='missing'||a.state==='stalled');
+    const tries=a.tries||0;
+    const retry=stuck
       ? `<button class="btn green small" onclick="runBtn(this,()=>retryApproved('${esc(a.key).replace(/'/g,"\\'")}'),'Trying…')">↻ Try again</button>` : '';
+    const autoNote=stuck
+      ? (tries>=AUTO_TRIES
+          ? `<p class="hint" style="margin:0 0 4px">Tried ${tries} times by itself and stopped. This one needs you.</p>`
+          : `<p class="hint" style="margin:0 0 4px">Trying again by itself${tries?' — '+tries+' of '+AUTO_TRIES+' so far':''}. You can press the button instead.</p>`)
+      : '';
     const forget=(a.state==='live')
       ? `<button class="btn ghost small" onclick="forgetApproved('${esc(a.key).replace(/'/g,"\\'")}')">Clear</button>` : '';
     return `<div class="card">
@@ -1066,6 +1073,7 @@ function approvedHTML(){
       <div class="tagrow"><span class="tag" style="color:${st.color};background:${st.color}22">${st.label}</span></div>
       ${st.note?`<p class="hint" style="margin:0 0 4px">${st.note}</p>`:''}
       ${a.error?`<p class="hint" style="margin:0 0 4px;color:#ff9a9a">${esc(a.error)}</p>`:''}
+      ${autoNote}
       ${retry||forget?`<div class="cardbtns">${retry}${forget}</div>`:''}
     </div>`;
   }).join('');
@@ -1076,11 +1084,11 @@ function forgetApproved(key){
 }
 /* a retry re-publishes from the database if it is still there; if it is not,
    the website check decides whether the first attempt actually worked */
-async function retryApproved(key){
+async function retryApproved(key,quiet){
   const a=apprFind(key);
   if(!a)return;
   apprPatch(key,{state:'sending',error:''});
-  status('Trying "'+a.name+'" again…');
+  if(!quiet)status('Trying "'+a.name+'" again…');
   try{
     const fresh=await api({action:'listPending'});
     const ev={name:a.name,date:a.date,dateStr:a.dateStr,place:a.place};
@@ -1088,15 +1096,38 @@ async function retryApproved(key){
     if(match){
       await api({action:'approve', rows:[match.row]}, true);
       apprPatch(key,{state:'sent',error:'',sentAt:Date.now()});
-      status('Sent again — the website confirms it within ~5 min.');
+      if(!quiet)status('Sent again — the website confirms it within ~5 min.');
     }else{
       apprPatch(key,{state:'sent',error:'No longer in the database; checking the website.',sentAt:Date.now()});
     }
     setTimeout(()=>syncApproved(true),15000);
   }catch(e){
     apprPatch(key,{state:'failed',error:e.message||'something went wrong'});
-    status('Still failing: '+e.message,'err');
+    if(!quiet)status('Still failing: '+e.message,'err');
   }
+}
+/* ---------- trying again by itself ----------
+   A retry is safe without asking: publishing removes the event from the
+   database, so if the first attempt did work there is nothing left to publish
+   twice — and the backend refuses a repeat of the same name and day anyway.
+   One at a time, a few minutes apart, three attempts, then it waits for you. */
+const AUTO_TRIES=3, AUTO_GAP=3*60000;
+let _autoBusy=false;
+async function autoRetry(){
+  if(_autoBusy||document.hidden)return;
+  const now=Date.now();
+  const due=apprList().find(a=>
+    (a.state==='failed'||a.state==='stalled'||a.state==='missing')&&
+    (a.tries||0)<AUTO_TRIES&&now-(a.lastTry||0)>AUTO_GAP);
+  if(!due)return;
+  _autoBusy=true;
+  try{
+    const n=(due.tries||0)+1;
+    apprPatch(due.key,{tries:n,lastTry:now});
+    status('Trying "'+due.name+'" again by itself ('+n+' of '+AUTO_TRIES+')…');
+    await retryApproved(due.key,true);
+  }catch(_){}
+  finally{_autoBusy=false;}
 }
 
 /* ---------- is it actually on the website? ----------
@@ -1135,6 +1166,7 @@ async function syncApproved(force){
       if(pendingWhen==='approved')renderPending();else pendingCounts();
       status(changed===1?'1 event confirmed live on the website ✔':changed+' events confirmed live ✔');
     }else if(pendingWhen==='approved')renderPending();
+    autoRetry();          /* pick up anything that failed, without being asked */
   }catch(e){/* a failed check is not a failed publish — leave the states alone */}
   finally{_apprSyncing=false;}
 }
