@@ -238,8 +238,12 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
       </div>
       <div class="topbtns">
         <span class="count" id="srcCount"></span>
-        <button class="btn ghost small" onclick="runBtn(this,()=>loadSources(),'Loading…')">↻ Refresh</button>
+        <div class="grp">
+          <button class="btn small" onclick="runBtn(this,()=>scanNow(),'Starting…')">🔄 Scan for new posts</button>
+          <button class="btn ghost small" onclick="runBtn(this,()=>loadSources(),'Loading…')">↻ Refresh</button>
+        </div>
       </div>
+      <p class="hint" id="scanNote">The robot reads these accounts every morning around 7. Scanning now reads them again — about 130 records of your monthly 4,500.</p>
       <input id="srcFilter" class="srcfilter" placeholder="🔍 find an account" oninput="renderSources()" autocapitalize="none" autocorrect="off">
       <div id="srcList"><span class="spin"></span> Loading…</div>
     </div>
@@ -257,7 +261,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v3.1';
+const APP_VERSION = 'v3.2';
 const APP_DATE = '7 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -1519,6 +1523,25 @@ function renderSources(){
       <button class="btn red small" onclick="removeSource(${s.row},'${esc(s.handle)}',this)">🗑</button>
     </div>`;
   }).join('');
+}
+/* Ask Bright Data to read every watched account now rather than waiting for
+   the 7am run. It costs records, so it says so and asks first; the backend
+   refuses anyway if a scan is already running or the month's budget is gone. */
+async function scanNow(){
+  if(!confirm('Read all the watched accounts now?\n\nThis uses roughly 130 of your 4,500 records for the month. New events arrive within about 15 minutes.'))return;
+  const note=document.getElementById('scanNote');
+  status('Starting a scan…');
+  try{
+    const out=await api({action:'scanNow'});
+    const msg=out.message||'Scan started.';
+    note.textContent=msg;
+    status(msg);
+    /* the finds land in the Database, so let it refetch when she looks */
+    pendingLoaded=false;
+    setTimeout(()=>loadSources(),60000);
+  }catch(e){
+    status('Could not start the scan: '+e.message,'err');
+  }
 }
 async function addSource(){
   const input=document.getElementById('srcInput');
