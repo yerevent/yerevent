@@ -311,7 +311,7 @@
       "52 events",
       "8 days",
       "16 places",
-      "Open-air shows free"
+      "34 free"
     ],
     "stages": [
       {
@@ -333,7 +333,7 @@
             "start": 20.0,
             "end": 20.67,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Compagnia Luca Piallini (Italy)",
               "Aerial show, 40 min"
@@ -363,7 +363,7 @@
             "start": 22.0,
             "end": 23.33,
             "type": "concert",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Yerevan State Chamber Theatre (Armenia)",
               "\"AZNAVOUR: A Journey Through Time and Music\", concert-performance, 80 min, in Armenian"
@@ -377,7 +377,7 @@
             "start": 18.0,
             "end": 19.25,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Fetros (Iran)",
               "Drama, 75 min"
@@ -391,7 +391,7 @@
             "start": 20.5,
             "end": 21.5,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Pars Shiraz (Iran)",
               "Folk musical, 60 min"
@@ -405,7 +405,7 @@
             "start": 20.0,
             "end": 21.17,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Sandro Akhmeteli State Drama Theatre (Georgia)",
               "Drama, 70 min, in Georgian"
@@ -419,7 +419,7 @@
             "start": 20.5,
             "end": 21.5,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "National University of Theatre and Cinematography \"I.L. Caragiale\", Bucharest (Romania)",
               "Drama, 60 min, English subtitles"
@@ -489,7 +489,7 @@
             "start": 15.0,
             "end": 15.5,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Bencha Theater (Netherlands)",
               "Aerial acrobatics, 30 min"
@@ -546,7 +546,7 @@
             "start": 18.0,
             "end": 19.5,
             "type": "concert",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Adventure Strings (Slovakia)",
               "String quartet concert, 90 min, Big Stage"
@@ -560,7 +560,7 @@
             "start": 19.0,
             "end": 19.67,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Deemak Theater (Iran)",
               "Musical puppet show, 40 min, Small Stage"
@@ -603,7 +603,7 @@
             "start": 12.0,
             "end": 15.0,
             "type": "educational",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "HFPAM, High Fest International Regional Performing Arts Market",
               "Panel discussion, 3 hours"
@@ -617,7 +617,7 @@
             "start": 12.0,
             "end": 15.0,
             "type": "educational",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "HFPAM, High Fest International Regional Performing Arts Market",
               "Round table, 3 hours"
@@ -631,7 +631,7 @@
             "start": 12.0,
             "end": 15.0,
             "type": "educational",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "HFPAM, High Fest International Regional Performing Arts Market",
               "Armenian theatre showcase, 3 hours"
@@ -657,7 +657,7 @@
             "start": 16.0,
             "end": 16.07,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "KATANARI (Czechia)",
               "Object theatre, 4 min"
@@ -700,7 +700,7 @@
             "start": 18.0,
             "end": 19.0,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "NCA Small Theatre (Armenia)",
               "Physical theatre, 60 min, in Armenian"
@@ -786,7 +786,7 @@
             "start": 16.0,
             "end": 17.5,
             "type": "concert",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "John Birks Orchestra (Italy)",
               "Live music, 90 min, starts at the square"
@@ -800,7 +800,7 @@
             "start": 16.0,
             "end": 17.5,
             "type": "concert",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "John Birks Orchestra (Italy)",
               "Live music, 90 min, starts at the square"
@@ -814,7 +814,7 @@
             "start": 16.0,
             "end": 16.42,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Naranji Audiences Laboratory (Iran)",
               "Interactive show, 25 min"
@@ -828,7 +828,7 @@
             "start": 16.5,
             "end": 17.0,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Basidoon Bushehr (Iran)",
               "Musical, 30 min"
@@ -842,7 +842,7 @@
             "start": 17.0,
             "end": 17.67,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Pars Shiraz (Iran)",
               "Musical, 40 min"
@@ -856,7 +856,7 @@
             "start": 18.0,
             "end": 18.67,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Circo Fractal (Argentina, Colombia, Austria, Germany)",
               "Contemporary circus, 40 min"
@@ -870,7 +870,7 @@
             "start": 18.0,
             "end": 18.67,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Circo Fractal (Argentina, Colombia, Austria, Germany): Air Travelers, a circus play, 40 min",
               "Bencha Theater (Netherlands): VEYRA, aerial acrobatics, 30 min"
@@ -913,8 +913,8 @@
         "n": 12,
         "place": "Hamazgayin State Theatre · Henri Verneuil 3",
         "short": "Hamazgayin Theatre",
-        "lat": 40.18215,
-        "lng": 44.507,
+        "lat": 40.18247,
+        "lng": 44.5065,
         "genre": "Theatre + dance",
         "type": "art",
         "match": [
@@ -942,7 +942,7 @@
             "start": 20.67,
             "end": 21.25,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Balmanukyan Dance Project (Armenia)",
               "Dance, 35 min"
@@ -1026,8 +1026,8 @@
         "n": 13,
         "place": "Theatre & Film Institute (YSTFI) · Pap Tagavor 26",
         "short": "YSTFI",
-        "lat": 40.18247,
-        "lng": 44.50625,
+        "lat": 40.18156,
+        "lng": 44.50688,
         "genre": "Workshops",
         "type": "educational",
         "match": [
@@ -1041,7 +1041,7 @@
             "start": 14.0,
             "end": 15.0,
             "type": "educational",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Jieping Wang (China)",
               "Workshop, 60 min"
@@ -1055,7 +1055,7 @@
             "start": 10.0,
             "end": 12.0,
             "type": "educational",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Gaspard&Dancers (USA)",
               "Workshop, 120 min"
@@ -1083,7 +1083,7 @@
             "start": 22.0,
             "end": 24.0,
             "type": "nightlife",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "The festival club, after the shows"
             ],
@@ -1096,7 +1096,7 @@
             "start": 22.0,
             "end": 24.0,
             "type": "nightlife",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "The festival club, after the shows"
             ],
@@ -1109,7 +1109,7 @@
             "start": 22.0,
             "end": 24.0,
             "type": "nightlife",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "The festival club, after the shows"
             ],
@@ -1122,7 +1122,7 @@
             "start": 22.0,
             "end": 24.0,
             "type": "nightlife",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "The festival club, after the shows"
             ],
@@ -1135,7 +1135,7 @@
             "start": 22.0,
             "end": 24.0,
             "type": "nightlife",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "The festival club, after the shows"
             ],
@@ -1148,7 +1148,7 @@
             "start": 22.0,
             "end": 24.0,
             "type": "nightlife",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "The festival club, after the shows"
             ],
@@ -1161,7 +1161,7 @@
             "start": 21.5,
             "end": 23.5,
             "type": "nightlife",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "The festival club, after the shows"
             ],
@@ -1174,7 +1174,7 @@
             "start": 22.0,
             "end": 24.0,
             "type": "nightlife",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "Closing night of the 24th High Fest"
             ],
@@ -1244,7 +1244,7 @@
             "start": 20.5,
             "end": 21.0,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "MIHR Theatre (Armenia)",
               "Multidisciplinary performance, 30 min, in Ashtarak"
@@ -1258,7 +1258,7 @@
             "start": 21.0,
             "end": 21.33,
             "type": "art",
-            "price": "No ticket needed",
+            "price": "Free",
             "lineup": [
               "MIHR Theatre (Armenia)",
               "Contemporary dance, work in progress, 15-20 min, in Ashtarak"
