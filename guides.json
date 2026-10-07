@@ -3,108 +3,1270 @@
     "slug": "cityday",
     "title": "Yerevan City Day",
     "subtitle": "Erebuni–Yerevan 2808",
-    "dates": ["2026-10-09", "2026-10-10"],
+    "dates": [
+      "2026-10-09",
+      "2026-10-10"
+    ],
     "blurb": "Seven free stages across the centre on Saturday, a rock warm-up on Friday, and a beer and a wine festival on the side. Everything is within a 20-minute walk.",
     "price": "Free",
     "source": "https://www.instagram.com/yerevan_municipality/",
     "stages": [
       {
-        "n": 1, "place": "Cascade · Cafesjian Sculpture Garden", "short": "Cascade", "match": ["cascade", "cafesjian"],
-        "lat": 40.18939, "lng": 44.51542, "genre": "Jazz", "type": "concert",
+        "n": 1,
+        "place": "Cascade · Cafesjian Sculpture Garden",
+        "short": "Cascade",
+        "match": [
+          "cascade",
+          "cafesjian"
+        ],
+        "lat": 40.18939,
+        "lng": 44.51542,
+        "genre": "Jazz",
+        "type": "concert",
         "events": [
           {
-            "name": "City Day Jazz at the Cascade", "date": "2026-10-10", "time": "1 PM – 10 PM", "start": 13, "end": 22,
-            "star": "FKJ (French Kiwi Juice) at 8 PM", "starAt": 20, "starLabel": "FKJ",
-            "lineup": ["Armenian State Jazz Orchestra", "Midnight Avenue & The UltraViolet", "Karen Mamikonyan Trio", "Dialog Big Band & A Chilla", "Vahagn Hayrapetyan · The Armenian Colors Quartet", "Artyom Manukyan Trio", "Malkhas Jazz Trio", "Special guest: FKJ"],
+            "name": "City Day Jazz at the Cascade",
+            "date": "2026-10-10",
+            "time": "1 PM – 10 PM",
+            "start": 13,
+            "end": 22,
+            "star": "FKJ (French Kiwi Juice) at 8 PM",
+            "starAt": 20,
+            "starLabel": "FKJ",
+            "lineup": [
+              "Armenian State Jazz Orchestra",
+              "Midnight Avenue & The UltraViolet",
+              "Karen Mamikonyan Trio",
+              "Dialog Big Band & A Chilla",
+              "Vahagn Hayrapetyan · The Armenian Colors Quartet",
+              "Artyom Manukyan Trio",
+              "Malkhas Jazz Trio",
+              "Special guest: FKJ"
+            ],
             "link": "https://www.instagram.com/p/DeCUD39jRgc/",
-            "also": ["https://www.instagram.com/p/DeCY2-Otul_/"]
+            "also": [
+              "https://www.instagram.com/p/DeCY2-Otul_/"
+            ]
           }
         ]
       },
       {
-        "n": 2, "place": "Freedom Square", "short": "Freedom Sq.", "match": ["freedom square", "azatutyan"],
-        "lat": 40.18536, "lng": 44.51505, "genre": "Classical", "type": "concert",
+        "n": 2,
+        "place": "Freedom Square",
+        "short": "Freedom Sq.",
+        "match": [
+          "freedom square",
+          "azatutyan"
+        ],
+        "lat": 40.18536,
+        "lng": 44.51505,
+        "genre": "Classical",
+        "type": "concert",
         "events": [
           {
-            "name": "City Day Classical: Symphonic Folk", "date": "2026-10-10", "time": "5 PM – 8:30 PM", "start": 17, "end": 20.5,
+            "name": "City Day Classical: Symphonic Folk",
+            "date": "2026-10-10",
+            "time": "5 PM – 8:30 PM",
+            "start": 17,
+            "end": 20.5,
             "star": "Symphonic Folk, arranged by C-Rouge",
-            "lineup": ["Yerevan Youth Orchestra", "Armenian State Symphony Orchestra, Symphonic Folk programme arranged by Serouj Baghdasarian (C-Rouge)", "Conductor: Harutyun Arzumanyan", "With the Yerevan State Chamber Choir and the Kamerton vocal studio"],
+            "lineup": [
+              "Yerevan Youth Orchestra",
+              "Armenian State Symphony Orchestra, Symphonic Folk programme arranged by Serouj Baghdasarian (C-Rouge)",
+              "Conductor: Harutyun Arzumanyan",
+              "With the Yerevan State Chamber Choir and the Kamerton vocal studio"
+            ],
             "link": "https://www.instagram.com/p/DeFPvMQDWb4/"
           }
         ]
       },
       {
-        "n": 3, "place": "Northern Avenue", "short": "Northern Ave.", "match": ["northern avenue", "northern ave", "hyusisayin"],
-        "lat": 40.18235, "lng": 44.51462, "genre": "Folk + Wine", "type": "festival",
+        "n": 3,
+        "place": "Northern Avenue",
+        "short": "Northern Ave.",
+        "match": [
+          "northern avenue",
+          "northern ave",
+          "hyusisayin"
+        ],
+        "lat": 40.18235,
+        "lng": 44.51462,
+        "genre": "Folk + Wine",
+        "type": "festival",
         "events": [
           {
-            "name": "City Day Folk Music", "date": "2026-10-10", "time": "1 PM – 6 PM", "start": 13, "end": 18, "type": "concert",
-            "lineup": ["Sona Rubenyan", "Arpi & Highway Band", "Tmbata", "Ethno Colors", "Akunk State Ethnographic Ensemble", "Zvartnots kanon ensemble", "Dancing alongside: Menq national dance group and Masunk song & dance group"],
+            "name": "City Day Folk Music",
+            "date": "2026-10-10",
+            "time": "1 PM – 6 PM",
+            "start": 13,
+            "end": 18,
+            "type": "concert",
+            "lineup": [
+              "Sona Rubenyan",
+              "Arpi & Highway Band",
+              "Tmbata",
+              "Ethno Colors",
+              "Akunk State Ethnographic Ensemble",
+              "Zvartnots kanon ensemble",
+              "Dancing alongside: Menq national dance group and Masunk song & dance group"
+            ],
             "link": "https://www.instagram.com/p/DeEYiMcjTh-/"
           },
           {
-            "name": "City Day Wine Festival", "date": "2026-10-10", "time": "12 PM – 11 PM", "start": 12, "end": 23, "type": "festival",
-            "lineup": ["Wine festival all along Northern Avenue"],
+            "name": "City Day Wine Festival",
+            "date": "2026-10-10",
+            "time": "12 PM – 11 PM",
+            "start": 12,
+            "end": 23,
+            "type": "festival",
+            "lineup": [
+              "Wine festival all along Northern Avenue"
+            ],
             "link": "https://www.instagram.com/p/DeEYiMcjTh-/"
           }
         ]
       },
       {
-        "n": 4, "place": "Charles Aznavour Square", "short": "Aznavour Sq.", "match": ["aznavour square", "aznavour sq"],
-        "lat": 40.18169, "lng": 44.51694, "genre": "Pop", "type": "concert",
+        "n": 4,
+        "place": "Charles Aznavour Square",
+        "short": "Aznavour Sq.",
+        "match": [
+          "aznavour square",
+          "aznavour sq"
+        ],
+        "lat": 40.18169,
+        "lng": 44.51694,
+        "genre": "Pop",
+        "type": "concert",
         "events": [
           {
-            "name": "City Day Pop Concert", "date": "2026-10-10", "time": "12 PM – 6 PM", "start": 12, "end": 18,
-            "lineup": ["Yervand Yerznkyan's Orchestra", "Mohana Band", "Aram MP3", "D'Litte", "Project 12", "Yellow Heart", "Kami Friends"],
+            "name": "City Day Pop Concert",
+            "date": "2026-10-10",
+            "time": "12 PM – 6 PM",
+            "start": 12,
+            "end": 18,
+            "lineup": [
+              "Yervand Yerznkyan's Orchestra",
+              "Mohana Band",
+              "Aram MP3",
+              "D'Litte",
+              "Project 12",
+              "Yellow Heart",
+              "Kami Friends"
+            ],
             "link": "https://www.instagram.com/p/DeEJ2QeDeAU/"
           }
         ]
       },
       {
-        "n": 5, "place": "Diana Abgar Park", "short": "Diana Abgar Park", "match": ["diana abgar", "abgar park"],
-        "lat": 40.18323, "lng": 44.50780, "genre": "Rock + Beer", "type": "concert",
+        "n": 5,
+        "place": "Diana Abgar Park",
+        "short": "Diana Abgar Park",
+        "match": [
+          "diana abgar",
+          "abgar park"
+        ],
+        "lat": 40.18323,
+        "lng": 44.5078,
+        "genre": "Rock + Beer",
+        "type": "concert",
         "events": [
           {
-            "name": "Diana Arbenina & Nochnye Snaipery", "date": "2026-10-09", "time": "9 PM", "start": 21, "end": 23,
+            "name": "Diana Arbenina & Nochnye Snaipery",
+            "date": "2026-10-09",
+            "time": "9 PM",
+            "start": 21,
+            "end": 23,
             "star": "Friday night warm-up",
-            "lineup": ["Diana Arbenina", "Nochnye Snaipery (Night Snipers)"],
+            "lineup": [
+              "Diana Arbenina",
+              "Nochnye Snaipery (Night Snipers)"
+            ],
             "link": "https://www.instagram.com/p/Dd64rNmNQyR/"
           },
           {
-            "name": "City Day Rock Concert", "date": "2026-10-10", "time": "1 PM – 11 PM", "start": 13, "end": 23,
-            "lineup": ["FairWind", "Another Story Band", "The Beautified Project", "Lav Eli", "Suren Arustamyan", "Gor Sujyan", "Sargis Manukyan & Friends", "Nemra", "Bambir"],
+            "name": "City Day Rock Concert",
+            "date": "2026-10-10",
+            "time": "1 PM – 11 PM",
+            "start": 13,
+            "end": 23,
+            "lineup": [
+              "FairWind",
+              "Another Story Band",
+              "The Beautified Project",
+              "Lav Eli",
+              "Suren Arustamyan",
+              "Gor Sujyan",
+              "Sargis Manukyan & Friends",
+              "Nemra",
+              "Bambir"
+            ],
             "link": "https://www.instagram.com/p/DeCLO7RDdr1/"
           },
           {
-            "name": "City Day Beer Festival", "date": "2026-10-09", "endDate": "2026-10-10", "time": "", "type": "festival",
-            "lineup": ["Beer festival in the park on both days"],
+            "name": "City Day Beer Festival",
+            "date": "2026-10-09",
+            "endDate": "2026-10-10",
+            "time": "",
+            "type": "festival",
+            "lineup": [
+              "Beer festival in the park on both days"
+            ],
             "link": "https://www.instagram.com/p/DeCLO7RDdr1/"
           }
         ]
       },
       {
-        "n": 6, "place": "Republic Square · Singing Fountains", "short": "Republic Sq.", "match": ["republic square", "singing fountain"],
-        "lat": 40.17840, "lng": 44.51330, "genre": "Electronic", "type": "nightlife",
+        "n": 6,
+        "place": "Republic Square · Singing Fountains",
+        "short": "Republic Sq.",
+        "match": [
+          "republic square",
+          "singing fountain"
+        ],
+        "lat": 40.1784,
+        "lng": 44.5133,
+        "genre": "Electronic",
+        "type": "nightlife",
         "events": [
           {
-            "name": "City Day Electronic Stage", "date": "2026-10-10", "time": "5 PM – 11 PM", "start": 17, "end": 23,
-            "star": "Vanco at 9:30 PM, afrobeats", "starAt": 21.5, "starLabel": "Vanco",
-            "lineup": ["Guevo aka Kai", "Roob", "Socko", "Alber Ensso", "Special guest: Vanco"],
+            "name": "City Day Electronic Stage",
+            "date": "2026-10-10",
+            "time": "5 PM – 11 PM",
+            "start": 17,
+            "end": 23,
+            "star": "Vanco at 9:30 PM, afrobeats",
+            "starAt": 21.5,
+            "starLabel": "Vanco",
+            "lineup": [
+              "Guevo aka Kai",
+              "Roob",
+              "Socko",
+              "Alber Ensso",
+              "Special guest: Vanco"
+            ],
             "link": "https://www.instagram.com/p/DeClgztDQnN/",
-            "also": ["https://www.instagram.com/p/DeCtPkJt3uz/"]
+            "also": [
+              "https://www.instagram.com/p/DeCtPkJt3uz/"
+            ]
           }
         ]
       },
       {
-        "n": 7, "place": "English Park", "short": "English Park", "match": ["english park", "angliakan"],
-        "lat": 40.17396, "lng": 44.50812, "genre": "Rap", "type": "concert",
+        "n": 7,
+        "place": "English Park",
+        "short": "English Park",
+        "match": [
+          "english park",
+          "angliakan"
+        ],
+        "lat": 40.17396,
+        "lng": 44.50812,
+        "genre": "Rap",
+        "type": "concert",
         "events": [
           {
-            "name": "City Day Rap Concert", "date": "2026-10-10", "time": "5 PM – 10 PM", "start": 17, "end": 22,
-            "lineup": ["A Chilla", "Vnas", "Dav", "Galife", "Narek Mets Hayk", "Misht Hasarak", "47", "Felo 3.33", "Serzho"],
+            "name": "City Day Rap Concert",
+            "date": "2026-10-10",
+            "time": "5 PM – 10 PM",
+            "start": 17,
+            "end": 22,
+            "lineup": [
+              "A Chilla",
+              "Vnas",
+              "Dav",
+              "Galife",
+              "Narek Mets Hayk",
+              "Misht Hasarak",
+              "47",
+              "Felo 3.33",
+              "Serzho"
+            ],
             "link": "https://www.instagram.com/p/DeEte-4DRiF/"
           }
         ]
+      }
+    ]
+  },
+  {
+    "slug": "highfest",
+    "title": "High Fest 2026",
+    "subtitle": "24th International Performing Arts Festival",
+    "dates": [
+      "2026-10-01",
+      "2026-10-02",
+      "2026-10-03",
+      "2026-10-04",
+      "2026-10-05",
+      "2026-10-06",
+      "2026-10-07",
+      "2026-10-08"
+    ],
+    "blurb": "Eight days of theatre, dance, circus and music from Armenia, Iran, Italy, Georgia, the US and more, with free open-air shows on the squares and the festival club every night. Shows marked as ticketed need a ticket, invitation or festival badge.",
+    "price": "Open-air shows free",
+    "source": "https://www.instagram.com/highfest_official/",
+    "labelBy": "name",
+    "namePrefix": "High Fest: ",
+    "stats": [
+      "52 events",
+      "8 days",
+      "16 places",
+      "Open-air shows free"
+    ],
+    "stages": [
+      {
+        "n": 1,
+        "place": "Cafesjian Sculpture Garden · Cascade",
+        "short": "Cascade",
+        "lat": 40.18939,
+        "lng": 44.51542,
+        "genre": "Open air",
+        "type": "art",
+        "match": [
+          "cafesjian sculpture"
+        ],
+        "events": [
+          {
+            "name": "High Fest: Cosmic Journey",
+            "date": "2026-10-01",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 20.67,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Compagnia Luca Piallini (Italy)",
+              "Aerial show, 40 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/",
+            "star": "Opening night, free"
+          }
+        ]
+      },
+      {
+        "n": 2,
+        "place": "Yerevan State Chamber Theatre · Mashtots 58",
+        "short": "Chamber Theatre",
+        "lat": 40.19121,
+        "lng": 44.52031,
+        "genre": "Theatre + music",
+        "type": "art",
+        "match": [
+          "chamber theatre",
+          "chamber theater"
+        ],
+        "events": [
+          {
+            "name": "High Fest: Aznavour",
+            "date": "2026-10-02",
+            "time": "10 PM",
+            "start": 22.0,
+            "end": 23.33,
+            "type": "concert",
+            "price": "No ticket needed",
+            "lineup": [
+              "Yerevan State Chamber Theatre (Armenia)",
+              "\"AZNAVOUR: A Journey Through Time and Music\", concert-performance, 80 min, in Armenian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Self-Accusation",
+            "date": "2026-10-03",
+            "time": "6 PM",
+            "start": 18.0,
+            "end": 19.25,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Fetros (Iran)",
+              "Drama, 75 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Khersak (Little Bear)",
+            "date": "2026-10-03",
+            "time": "8:30 PM",
+            "start": 20.5,
+            "end": 21.5,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Pars Shiraz (Iran)",
+              "Folk musical, 60 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: MEDEAMATERIAL",
+            "date": "2026-10-04",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 21.17,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Sandro Akhmeteli State Drama Theatre (Georgia)",
+              "Drama, 70 min, in Georgian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Maitreyi",
+            "date": "2026-10-05",
+            "time": "8:30 PM",
+            "start": 20.5,
+            "end": 21.5,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "National University of Theatre and Cinematography \"I.L. Caragiale\", Bucharest (Romania)",
+              "Drama, 60 min, English subtitles"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: The Beatles",
+            "date": "2026-10-08",
+            "time": "7 PM",
+            "start": 19.0,
+            "end": 20.33,
+            "type": "concert",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Yerevan State Chamber Theatre (Armenia)",
+              "\"THE BEATLES: A Journey Through Time and Music\", concert-performance, 80 min, in Armenian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 3,
+        "place": "Yerevan Theatre of Young Spectators · Moskovyan 3",
+        "short": "Young Spectators",
+        "lat": 40.18437,
+        "lng": 44.52275,
+        "genre": "Puppets",
+        "type": "art",
+        "match": [
+          "young spectators"
+        ],
+        "events": [
+          {
+            "name": "High Fest: The Droplet",
+            "date": "2026-10-05",
+            "time": "4 PM",
+            "start": 16.0,
+            "end": 16.83,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Ashtarak Drama Theatre (Armenia)",
+              "Puppet show, 50 min, in Armenian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 4,
+        "place": "Freedom Square",
+        "short": "Freedom Sq.",
+        "lat": 40.18536,
+        "lng": 44.51505,
+        "genre": "Open air",
+        "type": "art",
+        "match": [
+          "freedom square"
+        ],
+        "events": [
+          {
+            "name": "High Fest: VEYRA",
+            "date": "2026-10-07",
+            "time": "3 PM",
+            "start": 15.0,
+            "end": 15.5,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Bencha Theater (Netherlands)",
+              "Aerial acrobatics, 30 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 5,
+        "place": "National Puppet Theatre · Sayat-Nova 4",
+        "short": "Puppet Theatre",
+        "lat": 40.18413,
+        "lng": 44.51791,
+        "genre": "Puppets + more",
+        "type": "art",
+        "match": [
+          "puppet theatre",
+          "puppet theater"
+        ],
+        "events": [
+          {
+            "name": "High Fest: Walking with the Wind",
+            "date": "2026-10-03",
+            "time": "7:30 PM",
+            "start": 19.5,
+            "end": 20.33,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Little Orange Castle Children's Theatre Company (China)",
+              "Puppet show, 50 min, Big Stage"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Komitas (puppets)",
+            "date": "2026-10-04",
+            "time": "7:30 PM",
+            "start": 19.5,
+            "end": 20.33,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "National Puppet Theatre (Armenia)",
+              "\"Komitas\", puppet show, 50 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Adventure for Strings",
+            "date": "2026-10-05",
+            "time": "6 PM",
+            "start": 18.0,
+            "end": 19.5,
+            "type": "concert",
+            "price": "No ticket needed",
+            "lineup": [
+              "Adventure Strings (Slovakia)",
+              "String quartet concert, 90 min, Big Stage"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Suitcase and The Lapdog",
+            "date": "2026-10-06",
+            "time": "7 PM",
+            "start": 19.0,
+            "end": 19.67,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Deemak Theater (Iran)",
+              "Musical puppet show, 40 min, Small Stage"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: The Story of One Photograph",
+            "date": "2026-10-06",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 21.17,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "State Theatre of Nations (Russia)",
+              "Drama, 70 min, in Russian, Big Stage"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 6,
+        "place": "National Centre for Aesthetics · Sayat-Nova 6",
+        "short": "Centre for Aesthetics",
+        "lat": 40.18383,
+        "lng": 44.51825,
+        "genre": "Industry talks",
+        "type": "educational",
+        "match": [
+          "centre for aesthetics",
+          "center for aesthetics"
+        ],
+        "events": [
+          {
+            "name": "High Fest: HFPAM panel discussion",
+            "date": "2026-10-03",
+            "time": "12 PM",
+            "start": 12.0,
+            "end": 15.0,
+            "type": "educational",
+            "price": "No ticket needed",
+            "lineup": [
+              "HFPAM, High Fest International Regional Performing Arts Market",
+              "Panel discussion, 3 hours"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: HFPAM round table",
+            "date": "2026-10-04",
+            "time": "12 PM",
+            "start": 12.0,
+            "end": 15.0,
+            "type": "educational",
+            "price": "No ticket needed",
+            "lineup": [
+              "HFPAM, High Fest International Regional Performing Arts Market",
+              "Round table, 3 hours"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: HFPAM Armenian Theatre Showcase",
+            "date": "2026-10-05",
+            "time": "12 PM",
+            "start": 12.0,
+            "end": 15.0,
+            "type": "educational",
+            "price": "No ticket needed",
+            "lineup": [
+              "HFPAM, High Fest International Regional Performing Arts Market",
+              "Armenian theatre showcase, 3 hours"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 7,
+        "place": "NCA open air · Abovyan 13",
+        "short": "NCA courtyard",
+        "lat": 40.18341,
+        "lng": 44.51806,
+        "genre": "Open air",
+        "type": "art",
+        "match": [],
+        "events": [
+          {
+            "name": "High Fest: The Journey",
+            "date": "2026-10-05",
+            "time": "4 PM",
+            "start": 16.0,
+            "end": 16.07,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "KATANARI (Czechia)",
+              "Object theatre, 4 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 8,
+        "place": "Small Theatre · Abovyan 11",
+        "short": "Small Theatre",
+        "lat": 40.18292,
+        "lng": 44.51755,
+        "genre": "Physical theatre",
+        "type": "art",
+        "match": [
+          "small theatre",
+          "small theater"
+        ],
+        "events": [
+          {
+            "name": "High Fest: The Little Prince",
+            "date": "2026-10-03",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 21.0,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "NCA Small Theatre (Armenia)",
+              "Physical theatre, 60 min, in Armenian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: The Little Prince",
+            "date": "2026-10-05",
+            "time": "6 PM",
+            "start": 18.0,
+            "end": 19.0,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "NCA Small Theatre (Armenia)",
+              "Physical theatre, 60 min, in Armenian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: The Little Prince",
+            "date": "2026-10-06",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 21.0,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "NCA Small Theatre (Armenia)",
+              "Physical theatre, 60 min, in Armenian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: The Little Prince",
+            "date": "2026-10-08",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 21.0,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "NCA Small Theatre (Armenia)",
+              "Physical theatre, 60 min, in Armenian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 9,
+        "place": "Stanislavsky Russian Drama Theatre · Abovyan 7",
+        "short": "Russian Drama Theatre",
+        "lat": 40.18207,
+        "lng": 44.51668,
+        "genre": "Drama",
+        "type": "art",
+        "match": [
+          "russian drama",
+          "stanislavsk"
+        ],
+        "events": [
+          {
+            "name": "High Fest: Yama: The Pit",
+            "date": "2026-10-03",
+            "time": "7 PM",
+            "start": 19.0,
+            "end": 21.5,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Russian State Drama Theatre named after K. Stanislavsky (Armenia)",
+              "Drama, 150 min, in Russian, 18+"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 10,
+        "place": "Charles Aznavour Square",
+        "short": "Aznavour Sq.",
+        "lat": 40.18169,
+        "lng": 44.51694,
+        "genre": "Open air",
+        "type": "art",
+        "match": [
+          "aznavour square",
+          "aznavour sq"
+        ],
+        "events": [
+          {
+            "name": "High Fest: John Birks Orchestra",
+            "date": "2026-10-03",
+            "time": "4 PM",
+            "start": 16.0,
+            "end": 17.5,
+            "type": "concert",
+            "price": "No ticket needed",
+            "lineup": [
+              "John Birks Orchestra (Italy)",
+              "Live music, 90 min, starts at the square"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: John Birks Orchestra",
+            "date": "2026-10-04",
+            "time": "4 PM",
+            "start": 16.0,
+            "end": 17.5,
+            "type": "concert",
+            "price": "No ticket needed",
+            "lineup": [
+              "John Birks Orchestra (Italy)",
+              "Live music, 90 min, starts at the square"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Suddenly, the Wolf Said…",
+            "date": "2026-10-05",
+            "time": "4 PM",
+            "start": 16.0,
+            "end": 16.42,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Naranji Audiences Laboratory (Iran)",
+              "Interactive show, 25 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: ZAR",
+            "date": "2026-10-05",
+            "time": "4:30 PM",
+            "start": 16.5,
+            "end": 17.0,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Basidoon Bushehr (Iran)",
+              "Musical, 30 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Khersak (Little Bear)",
+            "date": "2026-10-05",
+            "time": "5 PM",
+            "start": 17.0,
+            "end": 17.67,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Pars Shiraz (Iran)",
+              "Musical, 40 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Air Travelers",
+            "date": "2026-10-06",
+            "time": "6 PM",
+            "start": 18.0,
+            "end": 18.67,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Circo Fractal (Argentina, Colombia, Austria, Germany)",
+              "Contemporary circus, 40 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Air Travelers + VEYRA",
+            "date": "2026-10-07",
+            "time": "6 PM",
+            "start": 18.0,
+            "end": 18.67,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Circo Fractal (Argentina, Colombia, Austria, Germany): Air Travelers, a circus play, 40 min",
+              "Bencha Theater (Netherlands): VEYRA, aerial acrobatics, 30 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/",
+            "star": "Two free open-air shows"
+          }
+        ]
+      },
+      {
+        "n": 11,
+        "place": "Armenian State Song Theatre · Khanjyan 13/1",
+        "short": "Song Theatre",
+        "lat": 40.17494,
+        "lng": 44.51859,
+        "genre": "Musical",
+        "type": "art",
+        "match": [
+          "song theatre",
+          "song theater"
+        ],
+        "events": [
+          {
+            "name": "High Fest: Komitas",
+            "date": "2026-10-02",
+            "time": "7 PM",
+            "start": 19.0,
+            "end": 20.33,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Armenian State Song Theatre (Armenia)",
+              "Musical, 80 min, in Armenian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 12,
+        "place": "Hamazgayin State Theatre · Henri Verneuil 3",
+        "short": "Hamazgayin Theatre",
+        "lat": 40.18215,
+        "lng": 44.507,
+        "genre": "Theatre + dance",
+        "type": "art",
+        "match": [
+          "hamazgayin"
+        ],
+        "events": [
+          {
+            "name": "High Fest: A Brief History of Counterculture",
+            "date": "2026-10-02",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 20.42,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "(Re)boot (Portugal)",
+              "Dance, 25 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: People of the Sun",
+            "date": "2026-10-02",
+            "time": "8:40 PM",
+            "start": 20.67,
+            "end": 21.25,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "Balmanukyan Dance Project (Armenia)",
+              "Dance, 35 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Crick the Little Mouse",
+            "date": "2026-10-03",
+            "time": "8:30 PM",
+            "start": 20.5,
+            "end": 21.5,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Casa del Contemporaneo (Italy)",
+              "Drama, 60 min, English subtitles"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: The Miracle of Saint Anthony",
+            "date": "2026-10-06",
+            "time": "7:30 PM",
+            "start": 19.5,
+            "end": 20.83,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Hamazgayin State Theatre after Sos Sargsyan (Armenia)",
+              "Mystic comedy, 80 min, in Armenian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Little Tragedies",
+            "date": "2026-10-07",
+            "time": "4 PM",
+            "start": 16.0,
+            "end": 18.0,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Hamazgayin State Theatre after Sos Sargsyan (Armenia)",
+              "Tragic buffoonery, 120 min, in Armenian, 16+"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: E / Divine Essence",
+            "date": "2026-10-07",
+            "time": "7:30 PM",
+            "start": 19.5,
+            "end": 20.17,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Hamazgayin State Theatre after Sos Sargsyan (Armenia)",
+              "Drama, 40 min, in Armenian"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Pothos",
+            "date": "2026-10-08",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 21.25,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Gaspard&Dancers (USA)",
+              "Contemporary dance, 75 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/",
+            "star": "Contemporary dance from the USA"
+          }
+        ]
+      },
+      {
+        "n": 13,
+        "place": "Theatre & Film Institute (YSTFI) · Pap Tagavor 26",
+        "short": "YSTFI",
+        "lat": 40.18247,
+        "lng": 44.50625,
+        "genre": "Workshops",
+        "type": "educational",
+        "match": [
+          "ystfi"
+        ],
+        "events": [
+          {
+            "name": "High Fest: Workshop: Arts Management in China",
+            "date": "2026-10-02",
+            "time": "2 PM",
+            "start": 14.0,
+            "end": 15.0,
+            "type": "educational",
+            "price": "No ticket needed",
+            "lineup": [
+              "Jieping Wang (China)",
+              "Workshop, 60 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Workshop with Gaspard&Dancers",
+            "date": "2026-10-05",
+            "time": "10 AM",
+            "start": 10.0,
+            "end": 12.0,
+            "type": "educational",
+            "price": "No ticket needed",
+            "lineup": [
+              "Gaspard&Dancers (USA)",
+              "Workshop, 120 min"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 14,
+        "place": "The Kond House · Leo 46",
+        "short": "The Kond House",
+        "lat": 40.18024,
+        "lng": 44.50294,
+        "genre": "Festival club",
+        "type": "nightlife",
+        "match": [
+          "kond house"
+        ],
+        "events": [
+          {
+            "name": "High Fest Club",
+            "date": "2026-10-01",
+            "time": "10 PM",
+            "start": 22.0,
+            "end": 24.0,
+            "type": "nightlife",
+            "price": "No ticket needed",
+            "lineup": [
+              "The festival club, after the shows"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest Club",
+            "date": "2026-10-02",
+            "time": "10 PM",
+            "start": 22.0,
+            "end": 24.0,
+            "type": "nightlife",
+            "price": "No ticket needed",
+            "lineup": [
+              "The festival club, after the shows"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest Club",
+            "date": "2026-10-03",
+            "time": "10 PM",
+            "start": 22.0,
+            "end": 24.0,
+            "type": "nightlife",
+            "price": "No ticket needed",
+            "lineup": [
+              "The festival club, after the shows"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest Club",
+            "date": "2026-10-04",
+            "time": "10 PM",
+            "start": 22.0,
+            "end": 24.0,
+            "type": "nightlife",
+            "price": "No ticket needed",
+            "lineup": [
+              "The festival club, after the shows"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest Club",
+            "date": "2026-10-05",
+            "time": "10 PM",
+            "start": 22.0,
+            "end": 24.0,
+            "type": "nightlife",
+            "price": "No ticket needed",
+            "lineup": [
+              "The festival club, after the shows"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest Club",
+            "date": "2026-10-06",
+            "time": "10 PM",
+            "start": 22.0,
+            "end": 24.0,
+            "type": "nightlife",
+            "price": "No ticket needed",
+            "lineup": [
+              "The festival club, after the shows"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest Club",
+            "date": "2026-10-07",
+            "time": "9:30 PM",
+            "start": 21.5,
+            "end": 23.5,
+            "type": "nightlife",
+            "price": "No ticket needed",
+            "lineup": [
+              "The festival club, after the shows"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest Closing Ceremony",
+            "date": "2026-10-08",
+            "time": "10 PM",
+            "start": 22.0,
+            "end": 24.0,
+            "type": "nightlife",
+            "price": "No ticket needed",
+            "lineup": [
+              "Closing night of the 24th High Fest"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/",
+            "star": "Closing party"
+          }
+        ]
+      },
+      {
+        "n": 15,
+        "place": "Mher Mkrtchyan Artistic Theatre · Khorenatsi 18",
+        "short": "Mher Mkrtchyan Theatre",
+        "lat": 40.17531,
+        "lng": 44.50919,
+        "genre": "Drama",
+        "type": "art",
+        "match": [
+          "mher mkrtchyan"
+        ],
+        "events": [
+          {
+            "name": "High Fest: How I Trained a Snail on Your Chest",
+            "date": "2026-10-04",
+            "time": "9 PM",
+            "start": 21.0,
+            "end": 22.33,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Mher Mkrtchyan Artistic Theatre (Armenia)",
+              "Drama, 80 min, in Armenian, 18+"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: If You Were to Die",
+            "date": "2026-10-07",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 21.5,
+            "type": "art",
+            "price": "Ticket, invitation or festival badge",
+            "lineup": [
+              "Mher Mkrtchyan Artistic Theatre (Armenia)",
+              "Psychological drama, 90 min, in Armenian, 18+"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ]
+      },
+      {
+        "n": 16,
+        "place": "Hrach's Art Space · Toros Toromonyan 46, Ashtarak",
+        "short": "Hrach's Art Space (Ashtarak)",
+        "lat": 40.30076,
+        "lng": 44.36622,
+        "genre": "Out of town",
+        "type": "art",
+        "match": [
+          "hrach"
+        ],
+        "events": [
+          {
+            "name": "High Fest: Reflection",
+            "date": "2026-10-05",
+            "time": "8:30 PM",
+            "start": 20.5,
+            "end": 21.0,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "MIHR Theatre (Armenia)",
+              "Multidisciplinary performance, 30 min, in Ashtarak"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          },
+          {
+            "name": "High Fest: Wave",
+            "date": "2026-10-05",
+            "time": "9 PM",
+            "start": 21.0,
+            "end": 21.33,
+            "type": "art",
+            "price": "No ticket needed",
+            "lineup": [
+              "MIHR Theatre (Armenia)",
+              "Contemporary dance, work in progress, 15-20 min, in Ashtarak"
+            ],
+            "link": "https://www.instagram.com/p/Dd53e9EDLn2/"
+          }
+        ],
+        "far": true
       }
     ]
   }

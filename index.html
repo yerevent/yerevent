@@ -298,8 +298,8 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 .guide-stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;position:relative;}
 .guide-stat{background:rgba(28,11,18,0.88);color:var(--cream);font-size:0.76rem;font-weight:600;padding:6px 12px;border-radius:100px;}
 .guide-h{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--gold);margin:28px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
-.guide-days{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px;}
-.guide-day{font-family:'Outfit',sans-serif;font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:100px;border:none;cursor:pointer;background:transparent;color:var(--text-muted);}
+.guide-days{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px;}
+.guide-day{white-space:nowrap;font-family:'Outfit',sans-serif;font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:100px;border:none;cursor:pointer;background:transparent;color:var(--text-muted);}
 .guide-day.active{background:var(--pome);color:#fff;}
 .tl{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px 10px;}
 .tl-hours,.tl-row{display:grid;grid-template-columns:150px 1fr;align-items:center;gap:10px;}
@@ -1118,7 +1118,7 @@ function closeDetail(fromUrl){
    same event already in the sheet (same Instagram post, or the same place
    on the same day) is folded into the guide's version so nothing shows twice. */
 const GUIDES_URL='guides.json';
-let GUIDES=[],GUIDE_EVS=[],openGuideSlug=null,guideMap=null,guideDay=null;
+let GUIDES=[],GUIDE_EVS=[],openGuideSlug=null,guideMap=null,guideDay=null,guideMarkers={};
 function guideBySlug(s){return GUIDES.find(g=>g.slug===s)||null;}
 function guideUrl(slug){return location.origin+location.pathname+'?g='+encodeURIComponent(slug);}
 function igCode(u){const m=String(u||'').match(/instagram\.com\/(?:[^\/]+\/)?(?:p|reel|tv)\/([\w-]+)/);return m?m[1]:'';}
@@ -1138,7 +1138,7 @@ async function loadGuides(){
     const rawDate=span?`${MONTHS_LONG[parseInt(dates[0].slice(5,7))-1]} ${parseInt(dates[0].slice(8))}–${parseInt(dates[dates.length-1].slice(8))}, ${dates[0].slice(0,4)}`:'';
     const description=[e.star?'★ '+e.star:'',(e.lineup||[]).join('\n'),`Part of ${g.title}${g.subtitle?' — '+g.subtitle:''}.`].filter(Boolean).join('\n\n');
     const base={name:e.name,rawDate,time:e.time||'',city:'Yerevan',location:st.place,type:e.type||st.type||'concert',
-      price:g.price||'Check website',link:e.link||'',description,image:'',lat:st.lat,lng:st.lng,
+      price:e.price||g.price||'Check website',link:e.link||'',description,image:'',lat:st.lat,lng:st.lng,
       guide:g.slug,stage:st.n,src:e,stageObj:st};
     dates.forEach(d=>GUIDE_EVS.push(span?{...base,date:d,span}:{...base,date:d}));
   })));
@@ -1190,7 +1190,7 @@ function openGuide(slug,fromUrl,preferDate){
         <div class="guide-hero-kicker">${esc(g.subtitle||'')} · ${esc(dayLabel(g.dates[0]))}${g.dates.length>1?' – '+esc(dayLabel(g.dates[g.dates.length-1])):''}</div>
         <h2>${esc(g.title)}</h2>
         <p>${esc(g.blurb||'')}</p>
-        <div class="guide-stats"><span class="guide-stat">${g.stages.length} places</span><span class="guide-stat">${artists.size>=20?Math.floor(artists.size/10)*10+'+':artists.size} acts</span>${g.price?`<span class="guide-stat">${esc(g.price)}</span>`:''}</div>
+        <div class="guide-stats">${(g.stats||[`${g.stages.length} places`,`${artists.size>=20?Math.floor(artists.size/10)*10+'+':artists.size} acts`,g.price].filter(Boolean)).map(x=>`<span class="guide-stat">${esc(x)}</span>`).join('')}</div>
       </div>
     </div>
     <div class="guide-inner">
@@ -1205,7 +1205,7 @@ function openGuide(slug,fromUrl,preferDate){
   const daysEl=document.getElementById('guideDays');
   if(timedDays.length>1){
     timedDays.forEach(d=>{const b=document.createElement('button');b.className='guide-day'+(d===guideDay?' active':'');b.textContent=dayLabel(d);
-      b.onclick=()=>{guideDay=d;daysEl.querySelectorAll('.guide-day').forEach(x=>x.classList.toggle('active',x===b));renderGuideTimeline(g);};daysEl.appendChild(b);});
+      b.onclick=()=>{guideDay=d;daysEl.querySelectorAll('.guide-day').forEach(x=>x.classList.toggle('active',x===b));renderGuideTimeline(g);dimGuidePins(g);};daysEl.appendChild(b);});
   }else daysEl.style.display='none';
   renderGuideTimeline(g);
   renderGuideStages(g);
@@ -1231,7 +1231,9 @@ function renderGuideTimeline(g){
     const side=/festival/i.test(e.name)&&!/concert/i.test(e.name);
     const end=e.end||e.start+2;
     const star=e.starAt!=null?`<div class="tl-star" style="left:${pct(e.starAt)}">★ ${esc(e.starLabel||'')}</div>`:'';
-    return `<div class="tl-row" data-stage="${st.n}"><div class="tl-label"><span class="guide-num">${st.n}</span><div style="min-width:0;">${esc(side?(e.type==='festival'?e.name.replace(/^City Day /,''):st.genre):st.genre.replace(/ \+ .*/,''))}<small>${esc(st.short)} · ${esc(e.time)}</small></div></div><div class="tl-track">${grid}<div class="tl-bar${side?' side':''}" style="left:${pct(e.start)};width:calc(${pct(end)} - ${pct(e.start)})">${esc(e.time)}</div>${star}${nowLine}</div></div>`;
+    /* a guide can label rows by show name (a theatre festival) instead of by genre (a city day) */
+    const label=g.labelBy==='name'?e.name.replace(g.namePrefix||'',''):side?(e.type==='festival'?e.name.replace(/^City Day /,''):st.genre):st.genre.replace(/ \+ .*/,'');
+    return `<div class="tl-row" data-stage="${st.n}"><div class="tl-label"><span class="guide-num">${st.n}</span><div style="min-width:0;">${esc(label)}<small>${esc(st.short)} · ${esc(e.time)}</small></div></div><div class="tl-track">${grid}<div class="tl-bar${side?' side':''}" style="left:${pct(e.start)};width:calc(${pct(end)} - ${pct(e.start)})">${esc(e.time)}</div>${star}${nowLine}</div></div>`;
   }).join('')+(untimed.length?`<div class="tl-note">All day: ${untimed.map(u=>`${esc(u.e.name.replace(/^City Day /,''))} at ${esc(u.st.short)} (${u.st.n})`).join(', ')}.</div>`:'');
   el.querySelectorAll('.tl-row').forEach(r=>r.addEventListener('click',()=>focusStage(+r.dataset.stage)));
 }
@@ -1266,20 +1268,30 @@ function renderGuideMap(g){
   if(guideMap){guideMap.remove();guideMap=null;}
   guideMap=L.map('guideMap',{scrollWheelZoom:false,zoomSnap:0.25});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_3ttc_1_7980370ddda10f4b903a6478',{attribution:'© OpenStreetMap contributors © CARTO',maxZoom:19}).addTo(guideMap);
-  const pts=[];
+  const pts=[];guideMarkers={};
   g.stages.forEach(st=>{
     const icon=L.divIcon({className:'',html:`<div style="position:relative;"><div class="guide-pin">${st.n}</div><div class="guide-pin-label">${esc(st.short)} · ${esc(st.genre)}</div></div>`,iconSize:[30,30],iconAnchor:[15,15]});
-    L.marker([st.lat,st.lng],{icon}).addTo(guideMap).on('click',()=>focusStage(st.n));
-    pts.push([st.lat,st.lng]);
+    guideMarkers[st.n]=L.marker([st.lat,st.lng],{icon}).addTo(guideMap).on('click',()=>focusStage(st.n));
+    if(!st.far)pts.push([st.lat,st.lng]);   /* an out-of-town venue would shrink the whole city to a dot */
   });
   guideMap.fitBounds(pts,{padding:[22,22]});
   /* names only once zoomed in: at city scale the central stages sit on top of each other */
   const labels=()=>{if(guideMap)document.getElementById('guideMap').classList.toggle('labels-on',guideMap.getZoom()>=16);};
   guideMap.on('zoomend',labels);labels();
   const legend=document.getElementById('guideLegend');legend.innerHTML='';
-  g.stages.forEach(st=>{const b=document.createElement('button');
+  g.stages.forEach(st=>{const b=document.createElement('button');b.dataset.n=st.n;
     b.innerHTML=`<span class="guide-num">${st.n}</span>${esc(st.short)} · ${esc(st.genre)}`;
     b.onclick=()=>{if(guideMap)guideMap.setView([st.lat,st.lng],17,{animate:true});};legend.appendChild(b);});
+  dimGuidePins(g);
+}
+/* with many places, the ones with nothing on the chosen day fade back */
+function dimGuidePins(g){
+  if(g.dates.length<2)return;
+  g.stages.forEach(st=>{
+    const on=st.events.some(e=>dateRange(e.date,e.endDate).includes(guideDay));
+    const m=guideMarkers[st.n];if(m)m.setOpacity(on?1:0.25);
+    const b=document.querySelector(`#guideLegend button[data-n="${st.n}"]`);if(b)b.style.opacity=on?1:0.4;
+  });
 }
 function focusStage(n){
   const card=document.getElementById('stage-'+n);if(!card)return;
