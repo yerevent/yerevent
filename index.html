@@ -312,6 +312,22 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 .tl-track{position:relative;height:30px;}
 .tl-grid{position:absolute;top:0;bottom:0;width:1px;background:rgba(252,204,132,0.07);}
 .tl-bar{position:absolute;top:3px;bottom:3px;border-radius:7px;background:var(--sunset);color:#1C0B12;font-size:0.68rem;font-weight:700;display:flex;align-items:center;padding:0 8px;white-space:nowrap;overflow:hidden;}
+.tl-bar.acc-free{background:linear-gradient(100deg,#5BE3A6,#22A86E);color:#062a19;}
+.tl-bar.acc-invite{background:rgba(244,234,223,0.06);color:rgba(244,234,223,0.8);border:1.5px dashed rgba(244,234,223,0.45);}
+.guide-filter{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:22px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);}
+.guide-filter button{font-family:'Outfit',sans-serif;font-size:0.8rem;font-weight:600;padding:7px 14px;border-radius:100px;border:1px solid var(--border);background:var(--bg);color:var(--text-soft);cursor:pointer;}
+.guide-filter button.active{background:#22A86E;border-color:#22A86E;color:#fff;}
+.guide-filter button[data-f="all"].active{background:var(--pome);border-color:var(--pome);}
+.guide-key{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto;}
+.acc-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.66rem;font-weight:800;letter-spacing:0.6px;text-transform:uppercase;padding:3px 9px;border-radius:100px;white-space:nowrap;}
+.acc-badge.free{background:#3DDC97;color:#062a19;}
+.acc-badge.ticket{border:1px solid var(--apricot);color:var(--apricot);}
+.acc-badge.invite{border:1px dashed rgba(244,234,223,0.5);color:rgba(244,234,223,0.8);}
+.stage-ev.acc-free,.stage-ev.acc-ticket,.stage-ev.acc-invite{border-top:none;margin-top:10px;padding:10px 12px;border-radius:10px;}
+.stage-ev.acc-free{background:rgba(61,220,151,0.08);border:1px solid rgba(61,220,151,0.45);}
+.stage-ev.acc-ticket{background:rgba(255,177,92,0.06);border:1px solid rgba(255,177,92,0.45);}
+.stage-ev.acc-invite{background:rgba(244,234,223,0.03);border:1px dashed rgba(244,234,223,0.28);}
+.stage-ev-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .tl-bar.side{background:rgba(255,177,92,0.18);color:var(--apricot);border:1px dashed rgba(255,177,92,0.5);}
 .tl-star{position:absolute;top:-2px;transform:translateX(-50%);font-size:0.62rem;font-weight:700;color:#1C0B12;background:var(--cream);border-radius:100px;padding:1px 6px;white-space:nowrap;z-index:2;box-shadow:0 1px 6px rgba(0,0,0,.4);}
 .tl-now{position:absolute;top:-4px;bottom:-4px;width:2px;background:#34d399;z-index:3;}
@@ -1118,7 +1134,20 @@ function closeDetail(fromUrl){
    same event already in the sheet (same Instagram post, or the same place
    on the same day) is folded into the guide's version so nothing shows twice. */
 const GUIDES_URL='guides.json';
-let GUIDES=[],GUIDE_EVS=[],openGuideSlug=null,guideMap=null,guideDay=null,guideMarkers={};
+let GUIDES=[],GUIDE_EVS=[],openGuideSlug=null,guideMap=null,guideDay=null,guideMarkers={},guideFreeOnly=false;
+/* who can get in: free and open, ticketed, or invitation only */
+function accessOf(e,g){
+  const p=String(e.price||g.price||'').toLowerCase();
+  if(/^free/.test(p))return'free';
+  if(/ticket|badge|amd|\d/.test(p))return'ticket';   /* "ticket, invitation or badge" is still a ticket */
+  if(/invit/.test(p))return'invite';
+  return'';
+}
+const ACC_LABEL={free:'Free · open to all',ticket:'Ticket',invite:'Invite only'};
+function accBadge(a){return a?`<span class="acc-badge ${a}">${ACC_LABEL[a]}</span>`:'';}
+/* colours only help when a guide mixes free and paid or private events */
+function guideMixed(g){const s=new Set();g.stages.forEach(st=>st.events.forEach(e=>s.add(accessOf(e,g))));return s.has('free')&&s.size>1;}
+function showEv(e,g){return !guideFreeOnly||accessOf(e,g)==='free';}
 function guideBySlug(s){return GUIDES.find(g=>g.slug===s)||null;}
 function guideUrl(slug){return location.origin+location.pathname+'?g='+encodeURIComponent(slug);}
 function igCode(u){const m=String(u||'').match(/instagram\.com\/(?:[^\/]+\/)?(?:p|reel|tv)\/([\w-]+)/);return m?m[1]:'';}
@@ -1175,7 +1204,7 @@ function renderGuideBanner(){
 }
 function openGuide(slug,fromUrl,preferDate){
   const g=guideBySlug(slug);if(!g)return;
-  openGuideSlug=slug;
+  openGuideSlug=slug;guideFreeOnly=false;
   if(!fromUrl){try{history.pushState({g:slug},'',guideUrl(slug));}catch(_){}}
   const timedDays=g.dates.filter(d=>GUIDE_EVS.some(e=>e.guide===slug&&e.date===d&&e.src.start!=null));
   const today=toDateStr(new Date());
@@ -1194,6 +1223,7 @@ function openGuide(slug,fromUrl,preferDate){
       </div>
     </div>
     <div class="guide-inner">
+      ${guideMixed(g)?`<div class="guide-filter" id="guideFilter"><button data-f="all"${guideFreeOnly?'':' class="active"'}>Everything</button><button data-f="free"${guideFreeOnly?' class="active"':''}>🎁 Free only</button><div class="guide-key">${accBadge('free')}${accBadge('ticket')}${accBadge('invite')}</div></div>`:''}
       <div class="guide-h"><span>What's on at the same time</span><div class="guide-days" id="guideDays"></div></div>
       <div class="tl" id="guideTimeline"></div>
       <div class="guide-h"><span>Where everything is</span></div>
@@ -1207,6 +1237,12 @@ function openGuide(slug,fromUrl,preferDate){
     timedDays.forEach(d=>{const b=document.createElement('button');b.className='guide-day'+(d===guideDay?' active':'');b.textContent=dayLabel(d);
       b.onclick=()=>{guideDay=d;daysEl.querySelectorAll('.guide-day').forEach(x=>x.classList.toggle('active',x===b));renderGuideTimeline(g);dimGuidePins(g);};daysEl.appendChild(b);});
   }else daysEl.style.display='none';
+  const filt=document.getElementById('guideFilter');
+  if(filt)filt.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    guideFreeOnly=b.dataset.f==='free';
+    filt.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));
+    renderGuideTimeline(g);renderGuideStages(g);dimGuidePins(g);
+  });
   renderGuideTimeline(g);
   renderGuideStages(g);
   document.getElementById('guideOverlay').classList.add('open');
@@ -1215,39 +1251,44 @@ function openGuide(slug,fromUrl,preferDate){
 }
 function renderGuideTimeline(g){
   const rows=[];
-  g.stages.forEach(st=>st.events.forEach(e=>{if(e.date===guideDay&&e.start!=null)rows.push({st,e});}));
+  g.stages.forEach(st=>st.events.forEach(e=>{if(e.date===guideDay&&e.start!=null&&showEv(e,g))rows.push({st,e});}));
   /* untimed events on this day (e.g. a beer festival) get a note instead of a bar */
-  const untimed=[];g.stages.forEach(st=>st.events.forEach(e=>{if(e.start==null&&dateRange(e.date,e.endDate).includes(guideDay))untimed.push({st,e});}));
+  const untimed=[];g.stages.forEach(st=>st.events.forEach(e=>{if(e.start==null&&showEv(e,g)&&dateRange(e.date,e.endDate).includes(guideDay))untimed.push({st,e});}));
   rows.sort((a,b)=>a.st.n-b.st.n||a.e.start-b.e.start);
   const el=document.getElementById('guideTimeline');
-  if(!rows.length){el.innerHTML='<div class="tl-note">No timed events this day.</div>';return;}
+  if(!rows.length){el.innerHTML=`<div class="tl-note">${guideFreeOnly?'No free events this day.':'No timed events this day.'}</div>`;return;}
   const h0=Math.floor(Math.min(...rows.map(r=>r.e.start))),h1=Math.ceil(Math.max(...rows.map(r=>r.e.end||r.e.start+2)));
   const pct=h=>((h-h0)/(h1-h0)*100).toFixed(2)+'%';
   let grid='';for(let h=h0;h<=h1;h++)grid+=`<div class="tl-grid" style="left:${pct(h)}"></div>`;
   let hours='';for(let h=h0;h<=h1;h+=(h1-h0>8?2:1))hours+=`<div class="tl-hour" style="left:${pct(h)}">${fmtHour(h).replace(' ',' ')}</div>`;
   const now=new Date(),nowH=now.getHours()+now.getMinutes()/60;
   const nowLine=(toDateStr(now)===guideDay&&nowH>=h0&&nowH<=h1)?`<div class="tl-now" style="left:${pct(nowH)}" title="Now"></div>`:'';
+  const mixed=guideMixed(g);
   el.innerHTML=`<div class="tl-hours"><div></div><div class="tl-track">${hours}</div></div>`+rows.map(({st,e})=>{
     const side=/festival/i.test(e.name)&&!/concert/i.test(e.name);
     const end=e.end||e.start+2;
     const star=e.starAt!=null?`<div class="tl-star" style="left:${pct(e.starAt)}">★ ${esc(e.starLabel||'')}</div>`:'';
     /* a guide can label rows by show name (a theatre festival) instead of by genre (a city day) */
     const label=g.labelBy==='name'?e.name.replace(g.namePrefix||'',''):side?(e.type==='festival'?e.name.replace(/^City Day /,''):st.genre):st.genre.replace(/ \+ .*/,'');
-    return `<div class="tl-row" data-stage="${st.n}"><div class="tl-label"><span class="guide-num">${st.n}</span><div style="min-width:0;">${esc(label)}<small>${esc(st.short)} · ${esc(e.time)}</small></div></div><div class="tl-track">${grid}<div class="tl-bar${side?' side':''}" style="left:${pct(e.start)};width:calc(${pct(end)} - ${pct(e.start)})">${esc(e.time)}</div>${star}${nowLine}</div></div>`;
+    return `<div class="tl-row" data-stage="${st.n}"><div class="tl-label"><span class="guide-num">${st.n}</span><div style="min-width:0;">${esc(label)}<small>${esc(st.short)} · ${esc(e.time)}</small></div></div><div class="tl-track">${grid}<div class="tl-bar${side?' side':''}${mixed?' acc-'+accessOf(e,g):''}" style="left:${pct(e.start)};width:calc(${pct(end)} - ${pct(e.start)})">${esc(e.time)}</div>${star}${nowLine}</div></div>`;
   }).join('')+(untimed.length?`<div class="tl-note">All day: ${untimed.map(u=>`${esc(u.e.name.replace(/^City Day /,''))} at ${esc(u.st.short)} (${u.st.n})`).join(', ')}.</div>`:'');
   el.querySelectorAll('.tl-row').forEach(r=>r.addEventListener('click',()=>focusStage(+r.dataset.stage)));
 }
 function renderGuideStages(g){
   const box=document.getElementById('guideStages');box.innerHTML='';
   const multiDay=g.dates.length>1;
+  const mixed=guideMixed(g);
   g.stages.forEach(st=>{
+    if(!st.events.some(e=>showEv(e,g)))return;
     const card=document.createElement('div');card.className='stage-card';card.id='stage-'+st.n;
     const dir=`https://www.google.com/maps/search/?api=1&query=${st.lat},${st.lng}`;
     card.innerHTML=`<div class="stage-head"><span class="guide-num">${st.n}</span><div><div class="stage-genre">${esc(st.genre)}</div><div class="stage-place">${esc(st.place)}</div></div></div>`+
       st.events.map((e,i)=>{
+        if(!showEv(e,g))return'';
+        const acc=mixed?accessOf(e,g):'';
         const ds=dateRange(e.date,e.endDate);
         const when=(multiDay?(ds.length>1?ds.map(d=>dayLabel(d)).join(' & '):dayLabel(e.date)):'')+(e.time?(multiDay?' · ':'')+e.time:'');
-        return `<div class="stage-ev"><div class="stage-ev-when">${esc(when||'Hours TBA')}</div><div class="stage-ev-name" data-i="${i}">${esc(e.name)}</div>${e.star?`<span class="stage-star">★ ${esc(e.star)}</span>`:''}<div class="stage-lineup">${(e.lineup||[]).map(a=>`<span>${esc(a)}</span>`).join('')}</div><div class="stage-actions"><button data-cal="${i}">📆 Add to calendar</button>${e.link?`<a href="${esc(e.link)}" target="_blank" rel="noopener">📸 Post</a>`:''}</div></div>`;
+        return `<div class="stage-ev${acc?' acc-'+acc:''}"><div class="stage-ev-top"><div class="stage-ev-when">${esc(when||'Hours TBA')}</div>${accBadge(acc)}</div><div class="stage-ev-name" data-i="${i}">${esc(e.name)}</div>${e.star?`<span class="stage-star">★ ${esc(e.star)}</span>`:''}<div class="stage-lineup">${(e.lineup||[]).map(a=>`<span>${esc(a)}</span>`).join('')}</div><div class="stage-actions"><button data-cal="${i}">📆 Add to calendar</button>${e.link?`<a href="${esc(e.link)}" target="_blank" rel="noopener">📸 Post</a>`:''}</div></div>`;
       }).join('')+
       `<div class="stage-actions"><a href="${dir}" target="_blank" rel="noopener">📍 Directions</a><button data-map="1">Show on map</button></div>`;
     const evFor=i=>GUIDE_EVS.find(x=>x.src===st.events[i]);
@@ -1286,9 +1327,9 @@ function renderGuideMap(g){
 }
 /* with many places, the ones with nothing on the chosen day fade back */
 function dimGuidePins(g){
-  if(g.dates.length<2)return;
+  if(g.dates.length<2&&!guideFreeOnly)return;
   g.stages.forEach(st=>{
-    const on=st.events.some(e=>dateRange(e.date,e.endDate).includes(guideDay));
+    const on=st.events.some(e=>(g.dates.length<2||dateRange(e.date,e.endDate).includes(guideDay))&&showEv(e,g));
     const m=guideMarkers[st.n];if(m)m.setOpacity(on?1:0.25);
     const b=document.querySelector(`#guideLegend button[data-n="${st.n}"]`);if(b)b.style.opacity=on?1:0.4;
   });
