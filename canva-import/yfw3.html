@@ -1,0 +1,122 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=Manrope:wght@600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;width:1080px}
+section{width:1080px;height:1440px;position:relative;overflow:hidden;font-family:'Manrope',sans-serif;color:#F4EADF;padding:96px 84px;display:block}
+.wine{background:#1C0B12}
+.sunset{background:linear-gradient(155deg,#FFB15C 0%,#F04A5A 52%,#7A1E5C 100%);color:#1C0B12}
+.kicker{font-family:'Unbounded',sans-serif;font-weight:700;font-size:22px;letter-spacing:4px;text-transform:uppercase;color:#FFB15C}
+h1,h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600}
+h2{font-size:112px;line-height:.92;margin:14px 0 36px}
+.arch{position:absolute;background-size:cover;background-position:center;overflow:hidden}
+.arch-big{position:absolute;left:0;right:0;top:330px;text-align:center;font-family:'Unbounded',sans-serif;font-weight:800;font-size:190px;letter-spacing:-6px;color:#1C0B12;line-height:1}
+.arch-small{position:absolute;left:0;right:0;top:540px;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:96px;color:#1C0B12;line-height:1}
+.cover-title{position:absolute;left:84px;top:930px;font-size:150px;line-height:.86;color:#F4EADF;letter-spacing:-2px}
+.chips{display:flex;gap:12px}
+.chip{font-family:'Unbounded',sans-serif;font-weight:700;font-size:22px;border:2px solid rgba(244,234,223,.45);border-radius:100px;padding:10px 22px;color:#F4EADF}
+.brand{position:absolute;left:84px;bottom:84px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:44px;color:#F4EADF}
+.tag{display:block;text-align:center;font-family:'Unbounded',sans-serif;font-weight:800;font-size:17px;letter-spacing:1.5px;text-transform:uppercase;border-radius:100px;padding:7px 15px;white-space:nowrap}
+.tag.free{background:#F4EADF;color:#1C0B12}
+.tag.inv{border:2px dashed rgba(244,234,223,.55);color:rgba(244,234,223,.85)}
+.tag.tix{border:2px solid #FFB15C;color:#FFB15C}
+.num{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%;background:linear-gradient(155deg,#FFB15C,#F04A5A 52%,#7A1E5C);color:#1C0B12;font-family:'Unbounded',sans-serif;font-weight:800}
+.cards{display:flex;flex-direction:column;gap:18px}
+.card{border-radius:28px;padding:24px 32px}
+.card.free{background:#33141F;border:2px solid rgba(244,234,223,.25)}
+.card.ticket{background:#2A1018;border:2px solid #FFB15C}
+.card.info{background:linear-gradient(155deg,#FFB15C,#F04A5A 52%,#7A1E5C);color:#1C0B12}
+.card.info .card-b{color:#1C0B12}
+.card.invite{background:#1C0B12;border:2px dashed rgba(244,234,223,.4)}
+.card-top{margin-bottom:14px;display:flex}
+.card-h{font-weight:800;font-size:35px;line-height:1.15}
+.card-b{font-weight:600;font-size:25px;line-height:1.4;color:rgba(244,234,223,.75);margin-top:8px}
+.foot{position:absolute;left:84px;right:84px;top:1176px;font-weight:600;font-size:26px;line-height:1.4;color:rgba(244,234,223,.7)}
+.maparch{border:3px solid rgba(255,177,92,.35)}
+.mpin{position:absolute;width:60px;height:60px;border-radius:50%;background:linear-gradient(155deg,#FFB15C,#F04A5A 52%,#7A1E5C);border:4px solid #1C0B12;color:#1C0B12;font-family:'Unbounded',sans-serif;font-weight:800;font-size:26px;display:flex;align-items:center;justify-content:center}
+.mlab{position:absolute;height:68px;border-radius:14px;background:#1C0B12;border:2px solid rgba(255,177,92,.4);padding:8px 16px}
+.mlab b{display:block;font-weight:800;font-size:22px;line-height:1.25;color:#F4EADF}
+.mlab span{display:block;font-family:'Unbounded',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;color:#FFB15C;text-transform:uppercase}
+.outs{position:absolute;left:84px;right:84px;top:1214px;display:flex;gap:18px}
+.out{flex:1;display:flex;align-items:center;gap:14px;border:2px dashed rgba(244,234,223,.3);border-radius:18px;padding:12px 16px}
+.out div b{display:block;font-weight:800;font-size:22px;line-height:1.2}
+.out div span{display:block;font-weight:600;font-size:18px;color:rgba(244,234,223,.65)}
+.ghost{position:absolute;right:-30px;top:40px;font-family:'Unbounded',sans-serif;font-weight:800;font-size:420px;line-height:1;color:#26101A;letter-spacing:-20px;z-index:0}
+.kicker,h2,.strip,.rows,.cards,.list{position:relative;z-index:1}
+.dayh{position:relative;font-size:104px;margin:10px 0 26px}
+.strip .tag{flex-shrink:0}
+.strip{display:flex;align-items:center;gap:16px;border:2px solid rgba(244,234,223,.25);border-radius:100px;padding:10px 12px;margin-bottom:18px}
+.strip span{font-weight:700;font-size:23px}
+.rows{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:18px;padding:13px 0;border-top:2px solid rgba(244,234,223,.08)}
+.rt{width:132px;flex-shrink:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:22px;color:#FFB15C}
+.rm{flex:1;min-width:0}
+.rm b{display:block;font-weight:800;font-size:27px;line-height:1.2}
+.rm span{display:block;font-weight:600;font-size:20px;color:rgba(244,234,223,.6);margin-top:2px}
+.rk{flex-shrink:0;display:flex}
+.divider{font-family:'Unbounded',sans-serif;font-weight:700;font-size:18px;letter-spacing:3px;text-transform:uppercase;color:rgba(244,234,223,.55);padding:14px 0 6px}
+.list{display:flex;flex-direction:column}
+.li{display:flex;gap:22px;align-items:baseline;padding:21px 0;border-top:2px solid rgba(244,234,223,.08)}
+.lw{width:190px;flex-shrink:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:21px;color:#FFB15C}
+.lt{flex:1;font-weight:800;font-size:29px;line-height:1.25}
+.close-in{position:absolute;left:70px;right:70px;top:300px}
+.close-h{font-size:128px;line-height:.9;color:#F4EADF;margin-top:20px}
+.url{position:absolute;left:84px;top:1110px;font-family:'Unbounded',sans-serif;font-weight:800;font-size:46px;background:#1C0B12;color:#FFB15C;border-radius:100px;padding:20px 36px}
+.close-line{position:absolute;left:84px;right:84px;top:1222px;font-weight:700;font-size:30px;line-height:1.35;color:#1C0B12}
+.photo-h{position:absolute;left:84px;top:1076px;font-size:104px;line-height:.9;margin:0}
+
+.tag.inv{border:2px solid #938683;background:#1C0B12}
+.tag.tix{background:#1C0B12}
+.chip{border:2px solid #7B6E6C;background:#1C0B12}
+.card.free{border:2px solid #4F4246}
+.card.invite{border:2px solid #65585A;background:#1C0B12}
+.out{border:2px solid #5A4D50;background:#1C0B12}
+.strip{border:2px solid #4F4246;background:#1C0B12}
+.mlab{border:2px solid #6E4A35}
+.maparch{border:none}
+.tag{height:38px;line-height:24px}
+.chip{height:52px;line-height:28px}
+</style></head><body><section data-document-role="page" data-label="Cover" class="wine">
+<div class="kicker" style="position:absolute;left:84px;top:96px">#YFW2026 · the yer.event guide</div>
+<div class="arch " style="left:170px;top:200px;width:740px;height:860px;border-radius:370px 370px 28px 28px;background-image:url(https://yerevent.club/canva-import/sunset.png)"><div class="arch-big">8–11</div><div class="arch-small">October</div></div>
+<h1 class="cover-title">Yerevan<br>Fashion Week</h1>
+<div class="chips" style="position:absolute;left:84px;top:1290px"><div class="chip">30 events</div><div class="chip">6 places</div><div class="chip">13 free</div></div>
+<div class="brand" style="left:auto;right:84px;top:1300px;bottom:auto">yer.event</div></section><section data-document-role="page" data-label="How to get in" class="wine">
+<div class="kicker">Before you go</div>
+<h2>How to get in</h2>
+<div class="cards"><div class="card free"><div class="card-top"><div class="tag free">Free</div></div><div class="card-h">Showroom · Teryan 91</div><div class="card-b">Fri to Sun, 11 AM – 9 PM. Walk in, no ticket.</div></div><div class="card free"><div class="card-top"><div class="tag free">Free</div></div><div class="card-h">10 fashion talks · Teryan 91</div><div class="card-b">Editors from Vogue, Harper&#x27;s Bazaar and ELLE. Free, register in advance.</div></div><div class="card invite"><div class="card-top"><div class="tag inv">Invite only</div></div><div class="card-h">Runway shows</div><div class="card-b">Invitations come from the designers themselves.</div></div><div class="card info"><div class="card-h">Main venue: Teryan 91</div><div class="card-b">Plus runways at the Red Bridge, the Komitas Museum, the planetarium and Zvartnots.</div></div></div>
+<p class="foot">Dress up: street-style photographers are out every day.</p>
+<div class="brand">yer.event</div></section><section data-document-role="page" data-label="Map" class="wine">
+<div class="kicker">Where</div>
+<h2 style="margin-bottom:0">Six places, one week</h2>
+<div class="arch maparch" style="left:84px;top:330px;width:912px;height:860px;border-radius:456px 456px 28px 28px;background-image:url(https://yerevent.club/canva-import/map-yfw.png)"></div>
+<div class="mpin" style="left:681px;top:490px">1</div><div class="mlab" style="left:381px;top:486px;width:290px"><b>Teryan 91</b><span>Main venue · Fri–Sun</span></div><div class="mpin" style="left:339px;top:850px">2</div><div class="mlab" style="left:109px;top:846px;width:220px"><b>Red Bridge</b><span>Fri · runway</span></div><div class="mpin" style="left:378px;top:1050px">4</div><div class="mlab" style="left:448px;top:1046px;width:260px"><b>Komitas Museum</b><span>Sat · runway</span></div><div class="mpin" style="left:461px;top:812px">5</div><div class="mlab" style="left:531px;top:808px;width:230px"><b>Planetarium</b><span>Sat · runway</span></div>
+<div class="outs"><div class="out"><span class="num" style="width:44px;height:44px;font-size:20px">3</span><div><b>Erebuni Museum</b><span>South Yerevan · Thu opening</span></div></div><div class="out"><span class="num" style="width:44px;height:44px;font-size:20px">6</span><div><b>Zvartnots Cathedral</b><span>Vagharshapat · Sun runway</span></div></div></div>
+<div class="brand">yer.event</div></section><section data-document-role="page" data-label="Day" class="wine">
+<div class="ghost">09</div>
+<div class="kicker">Thu 8 + Fri 9 October</div>
+<h2 class="dayh">Opening + day one</h2>
+<div class="strip"><div class="tag free">Free</div><span>Showroom open Fri 11 AM – 9 PM at Teryan 91</span></div>
+<div class="rows"><div class="divider">Thursday 8</div><div class="row"><div class="rt">7 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">3</span><div class="rm"><b>Opening Ceremony</b><span>Erebuni Museum</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="divider">Friday 9</div><div class="row"><div class="rt">11 AM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Fashion Scout Armenia Award</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">1 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Reza Nadimi (Iran)</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">2 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Sustainable fashion and the EU market</b><span>Teryan 91</span></div><div class="rk"><div class="tag free">Free</div></div></div><div class="row"><div class="rt">3 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Sannat, Arevik Hamar, Lara Manukyan, Dunesi</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">5 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>The language of individuality</b><span>Teryan 91</span></div><div class="rk"><div class="tag free">Free</div></div></div><div class="row"><div class="rt">6 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Zargaryan</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">8 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">2</span><div class="rm"><b>Soncess at the Red Bridge</b><span>Red Bridge</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div></div>
+<div class="brand">yer.event</div></section><section data-document-role="page" data-label="Day" class="wine">
+<div class="ghost">10</div>
+<div class="kicker">Saturday 10 October</div>
+<h2 class="dayh">Saturday</h2>
+<div class="strip"><div class="tag free">Free</div><span>Showroom open 11 AM – 9 PM at Teryan 91</span></div>
+<div class="rows"><div class="row"><div class="rt">10:30 AM</div><span class="num" style="width:44px;height:44px;font-size:20px">4</span><div class="rm"><b>Loom Weaving</b><span>Komitas Museum</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">12 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>The long life of things</b><span>Teryan 91</span></div><div class="rk"><div class="tag free">Free</div></div></div><div class="row"><div class="rt">2 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Man in Town (presentation)</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">3 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Wildberries for Armenian designers</b><span>Teryan 91</span></div><div class="rk"><div class="tag free">Free</div></div></div><div class="row"><div class="rt">3:30 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Narny</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">5 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Human x AI</b><span>Teryan 91</span></div><div class="rk"><div class="tag free">Free</div></div></div><div class="row"><div class="rt">6 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Agnes Blow</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">7 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Modern fashion journalism</b><span>Teryan 91</span></div><div class="rk"><div class="tag free">Free</div></div></div><div class="row"><div class="rt">8 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>The Workshop</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">9 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">5</span><div class="rm"><b>Manuk Aleksanyan</b><span>Planetarium</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div></div>
+<div class="brand">yer.event</div></section><section data-document-role="page" data-label="Day" class="wine">
+<div class="ghost">11</div>
+<div class="kicker">Sunday 11 October</div>
+<h2 class="dayh">Closing day</h2>
+<div class="strip"><div class="tag free">Free</div><span>Showroom open 11 AM – 9 PM at Teryan 91</span></div>
+<div class="rows"><div class="row"><div class="rt">10:30 AM</div><span class="num" style="width:44px;height:44px;font-size:20px">6</span><div class="rm"><b>Ruzane</b><span>Zvartnots Cathedral</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">12:30 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Runway photography</b><span>Teryan 91</span></div><div class="rk"><div class="tag free">Free</div></div></div><div class="row"><div class="rt">2 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Crelab Made-Vel-E × FCA</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">3 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Building a global fashion brand</b><span>Teryan 91</span></div><div class="rk"><div class="tag free">Free</div></div></div><div class="row"><div class="rt">4 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Baveyan, Baleni, Positions</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">5 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Fashion as an economic force</b><span>Teryan 91</span></div><div class="rk"><div class="tag free">Free</div></div></div><div class="row"><div class="rt">6 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Themis</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div><div class="row"><div class="rt">7 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>From inspiration to outfit</b><span>Teryan 91</span></div><div class="rk"><div class="tag free">Free</div></div></div><div class="row"><div class="rt">8 PM</div><span class="num" style="width:44px;height:44px;font-size:20px">1</span><div class="rm"><b>Sumara</b><span>Teryan 91</span></div><div class="rk"><div class="tag inv">Invite only</div></div></div></div>
+<div class="brand">yer.event</div></section><section data-document-role="page" data-label="List" class="wine">
+<div class="kicker">Open to everyone</div>
+<h2>Free talks, all week</h2>
+<div class="list"><div class="li"><div class="lw">Fri 2 PM</div><div class="lt">Sustainable fashion and the EU market</div></div><div class="li"><div class="lw">Fri 5 PM</div><div class="lt">The language of individuality</div></div><div class="li"><div class="lw">Sat 12 PM</div><div class="lt">The long life of things</div></div><div class="li"><div class="lw">Sat 3 PM</div><div class="lt">Wildberries for Armenian designers</div></div><div class="li"><div class="lw">Sat 5 PM</div><div class="lt">Human x AI</div></div><div class="li"><div class="lw">Sat 7 PM</div><div class="lt">Modern fashion journalism</div></div><div class="li"><div class="lw">Sun 12:30 PM</div><div class="lt">Runway photography</div></div><div class="li"><div class="lw">Sun 3 PM</div><div class="lt">Building a global fashion brand</div></div><div class="li"><div class="lw">Sun 5 PM</div><div class="lt">Fashion as an economic force</div></div><div class="li"><div class="lw">Sun 7 PM</div><div class="lt">From inspiration to outfit</div></div></div>
+<p class="foot">All at Teryan 91. Entry is free with registration in advance via @yerevanfashionweek_.</p>
+<div class="brand">yer.event</div></section><section data-document-role="page" data-label="Closing" class="sunset">
+<div class="arch " style="left:130px;top:150px;width:820px;height:900px;border-radius:410px 410px 28px 28px;background-image:url(https://yerevent.club/canva-import/wine.png)"><div class="close-in"><div class="kicker" style="color:#FFB15C">The whole week in your pocket</div><h2 class="close-h">Every show,<br>every talk,<br>one map</h2></div></div>
+<div class="url">yerevent.club/yfw</div>
+<p class="close-line">Link in bio. Save this and send it to your best-dressed friend.</p>
+<div class="brand" style="color:#1C0B12">yer.event</div></section></body></html>
