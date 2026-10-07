@@ -1,0 +1,173 @@
+<!DOCTYPE html><html><head><meta name="robots" content="noindex"><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=Manrope:wght@600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;width:1080px}section{margin:0}
+section{width:1080px;height:1440px;position:relative;overflow:hidden;font-family:Manrope,sans-serif;color:#F4EADF;display:none;padding:96px 84px}
+section.show{display:block}
+.sunset{background:linear-gradient(155deg,#FFB15C 0%,#F04A5A 52%,#7A1E5C 100%);color:#1C0B12}
+.dark{background:#1C0B12}
+.kicker{font-family:Unbounded;font-weight:700;font-size:26px;letter-spacing:4px;text-transform:uppercase}
+h1{font-family:'Cormorant Garamond';font-style:italic;font-weight:600;font-size:200px;line-height:.86;margin:34px 0 40px;letter-spacing:-3px}
+h2{font-family:'Cormorant Garamond';font-style:italic;font-weight:600;font-size:118px;line-height:.9;margin:22px 0 40px}
+.datechip{display:inline-block;font-family:Unbounded;font-weight:800;font-size:40px;background:#1C0B12;color:#FFB15C;padding:18px 34px;border-radius:100px}
+.lede{font-weight:600;font-size:38px;line-height:1.35;margin-top:40px;max-width:860px}
+.cover-stats{display:flex;gap:14px;margin-top:40px}
+.cover-stats span{font-family:Unbounded;font-weight:700;font-size:26px;border:3px solid #1C0B12;border-radius:100px;padding:12px 26px}
+.peaks{position:absolute;left:0;bottom:0;width:1080px;height:360px}
+.swipe{position:absolute;right:84px;bottom:96px;font-family:Unbounded;font-weight:700;font-size:28px;color:#FFB15C;z-index:2}
+.brand{position:absolute;left:84px;bottom:90px;font-family:'Cormorant Garamond';font-style:italic;font-weight:600;font-size:46px;z-index:2}
+.sunset .brand{color:#F4EADF!important}
+.mapslide{padding:0}
+.mapslide>svg{position:absolute;inset:0;width:1080px;height:1440px}
+.maptitle{position:absolute;left:0;top:0;right:0;padding:84px 84px 90px;background:linear-gradient(#1C0B12 55%,transparent)}
+.maptitle h2{font-size:104px;margin:16px 0 0}
+.mapfoot{position:absolute;left:0;right:0;bottom:0;padding:110px 84px 160px;background:linear-gradient(transparent,#1C0B12 45%);font-weight:600;font-size:30px;line-height:1.45;color:#F4EADF}
+.tl{margin-top:10px}
+.tlh{font-size:104px;margin:12px 0 26px}
+.ttrack i{position:absolute;top:-12px;bottom:-12px;width:2px;background:rgba(244,234,223,.06)}
+.tlkey{margin-top:22px;font-size:22px;font-weight:600;color:rgba(244,234,223,.7);display:flex;align-items:center;gap:12px}
+.tlkey span{display:inline-block;width:44px;height:20px;border-radius:6px}
+.tlkey .k1{background:linear-gradient(100deg,#FFB15C,#F04A5A 60%,#7A1E5C)}
+.tlkey .k2{background:rgba(255,177,92,.14);border:2px dashed rgba(255,177,92,.6);margin-left:18px}
+.thours,.trow,.tgridwrap{display:grid;grid-template-columns:270px 1fr;gap:18px;align-items:center}
+.tgridwrap{position:absolute;left:84px;right:84px;top:520px;bottom:430px;pointer-events:none}
+.tgrid{position:relative;height:100%}
+.tgrid i{position:absolute;top:0;bottom:0;width:2px;background:rgba(244,234,223,.07)}
+.ttrack{position:relative;height:74px}
+.ttrack.hours{height:40px}
+.ttrack.hours span{position:absolute;transform:translateX(-50%);font-family:Unbounded;font-size:20px;color:rgba(244,234,223,.55)}
+.trow{padding:9px 0;border-top:2px solid rgba(244,234,223,.06)}
+.tlab{display:flex;align-items:center;gap:16px}
+.tlab b{display:block;font-family:Unbounded;font-weight:700;font-size:25px;line-height:1.1}
+.tlab small{display:block;font-size:20px;font-weight:600;color:rgba(244,234,223,.6);margin-top:4px}
+.num{flex-shrink:0;width:52px;height:52px;border-radius:50%;background:linear-gradient(155deg,#FFB15C,#F04A5A 52%,#7A1E5C);color:#1C0B12;font-family:Unbounded;font-weight:800;font-size:25px;display:inline-flex;align-items:center;justify-content:center}
+.tbar{position:absolute;top:8px;bottom:8px;border-radius:14px;background:linear-gradient(100deg,#FFB15C,#F04A5A 60%,#7A1E5C);color:#1C0B12;font-weight:800;font-size:21px;display:flex;align-items:center;padding:0 16px;white-space:nowrap}
+.tbar.side{top:0;bottom:0;background:rgba(255,177,92,.12);border:2px dashed rgba(255,177,92,.55)}
+.tstar{position:absolute;top:-16px;transform:translateX(-50%);background:#F4EADF;color:#1C0B12;font-weight:800;font-size:19px;border-radius:100px;padding:3px 12px;white-space:nowrap;z-index:2}
+.friday{position:absolute;left:84px;right:84px;bottom:180px;border:3px solid rgba(255,177,92,.5);border-radius:28px;padding:30px 34px}
+.fk{font-family:Unbounded;font-weight:700;font-size:22px;letter-spacing:3px;text-transform:uppercase;color:#FFB15C}
+.ft{display:flex;align-items:center;gap:16px;font-weight:800;font-size:34px;margin:14px 0 8px}
+.fs{font-size:24px;font-weight:600;color:rgba(244,234,223,.7)}
+.stage .mini{position:absolute;right:0;top:0;width:430px;height:600px;border-bottom-left-radius:60px;overflow:hidden;opacity:.95}
+.stage .mini svg,.stage .mini img{width:100%;height:100%;display:block}
+.mapimg{position:absolute;left:0;top:0;width:1080px;height:1440px}
+.pin{position:absolute;width:60px;height:60px;border-radius:50%;background:linear-gradient(155deg,#FFB15C,#F04A5A 52%,#7A1E5C);border:4px solid #1C0B12;box-shadow:0 0 0 10px rgba(255,177,92,.22);color:#1C0B12;font-family:Unbounded;font-weight:800;font-size:28px;display:flex;align-items:center;justify-content:center}
+.plabel{position:absolute;height:76px;border-radius:14px;background:rgba(28,11,18,.92);border:2px solid rgba(255,177,92,.35);padding:8px 18px}
+.plabel b{display:block;font-family:Unbounded;font-weight:700;font-size:20px;letter-spacing:1px;color:#FFB15C;line-height:1.2}
+.plabel span{display:block;font-family:Manrope;font-weight:700;font-size:24px;color:#F4EADF;line-height:1.3}
+.stage .mini:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#1C0B12 0%,transparent 35%)}
+.bignum{width:150px;height:150px;border-radius:50%;background:linear-gradient(155deg,#FFB15C,#F04A5A 52%,#7A1E5C);color:#1C0B12;font-family:Unbounded;font-weight:800;font-size:84px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+.genre{font-family:Unbounded;font-weight:800;font-size:92px;line-height:1;margin-top:40px;color:#FFB15C;text-transform:uppercase;letter-spacing:-1px;position:relative;z-index:1;max-width:620px}
+.place{font-family:'Cormorant Garamond';font-style:italic;font-weight:600;font-size:66px;line-height:1;margin-top:20px;position:relative;z-index:1;max-width:640px}
+.time{font-family:Unbounded;font-weight:700;font-size:30px;margin-top:30px;color:#F4EADF}
+.star{display:inline-block;margin-top:24px;background:#F4EADF;color:#1C0B12;font-weight:800;font-size:30px;border-radius:100px;padding:10px 26px}
+.lineup{list-style:none;margin-top:40px;column-gap:40px}
+.lineup li{font-weight:700;font-size:32px;line-height:1.25;padding:10px 0 10px 30px;position:relative;break-inside:avoid}
+.lineup li:before{content:'';position:absolute;left:0;top:24px;width:12px;height:12px;border-radius:50%;background:#F04A5A}
+.extra{margin-top:20px;font-size:28px;font-weight:600;color:rgba(244,234,223,.85);border-left:5px solid #FFB15C;padding:6px 0 6px 22px}
+.extra b{color:#FFB15C;font-weight:800;margin-right:8px}
+.closing .ch{font-size:150px;line-height:.86;margin:30px 0 50px}
+.url{display:inline-block;font-family:Unbounded;font-weight:800;font-size:46px;background:#1C0B12;color:#FFB15C;padding:22px 38px;border-radius:100px}
+</style></head><body>
+<section data-document-role="page" data-label="Slide 1" class="show sunset">
+<div class="kicker">Erebuni–Yerevan 2808</div>
+<h1>Yerevan<br>City Day</h1>
+<div class="datechip">Fri 9 + Sat 10 Oct</div>
+<p class="lede">7 stages across the centre, all on at once.<br>Here's how to find your way.</p>
+<div class="cover-stats"><span>7 stages</span><span>50+ acts</span><span>free</span></div>
+<svg class="peaks" viewBox="0 0 1080 360" preserveAspectRatio="none"><path d="M0 360 L0 300 L300 140 L420 205 L600 40 L1080 330 L1080 360 Z" fill="#1C0B12"/><path d="M560 70 L600 40 L645 78 L620 70 L600 88 L582 66 Z" fill="#F4EADF"/><path d="M265 160 L300 140 L332 158 L312 160 L300 170 Z" fill="#F4EADF" opacity=".85"/></svg>
+<div class="swipe">swipe →</div>
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section><section data-document-role="page" data-label="Slide 2" class="show mapslide">
+<img class="mapimg" src="https://yerevent.club/canva-import/map-base.png"><div class="pin" style="left:627px;top:370px">1</div><div class="plabel" style="left:705px;top:362px;width:159px"><b>JAZZ</b><span>Cascade</span></div><div class="pin" style="left:614px;top:550px">2</div><div class="plabel" style="left:692px;top:542px;width:227px"><b>CLASSICAL</b><span>Freedom Sq.</span></div><div class="pin" style="left:600px;top:685px">3</div><div class="plabel" style="left:321px;top:727px;width:261px"><b>FOLK + WINE</b><span>Northern Ave.</span></div><div class="pin" style="left:679px;top:714px">4</div><div class="plabel" style="left:757px;top:706px;width:244px"><b>POP</b><span>Aznavour Sq.</span></div><div class="pin" style="left:367px;top:645px">5</div><div class="plabel" style="left:37px;top:627px;width:312px"><b>ROCK + BEER</b><span>Diana Abgar Park</span></div><div class="pin" style="left:554px;top:861px">6</div><div class="plabel" style="left:632px;top:853px;width:244px"><b>ELECTRONIC</b><span>Republic Sq.</span></div><div class="pin" style="left:377px;top:1060px">7</div><div class="plabel" style="left:455px;top:1052px;width:244px"><b>RAP</b><span>English Park</span></div>
+<div class="maptitle"><div class="kicker" style="color:#FFB15C">Sat 10 Oct · all at once</div><h2>Where<br>everything is</h2></div>
+<div class="mapfoot">Cascade to English Park: about a 20-minute walk.<br>Stage numbers match the rest of this post.</div>
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section><section data-document-role="page" data-label="Slide 3" class="show dark">
+<div class="kicker" style="color:#FFB15C">Saturday 10 October</div>
+<h2 class="tlh">What's on when</h2>
+<div class="tl"><div class="thours"><div></div><div class="ttrack hours"><span style="left:0.00%">12pm</span><span style="left:18.18%">2pm</span><span style="left:36.36%">4pm</span><span style="left:54.55%">6pm</span><span style="left:72.73%">8pm</span><span style="left:90.91%">10pm</span></div></div>
+<div class="trow"><div class="tlab"><span class="num">1</span><div><b>Jazz</b><small>Cascade</small></div></div><div class="ttrack"><i style="left:0.00%"></i><i style="left:9.09%"></i><i style="left:18.18%"></i><i style="left:27.27%"></i><i style="left:36.36%"></i><i style="left:45.45%"></i><i style="left:54.55%"></i><i style="left:63.64%"></i><i style="left:72.73%"></i><i style="left:81.82%"></i><i style="left:90.91%"></i><i style="left:100.00%"></i><div class="tbar" style="left:9.09%;width:81.82%">1 PM – 10 PM</div><div class="tstar" style="left:72.73%">★ FKJ 8 PM</div></div></div><div class="trow"><div class="tlab"><span class="num">2</span><div><b>Classical</b><small>Freedom Sq.</small></div></div><div class="ttrack"><i style="left:0.00%"></i><i style="left:9.09%"></i><i style="left:18.18%"></i><i style="left:27.27%"></i><i style="left:36.36%"></i><i style="left:45.45%"></i><i style="left:54.55%"></i><i style="left:63.64%"></i><i style="left:72.73%"></i><i style="left:81.82%"></i><i style="left:90.91%"></i><i style="left:100.00%"></i><div class="tbar" style="left:45.45%;width:31.82%">5 PM – 8:30 PM</div></div></div><div class="trow"><div class="tlab"><span class="num">3</span><div><b>Folk + Wine</b><small>Northern Ave.</small></div></div><div class="ttrack"><i style="left:0.00%"></i><i style="left:9.09%"></i><i style="left:18.18%"></i><i style="left:27.27%"></i><i style="left:36.36%"></i><i style="left:45.45%"></i><i style="left:54.55%"></i><i style="left:63.64%"></i><i style="left:72.73%"></i><i style="left:81.82%"></i><i style="left:90.91%"></i><i style="left:100.00%"></i><div class="tbar side" style="left:0.00%;width:100.00%"></div><div class="tbar" style="left:9.09%;width:45.45%">1 PM – 6 PM</div></div></div><div class="trow"><div class="tlab"><span class="num">4</span><div><b>Pop</b><small>Aznavour Sq.</small></div></div><div class="ttrack"><i style="left:0.00%"></i><i style="left:9.09%"></i><i style="left:18.18%"></i><i style="left:27.27%"></i><i style="left:36.36%"></i><i style="left:45.45%"></i><i style="left:54.55%"></i><i style="left:63.64%"></i><i style="left:72.73%"></i><i style="left:81.82%"></i><i style="left:90.91%"></i><i style="left:100.00%"></i><div class="tbar" style="left:0.00%;width:54.55%">12 PM – 6 PM</div></div></div><div class="trow"><div class="tlab"><span class="num">5</span><div><b>Rock + Beer</b><small>Diana Abgar Park</small></div></div><div class="ttrack"><i style="left:0.00%"></i><i style="left:9.09%"></i><i style="left:18.18%"></i><i style="left:27.27%"></i><i style="left:36.36%"></i><i style="left:45.45%"></i><i style="left:54.55%"></i><i style="left:63.64%"></i><i style="left:72.73%"></i><i style="left:81.82%"></i><i style="left:90.91%"></i><i style="left:100.00%"></i><div class="tbar" style="left:9.09%;width:90.91%">1 PM – 11 PM</div></div></div><div class="trow"><div class="tlab"><span class="num">6</span><div><b>Electronic</b><small>Republic Sq.</small></div></div><div class="ttrack"><i style="left:0.00%"></i><i style="left:9.09%"></i><i style="left:18.18%"></i><i style="left:27.27%"></i><i style="left:36.36%"></i><i style="left:45.45%"></i><i style="left:54.55%"></i><i style="left:63.64%"></i><i style="left:72.73%"></i><i style="left:81.82%"></i><i style="left:90.91%"></i><i style="left:100.00%"></i><div class="tbar" style="left:45.45%;width:54.55%">5 PM – 11 PM</div><div class="tstar" style="left:86.36%">★ Vanco 9:30 PM</div></div></div><div class="trow"><div class="tlab"><span class="num">7</span><div><b>Rap</b><small>English Park</small></div></div><div class="ttrack"><i style="left:0.00%"></i><i style="left:9.09%"></i><i style="left:18.18%"></i><i style="left:27.27%"></i><i style="left:36.36%"></i><i style="left:45.45%"></i><i style="left:54.55%"></i><i style="left:63.64%"></i><i style="left:72.73%"></i><i style="left:81.82%"></i><i style="left:90.91%"></i><i style="left:100.00%"></i><div class="tbar" style="left:45.45%;width:45.45%">5 PM – 10 PM</div></div></div></div>
+<div class="tlkey"><span class="k1"></span> concert <span class="k2"></span> wine festival, 12 PM – 11 PM</div>
+<div class="friday"><div class="fk">Friday 9 Oct · warm-up</div><div class="ft"><span class="num">5</span>9 PM · Diana Arbenina &amp; Nochnye Snaipery</div><div class="fs">Diana Abgar Park. The beer festival there runs Friday and Saturday.</div></div>
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section><section data-document-role="page" data-label="Slide 4" class="show dark stage">
+<div class="mini"><img src="https://yerevent.club/canva-import/mini-1.png"></div>
+<div class="bignum">1</div>
+<div class="genre">Jazz</div>
+<div class="place">Cascade · Cafesjian Sculpture Garden</div>
+<div class="time">Sat 10 Oct · 1 PM – 10 PM</div>
+<div class="star">★ FKJ (French Kiwi Juice) at 8 PM</div>
+<ul class="lineup" style="columns:1"><li>Armenian State Jazz Orchestra</li><li>Midnight Avenue &amp; The UltraViolet</li><li>Karen Mamikonyan Trio</li><li>Dialog Big Band &amp; A Chilla</li><li>Vahagn Hayrapetyan · The Armenian Colors Quartet</li><li>Artyom Manukyan Trio</li><li>Malkhas Jazz Trio</li><li>Special guest: FKJ</li></ul>
+
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section><section data-document-role="page" data-label="Slide 5" class="show dark stage">
+<div class="mini"><img src="https://yerevent.club/canva-import/mini-2.png"></div>
+<div class="bignum">2</div>
+<div class="genre">Classical</div>
+<div class="place">Freedom Square</div>
+<div class="time">Sat 10 Oct · 5 PM – 8:30 PM</div>
+<div class="star">★ Symphonic Folk, arranged by C-Rouge</div>
+<ul class="lineup" style="columns:1"><li>Yerevan Youth Orchestra</li><li>Armenian State Symphony Orchestra, Symphonic Folk programme arranged by Serouj Baghdasarian (C-Rouge)</li><li>Conductor: Harutyun Arzumanyan</li><li>With the Yerevan State Chamber Choir and the Kamerton vocal studio</li></ul>
+
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section><section data-document-role="page" data-label="Slide 6" class="show dark stage">
+<div class="mini"><img src="https://yerevent.club/canva-import/mini-3.png"></div>
+<div class="bignum">3</div>
+<div class="genre">Folk + Wine</div>
+<div class="place">Northern Avenue</div>
+<div class="time">Sat 10 Oct · 1 PM – 6 PM</div>
+
+<ul class="lineup" style="columns:1"><li>Sona Rubenyan</li><li>Arpi &amp; Highway Band</li><li>Tmbata</li><li>Ethno Colors</li><li>Akunk State Ethnographic Ensemble</li><li>Zvartnots kanon ensemble</li><li>Dancing alongside: Menq national dance group and Masunk song &amp; dance group</li></ul>
+<div class="extra"><b>12 PM – 11 PM</b> Wine festival along the avenue</div>
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section><section data-document-role="page" data-label="Slide 7" class="show dark stage">
+<div class="mini"><img src="https://yerevent.club/canva-import/mini-4.png"></div>
+<div class="bignum">4</div>
+<div class="genre">Pop</div>
+<div class="place">Charles Aznavour Square</div>
+<div class="time">Sat 10 Oct · 12 PM – 6 PM</div>
+
+<ul class="lineup" style="columns:1"><li>Yervand Yerznkyan&#x27;s Orchestra</li><li>Mohana Band</li><li>Aram MP3</li><li>D&#x27;Litte</li><li>Project 12</li><li>Yellow Heart</li><li>Kami Friends</li></ul>
+
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section><section data-document-role="page" data-label="Slide 8" class="show dark stage">
+<div class="mini"><img src="https://yerevent.club/canva-import/mini-5.png"></div>
+<div class="bignum">5</div>
+<div class="genre">Rock + Beer</div>
+<div class="place">Diana Abgar Park</div>
+<div class="time">Sat 10 Oct · 1 PM – 11 PM</div>
+
+<ul class="lineup" style="columns:2"><li>FairWind</li><li>Another Story Band</li><li>The Beautified Project</li><li>Lav Eli</li><li>Suren Arustamyan</li><li>Gor Sujyan</li><li>Sargis Manukyan &amp; Friends</li><li>Nemra</li><li>Bambir</li></ul>
+<div class="extra"><b>Fri 9 Oct · 9 PM</b> Diana Arbenina &amp; Nochnye Snaipery (Night Snipers)</div><div class="extra"><b>Fri + Sat</b> Beer festival in the park</div>
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section><section data-document-role="page" data-label="Slide 9" class="show dark stage">
+<div class="mini"><img src="https://yerevent.club/canva-import/mini-6.png"></div>
+<div class="bignum">6</div>
+<div class="genre">Electronic</div>
+<div class="place">Republic Square · Singing Fountains</div>
+<div class="time">Sat 10 Oct · 5 PM – 11 PM</div>
+<div class="star">★ Vanco at 9:30 PM, afrobeats</div>
+<ul class="lineup" style="columns:1"><li>Guevo aka Kai</li><li>Roob</li><li>Socko</li><li>Alber Ensso</li><li>Special guest: Vanco</li></ul>
+
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section><section data-document-role="page" data-label="Slide 10" class="show dark stage">
+<div class="mini"><img src="https://yerevent.club/canva-import/mini-7.png"></div>
+<div class="bignum">7</div>
+<div class="genre">Rap</div>
+<div class="place">English Park</div>
+<div class="time">Sat 10 Oct · 5 PM – 10 PM</div>
+
+<ul class="lineup" style="columns:2"><li>A Chilla</li><li>Vnas</li><li>Dav</li><li>Galife</li><li>Narek Mets Hayk</li><li>Misht Hasarak</li><li>47</li><li>Felo 3.33</li><li>Serzho</li></ul>
+
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section><section data-document-role="page" data-label="Slide 11" class="show sunset closing">
+<div class="kicker">The whole day in your pocket</div>
+<h2 class="ch">Live map,<br>timeline &amp;<br>every lineup</h2>
+<div class="url">yerevent.club/cityday</div>
+<p class="lede">Link in bio. Save this post and send it to whoever you're going with.</p>
+<svg class="peaks" viewBox="0 0 1080 360" preserveAspectRatio="none"><path d="M0 360 L0 300 L300 140 L420 205 L600 40 L1080 330 L1080 360 Z" fill="#1C0B12"/><path d="M560 70 L600 40 L645 78 L620 70 L600 88 L582 66 Z" fill="#F4EADF"/><path d="M265 160 L300 140 L332 158 L312 160 L300 170 Z" fill="#F4EADF" opacity=".85"/></svg>
+<div class="brand" style="color:#F4EADF">yer.event</div>
+</section>
+</body></html>
