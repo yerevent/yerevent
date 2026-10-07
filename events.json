@@ -1,5 +1,35 @@
 [
  {
+  "name": "Stand-up Evening",
+  "Date": "2026-10-06T20:00:00.000Z",
+  "Time": "7 PM",
+  "City": "Yerevan",
+  "Place": "Green Room Bar",
+  "Type": "concert",
+  "Price": "2000 AMD",
+  "Link": "https://www.instagram.com/p/DeFCByXsklK/",
+  "Description": "Stand-up evening\nWednesday, October 7, 7:00 PM\n\nAn hour of the best jokes from 4 experienced comedians.\n\nHost — Gor Garyantz\n\n🎟️ Entry: 2000 dram\n🪑 Table reservations via the link in the profile header",
+  "Status": "✅ Live",
+  "Completeness": "✅ Complete",
+  "source": "",
+  "": ""
+ },
+ {
+  "name": "Yerevan Fashion Week 2026",
+  "Date": "2026-10-08T20:00:00.000Z",
+  "Time": "",
+  "City": "Yerevan",
+  "Place": "Teryan 91",
+  "Type": "festival",
+  "Price": "Check website",
+  "Link": "https://www.instagram.com/p/Dd4DIpRKJgs/",
+  "Description": "10 DAYS UNTIL YFW26\n\nThe countdown to Yerevan Fashion Week 2026 has officially begun.\n\n3 days of fashion, creativity, new encounters and the energy of Yerevan.\n\nSee you October 9–11.\n📍 Teryan 91, Yerevan\n\n---\n\nYFW26-ին մնաց 10 օր\n\nԵրևանի Նորաձևության շաբաթվա 2026-ի հետհաշվարկը պաշտոնապես սկսված է։\n\n3 օր՝ նորաձևություն, ստեղծագործություն, նոր հանդիպումներ և էներգիայով լի Երևան։\n\nԿհանդիպենք հոկտեմբերի 9–11-ը։\n📍 Տերյան 91, Երևան\n\nStyling: @vahankhachatryancouture\nModeling agency: @wot.models\nVideo production: @wot_production_\nDirector: @lidiaviphoto\nDOP: @karoterterian\nVideo Editing & Color: @m2production_official\nEquipment: @kinotech.rent\nGeneral sponsor: @yerevan_municipality",
+  "Status": "✅ Live",
+  "Completeness": "⚠️ Missing: Time",
+  "source": "",
+  "": ""
+ },
+ {
   "name": "Ember Room Opening",
   "Date": "October 10, 2026",
   "Time": "11 PM",
