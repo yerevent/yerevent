@@ -1273,21 +1273,23 @@
   {
     "slug": "yfw",
     "title": "Yerevan Fashion Week",
-    "subtitle": "#YFW2026 · Days 1 and 2",
+    "subtitle": "#YFW2026 · October 8–11",
     "dates": [
       "2026-10-08",
-      "2026-10-09"
+      "2026-10-09",
+      "2026-10-10",
+      "2026-10-11"
     ],
-    "blurb": "Opening night at the Erebuni Museum, then a full day at Teryan 91: runway shows from Armenia, Moldova, Kazakhstan, France and the UAE, two fashion talks, and a showroom that's open to everyone. Dress up: street-style photographers will be out all day.",
+    "blurb": "Four days of Yerevan Fashion Week: opening night at the Erebuni Museum, then runway shows at Teryan 91 and in unexpected places (the Red Bridge, the planetarium, the Zvartnots ruins), a showroom that's open to everyone, and free fashion talks with editors from Vogue, Harper's Bazaar and ELLE. Dress up: street-style photographers are out every day.",
     "price": "Showroom and talks free",
     "source": "https://www.instagram.com/yerevanfashionweek_/",
     "labelBy": "name",
     "namePrefix": "YFW: ",
     "stats": [
-      "9 events",
-      "2 days",
-      "3 places",
-      "3 free"
+      "30 events",
+      "4 days",
+      "6 places",
+      "13 free"
     ],
     "stages": [
       {
@@ -1343,7 +1345,7 @@
             "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
           },
           {
-            "name": "YFW: Fashion Talk: The Future of Fashion is Sustainable",
+            "name": "YFW: Talk: Sustainable fashion and the EU market",
             "date": "2026-10-09",
             "time": "2 PM",
             "start": 14.0,
@@ -1375,7 +1377,7 @@
             "star": "Four international designers"
           },
           {
-            "name": "YFW: Fashion Talk: The Language of Individuality",
+            "name": "YFW: Talk: The language of individuality",
             "date": "2026-10-09",
             "time": "5 PM",
             "start": 17.0,
@@ -1401,6 +1403,275 @@
               "Zargaryan (Armenia)"
             ],
             "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Fashion Showroom",
+            "date": "2026-10-10",
+            "time": "11 AM – 9 PM",
+            "start": 11.0,
+            "end": 21.0,
+            "type": "market",
+            "price": "Free",
+            "lineup": [
+              "Designer showroom, open to the public all day"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
+            "star": "Open to everyone"
+          },
+          {
+            "name": "YFW: Talk: The long life of things",
+            "date": "2026-10-10",
+            "time": "12 PM",
+            "start": 12.0,
+            "end": 13.0,
+            "type": "educational",
+            "price": "Free",
+            "lineup": [
+              "\"The Long Life of Things: Rethinking Value in Fashion\"",
+              "Speakers: Chris Koeleman, Tiziano Guardini, Natacha Kalfayan, Harutyun Alpetyan",
+              "Moderator: Mane Torosyan",
+              "Free entry, registration required in advance"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Man in Town (presentation)",
+            "date": "2026-10-10",
+            "time": "2 PM",
+            "start": 14.0,
+            "end": 15.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Man in Town (Armenia)",
+              "Presentation, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Talk: Wildberries for Armenian designers",
+            "date": "2026-10-10",
+            "time": "3 PM",
+            "start": 15.0,
+            "end": 16.0,
+            "type": "educational",
+            "price": "Free",
+            "lineup": [
+              "\"Wildberries as a Platform for the Development of Armenian Designers\"",
+              "Speaker: a Wildberries representative",
+              "Free entry, registration required in advance"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Runway: Narny",
+            "date": "2026-10-10",
+            "time": "3:30 PM",
+            "start": 15.5,
+            "end": 16.5,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Narny (Armenia)",
+              "Runway show, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Talk: Human x AI",
+            "date": "2026-10-10",
+            "time": "5 PM",
+            "start": 17.0,
+            "end": 18.0,
+            "type": "educational",
+            "price": "Free",
+            "lineup": [
+              "\"Human x AI\"",
+              "Speakers: Tigran Jrbashyan, Anahit Parzyan, Vahan Khachatryan, Edita Ghazaryan",
+              "Moderator: Sona Tovmasyan",
+              "Free entry, registration required in advance"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Runway: Agnes Blow",
+            "date": "2026-10-10",
+            "time": "6 PM",
+            "start": 18.0,
+            "end": 19.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Agnes Blow (Armenia)",
+              "Runway show, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Talk: Modern fashion journalism",
+            "date": "2026-10-10",
+            "time": "7 PM",
+            "start": 19.0,
+            "end": 20.0,
+            "type": "educational",
+            "price": "Free",
+            "lineup": [
+              "\"The Modern Fashion Journalism: Who Shapes Fashion History Today\"",
+              "Speakers: Stella Maferdini (Harper's Bazaar Italy), Violetta Fedorova (Vogue Ukraine), Tina Lončar (Vogue Adria), Anastasia Stakhanova (ELLE KZ), Anna Barr (Fucking Young)",
+              "Moderator: Mariam Chakaryan",
+              "Free entry, registration required in advance"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Runway: The Workshop",
+            "date": "2026-10-10",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 21.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "The Workshop (Armenia)",
+              "Runway show, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Fashion Showroom",
+            "date": "2026-10-11",
+            "time": "11 AM – 9 PM",
+            "start": 11.0,
+            "end": 21.0,
+            "type": "market",
+            "price": "Free",
+            "lineup": [
+              "Designer showroom, open to the public all day"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
+            "star": "Open to everyone"
+          },
+          {
+            "name": "YFW: Talk: Runway photography",
+            "date": "2026-10-11",
+            "time": "12:30 PM",
+            "start": 12.5,
+            "end": 13.5,
+            "type": "educational",
+            "price": "Free",
+            "lineup": [
+              "\"Runway Photography: From Catwalk to Global Media\"",
+              "Speaker: Victor Boyko",
+              "Free entry, registration required in advance"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Runway: Crelab Made-Vel-E × FCA",
+            "date": "2026-10-11",
+            "time": "2 PM",
+            "start": 14.0,
+            "end": 15.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Crelab Made-Vel-E × FCA (Armenia)",
+              "Runway show, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Talk: Building a global fashion brand",
+            "date": "2026-10-11",
+            "time": "3 PM",
+            "start": 15.0,
+            "end": 16.0,
+            "type": "educational",
+            "price": "Free",
+            "lineup": [
+              "\"Building a Fashion Brand for the World: From Identity to International Distribution\"",
+              "Speakers: Brenda Bellei Bizzi, Sophia Shin, Marina Lyritzi, Elen Manukyan",
+              "Moderator: Christine Soussa",
+              "Free entry, registration required in advance"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Runway: Baveyan, Baleni, Positions",
+            "date": "2026-10-11",
+            "time": "4 PM",
+            "start": 16.0,
+            "end": 17.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Baveyan (Armenia)",
+              "Baleni (Armenia)",
+              "Positions (Armenia)",
+              "Runway shows, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Talk: Fashion as an economic force",
+            "date": "2026-10-11",
+            "time": "5 PM",
+            "start": 17.0,
+            "end": 18.0,
+            "type": "educational",
+            "price": "Free",
+            "lineup": [
+              "\"Fashion as an Economic Force: Can Armenia Get There?\"",
+              "Speakers: Mikayel Musayelyan, Zhora Movsisyan, Ariga Torosian, Iren Isahakyan, Tereza Gharabaghtsyan",
+              "Moderator: Tigran Gasparyan",
+              "Free entry, registration required in advance"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Runway: Themis",
+            "date": "2026-10-11",
+            "time": "6 PM",
+            "start": 18.0,
+            "end": 19.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Themis (Armenia)",
+              "Runway show, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Talk: From inspiration to outfit",
+            "date": "2026-10-11",
+            "time": "7 PM",
+            "start": 19.0,
+            "end": 20.0,
+            "type": "educational",
+            "price": "Free",
+            "lineup": [
+              "\"From Inspiration to Outfit: How Trends Become Personal Style\"",
+              "Speakers: Irina Vanyan, Ashi Muradyan, Marina Barykina, Armen Yeritsyan",
+              "Moderator: Murad-Abraham",
+              "Free entry, registration required in advance"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Runway: Sumara",
+            "date": "2026-10-11",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 21.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Sumara (Russia)",
+              "Runway show, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
+            "star": "Closing show"
           }
         ]
       },
@@ -1460,6 +1731,94 @@
             ],
             "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
             "star": "Opening night"
+          }
+        ]
+      },
+      {
+        "n": 4,
+        "place": "Komitas Museum-Institute",
+        "short": "Komitas Museum",
+        "lat": 40.16241,
+        "lng": 44.50245,
+        "genre": "Runway",
+        "type": "art",
+        "match": [
+          "komitas museum"
+        ],
+        "events": [
+          {
+            "name": "YFW: Runway: Loom Weaving",
+            "date": "2026-10-10",
+            "time": "10:30 AM",
+            "start": 10.5,
+            "end": 11.5,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Loom Weaving (Armenia)",
+              "Runway show, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
+            "star": "Show at the Komitas Museum"
+          }
+        ]
+      },
+      {
+        "n": 5,
+        "place": "Planetarium · English Park",
+        "short": "Planetarium",
+        "lat": 40.1737,
+        "lng": 44.5076,
+        "genre": "Runway",
+        "type": "art",
+        "match": [
+          "planetarium"
+        ],
+        "events": [
+          {
+            "name": "YFW: Runway: Manuk Aleksanyan",
+            "date": "2026-10-10",
+            "time": "9 PM",
+            "start": 21.0,
+            "end": 22.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Manuk Aleksanyan (Armenia)",
+              "Runway show, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
+            "star": "Runway at the planetarium"
+          }
+        ]
+      },
+      {
+        "n": 6,
+        "place": "Zvartnots Cathedral · Vagharshapat",
+        "short": "Zvartnots Cathedral",
+        "lat": 40.16031,
+        "lng": 44.33664,
+        "genre": "Runway",
+        "type": "art",
+        "match": [
+          "zvartnots"
+        ],
+        "far": true,
+        "events": [
+          {
+            "name": "YFW: Runway: Ruzane",
+            "date": "2026-10-11",
+            "time": "10:30 AM",
+            "start": 10.5,
+            "end": 11.5,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Ruzane (Armenia)",
+              "Runway show, by invitation"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
+            "star": "Runway at the Zvartnots ruins"
           }
         ]
       }
