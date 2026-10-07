@@ -1269,5 +1269,200 @@
         "far": true
       }
     ]
+  },
+  {
+    "slug": "yfw",
+    "title": "Yerevan Fashion Week",
+    "subtitle": "#YFW2026 · Days 1 and 2",
+    "dates": [
+      "2026-10-08",
+      "2026-10-09"
+    ],
+    "blurb": "Opening night at the Erebuni Museum, then a full day at Teryan 91: runway shows from Armenia, Moldova, Kazakhstan, France and the UAE, two fashion talks, and a showroom that's open to everyone. Dress up: street-style photographers will be out all day.",
+    "price": "Showroom and talks free",
+    "source": "https://www.instagram.com/yerevanfashionweek_/",
+    "labelBy": "name",
+    "namePrefix": "YFW: ",
+    "stats": [
+      "9 events",
+      "2 days",
+      "3 places",
+      "3 free"
+    ],
+    "stages": [
+      {
+        "n": 1,
+        "place": "Teryan 91 · YFW main venue",
+        "short": "Teryan 91",
+        "lat": 40.18897,
+        "lng": 44.5213,
+        "genre": "Main venue",
+        "type": "art",
+        "match": [
+          "teryan 91"
+        ],
+        "events": [
+          {
+            "name": "YFW: Fashion Showroom",
+            "date": "2026-10-09",
+            "time": "11 AM – 9 PM",
+            "start": 11.0,
+            "end": 21.0,
+            "type": "market",
+            "price": "Free",
+            "lineup": [
+              "Designer showroom, open to the public all day"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
+            "star": "Open to everyone"
+          },
+          {
+            "name": "YFW: Fashion Scout Armenia Award",
+            "date": "2026-10-09",
+            "time": "11 AM",
+            "start": 11.0,
+            "end": 12.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Fashion Scout Armenia Award show"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Reza Nadimi (Iran)",
+            "date": "2026-10-09",
+            "time": "1 PM",
+            "start": 13.0,
+            "end": 14.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Installation by Reza Nadimi, Iran"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Fashion Talk: The Future of Fashion is Sustainable",
+            "date": "2026-10-09",
+            "time": "2 PM",
+            "start": 14.0,
+            "end": 15.0,
+            "type": "educational",
+            "price": "Free",
+            "lineup": [
+              "\"The Future of Fashion is Sustainable: LCA, DPP and EU Market Readiness\"",
+              "Speaker: Chris Koeleman",
+              "Free entry, registration required in advance"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Runway: Sannat, Arevik Hamar, Lara Manukyan, Dunesi",
+            "date": "2026-10-09",
+            "time": "3 PM",
+            "start": 15.0,
+            "end": 16.5,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Sannat (Moldova)",
+              "Arevik Hamar (Kazakhstan)",
+              "Lara Manukyan (France)",
+              "Dunesi (UAE)"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
+            "star": "Four international designers"
+          },
+          {
+            "name": "YFW: Fashion Talk: The Language of Individuality",
+            "date": "2026-10-09",
+            "time": "5 PM",
+            "start": 17.0,
+            "end": 18.0,
+            "type": "educational",
+            "price": "Free",
+            "lineup": [
+              "\"The Language of Individuality. How Emerging Designers Can Find Their Unique Creative Voice\"",
+              "Speaker: Massimiliano Giornetti",
+              "Free entry, registration required in advance"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          },
+          {
+            "name": "YFW: Runway: Zargaryan",
+            "date": "2026-10-09",
+            "time": "6 PM",
+            "start": 18.0,
+            "end": 19.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Zargaryan (Armenia)"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/"
+          }
+        ]
+      },
+      {
+        "n": 2,
+        "place": "Red Bridge",
+        "short": "Red Bridge",
+        "lat": 40.17188,
+        "lng": 44.50004,
+        "genre": "Runway",
+        "type": "art",
+        "match": [
+          "red bridge"
+        ],
+        "events": [
+          {
+            "name": "YFW: Runway: Soncess at the Red Bridge",
+            "date": "2026-10-09",
+            "time": "8 PM",
+            "start": 20.0,
+            "end": 21.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Soncess (Armenia)",
+              "Runway show on the Red Bridge"
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
+            "star": "Runway on the old bridge"
+          }
+        ]
+      },
+      {
+        "n": 3,
+        "place": "Erebuni Museum",
+        "short": "Erebuni Museum",
+        "lat": 40.14108,
+        "lng": 44.53523,
+        "genre": "Opening",
+        "type": "art",
+        "match": [
+          "erebuni museum"
+        ],
+        "far": true,
+        "events": [
+          {
+            "name": "YFW: Opening Ceremony",
+            "date": "2026-10-08",
+            "time": "7 PM",
+            "start": 19.0,
+            "end": 21.0,
+            "type": "art",
+            "price": "By invitation",
+            "lineup": [
+              "Opening ceremony of Yerevan Fashion Week 2026",
+              "Exclusive exhibition \"The Ancient Gods: from Erebuni to Contemporary Yerevan\""
+            ],
+            "link": "https://www.instagram.com/p/Dd_6W6zIxM9/",
+            "star": "Opening night"
+          }
+        ]
+      }
+    ]
   }
 ]
