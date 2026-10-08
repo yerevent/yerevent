@@ -286,7 +286,8 @@
           }
         ]
       }
-    ]
+    ],
+    "pattern": "fishscale"
   },
   {
     "slug": "highfest",
@@ -1268,7 +1269,8 @@
         ],
         "far": true
       }
-    ]
+    ],
+    "pattern": "masks"
   },
   {
     "slug": "yfw",
@@ -1822,6 +1824,7 @@
           }
         ]
       }
-    ]
+    ],
+    "pattern": "ribbons"
   }
 ]
