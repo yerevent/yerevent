@@ -606,6 +606,9 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
           <p class="footer-nudge">Know a cool upcoming event?<br>
             <a href="https://ig.me/m/yer.event" target="_blank" rel="noopener" class="footer-link footer-tell">Tell us about it →</a>
           </p>
+          <p class="footer-nudge">Spotted a mistake — wrong date, price, venue?<br>
+            <a href="#" onclick="openReport('');return false;" class="footer-link footer-tell">Tell us what's wrong →</a>
+          </p>
         </div>
       </div>
     </div>
@@ -1094,9 +1097,10 @@ function openDetail(ev,fromUrl){
 
   const g=ev.guide?guideBySlug(ev.guide):null;
   const guideLink=g?`<button class="detail-guide-link" id="detailGuideBtn">✦ Part of ${esc(g.title)} · see every stage on one map →</button>`:'';
-  document.getElementById('detailBody').innerHTML=`<div class="modal-body-left">${guideLink}${ev.image?`<img class="detail-poster" src="${esc(ev.image)}" alt="" loading="lazy" onerror="this.remove()">`:''}<div class="detail-event-name">${esc(ev.name)}</div><div class="detail-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div><div class="detail-meta"><div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>${ev.time?`<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>`:''}${ev.location?`<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> <a href="${esc(gmapsUrl)}" target="_blank" rel="noopener" class="detail-address-link">${esc(ev.location)}</a></div>`:''}</div>${ev.description?`<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>`:''}</div><div class="modal-body-right">${mapHTML}<div class="detail-actions"><button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button><button class="btn-gcal-big btn-more" id="shareBtn">↗ Share</button>${ev.link?`<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>`:''}</div></div>`;
+  document.getElementById('detailBody').innerHTML=`<div class="modal-body-left">${guideLink}${ev.image?`<img class="detail-poster" src="${esc(ev.image)}" alt="" loading="lazy" onerror="this.remove()">`:''}<div class="detail-event-name">${esc(ev.name)}</div><div class="detail-tags">${tagHTML(ev.type,TYPE_STYLE)}${tagHTML(ev.price,PRICE_STYLE)}${tagHTML(ev.city,CITY_STYLE)}</div><div class="detail-meta"><div class="detail-meta-row"><span class="detail-meta-icon">📅</span> ${esc(displayDate)}</div>${ev.time?`<div class="detail-meta-row"><span class="detail-meta-icon">🕐</span> ${esc(ev.time)}</div>`:''}${ev.location?`<div class="detail-meta-row"><span class="detail-meta-icon">📍</span> <a href="${esc(gmapsUrl)}" target="_blank" rel="noopener" class="detail-address-link">${esc(ev.location)}</a></div>`:''}</div>${ev.description?`<div class="detail-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>`:''}</div><div class="modal-body-right">${mapHTML}<div class="detail-actions"><button class="btn-gcal-big" id="gcalBtn">📆 Add to Google Calendar</button><button class="btn-gcal-big btn-more" id="shareBtn">↗ Share</button><button class="btn-gcal-big btn-more" id="reportBtn">⚠ Something wrong?</button>${ev.link?`<a href="${esc(ev.link)}" target="_blank" rel="noopener" class="btn-gcal-big btn-more" style="text-decoration:none;">🔗 More Info</a>`:''}</div></div>`;
   document.getElementById('gcalBtn').addEventListener('click',()=>addToGCal(currentEvent));
   document.getElementById('shareBtn').addEventListener('click',()=>shareEvent(currentEvent));
+  document.getElementById('reportBtn').addEventListener('click',()=>openReport(ev.name+(ev.rawDate?' — '+ev.rawDate:'')));
   if(g)document.getElementById('detailGuideBtn').addEventListener('click',()=>{
     const slug=g.slug,date=ev.date;
     if(openGuideSlug===slug){closeDetail();return;}   /* came from the guide: just go back to it */
@@ -1127,6 +1131,72 @@ function openDetail(ev,fromUrl){
     },120);
   }
 }
+/* ---------- "something's wrong here" ----------
+   A small form on the page, rather than an email link: people abandon those.
+   It writes to the Feedback tab of the spreadsheet and pings the Telegram
+   bot. No password — the backend lets this one request through and it can
+   only ever append to its own tab. */
+function reportBox(){
+  let el=document.getElementById('reportBox');
+  if(el)return el;
+  el=document.createElement('div');
+  el.id='reportBox';
+  el.style.cssText='position:fixed;inset:0;background:rgba(10,3,8,0.82);z-index:4000;display:none;align-items:center;justify-content:center;padding:18px;';
+  el.innerHTML=`
+    <div style="background:#1f0d15;border:1px solid rgba(252,204,132,0.18);border-radius:16px;max-width:460px;width:100%;padding:22px;font-family:'Futura','Century Gothic','Trebuchet MS',sans-serif;">
+      <div style="font-size:1.15rem;color:#fccc84;margin-bottom:6px;">Found a mistake?</div>
+      <p id="reportAbout" style="font-size:0.82rem;color:rgba(252,204,132,0.55);margin:0 0 14px;"></p>
+      <textarea id="reportText" rows="4" placeholder="What's wrong? Wrong date, price, venue, cancelled…" style="width:100%;padding:11px;border-radius:10px;border:1px solid rgba(252,204,132,0.18);background:#2a1020;color:#fdf5ec;font-family:inherit;font-size:0.92rem;resize:vertical;"></textarea>
+      <input id="reportContact" placeholder="Your email or @instagram (optional)" style="width:100%;margin-top:9px;padding:10px 11px;border-radius:10px;border:1px solid rgba(252,204,132,0.18);background:#2a1020;color:#fdf5ec;font-family:inherit;font-size:0.86rem;">
+      <input id="reportWebsite" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" aria-hidden="true">
+      <div style="display:flex;gap:9px;margin-top:14px;">
+        <button id="reportSend" style="flex:1;border:none;border-radius:100px;padding:11px;background:#c9526c;color:#fff;font-family:inherit;font-size:0.9rem;font-weight:600;cursor:pointer;">Send</button>
+        <button id="reportCancel" style="border:1px solid rgba(252,204,132,0.25);border-radius:100px;padding:11px 18px;background:transparent;color:rgba(252,204,132,0.8);font-family:inherit;font-size:0.9rem;cursor:pointer;">Cancel</button>
+      </div>
+      <p id="reportMsg" style="font-size:0.8rem;color:rgba(252,204,132,0.6);margin:11px 0 0;min-height:1em;"></p>
+    </div>`;
+  document.body.appendChild(el);
+  el.addEventListener('click',e=>{if(e.target===el)el.style.display='none';});
+  el.querySelector('#reportCancel').addEventListener('click',()=>el.style.display='none');
+  el.querySelector('#reportSend').addEventListener('click',sendReport);
+  return el;
+}
+function openReport(about){
+  const el=reportBox();
+  el.dataset.about=about||'';
+  el.querySelector('#reportAbout').textContent=about?('About: '+about):'About the site in general';
+  el.querySelector('#reportText').value='';
+  el.querySelector('#reportMsg').textContent='';
+  el.querySelector('#reportSend').disabled=false;
+  el.querySelector('#reportSend').textContent='Send';
+  el.style.display='flex';
+  setTimeout(()=>el.querySelector('#reportText').focus(),50);
+}
+async function sendReport(){
+  const el=reportBox();
+  const note=el.querySelector('#reportText').value.trim();
+  const msg=el.querySelector('#reportMsg');
+  if(!note){msg.textContent='Write a line about what is wrong first.';return;}
+  const btn=el.querySelector('#reportSend');
+  btn.disabled=true;btn.textContent='Sending…';
+  try{
+    const res=await fetch(API_URL,{method:'POST',keepalive:true,body:JSON.stringify({
+      action:'feedback', note, about:el.dataset.about||'',
+      contact:el.querySelector('#reportContact').value.trim(),
+      website:el.querySelector('#reportWebsite').value,
+      page:location.href
+    })});
+    const out=await res.json();
+    if(!out.ok)throw new Error(out.error||'could not send');
+    msg.textContent='Thank you — got it. We will check it.';
+    btn.textContent='Sent ✓';
+    setTimeout(()=>{el.style.display='none';},1800);
+  }catch(e){
+    msg.textContent='Could not send that: '+e.message+'. Try again, or write to @yer.event on Instagram.';
+    btn.disabled=false;btn.textContent='Send';
+  }
+}
+
 /* Share sheet on a phone, copy-the-link everywhere else. */
 function shareEvent(ev){
   if(!ev)return;
