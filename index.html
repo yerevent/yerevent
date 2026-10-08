@@ -284,7 +284,16 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 .day-guide-head:hover{transform:translateX(3px);}
 .day-guide-head b{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.25rem;font-weight:600;display:block;line-height:1.1;}
 .day-guide-head span{font-size:0.74rem;font-weight:500;}
-.day-event-row.in-guide{margin-left:14px;border-left:3px solid var(--pome);}
+.day-guide-box{display:flex;flex-direction:column;gap:8px;padding:6px;border-radius:12px;border:1.5px solid rgba(240,74,90,0.45);background:rgba(240,74,90,0.05);}
+.day-guide-toggle{align-self:flex-start;font-family:'Outfit',sans-serif;font-size:0.76rem;font-weight:600;padding:5px 12px;border-radius:100px;border:1px solid rgba(255,177,92,0.45);background:transparent;color:var(--apricot);cursor:pointer;}
+.day-guide-toggle:hover{background:rgba(255,177,92,0.1);}
+.day-guide-list{display:flex;flex-direction:column;gap:8px;padding-left:10px;border-left:3px solid var(--pome);margin-left:4px;}
+.day-guide-box.collapsed .day-guide-list{display:none;}
+.day-other-head{display:flex;align-items:center;gap:10px;margin:14px 0 2px;font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--gold);}
+.day-other-head::after{content:'';flex:1;height:1px;background:rgba(252,204,132,0.25);order:2;}
+.day-other-head b{order:3;font-family:'Outfit',sans-serif;font-size:0.75rem;font-weight:700;background:var(--gold);color:#1C0B12;padding:2px 9px;border-radius:100px;}
+.day-other-jump{align-self:stretch;font-family:'Outfit',sans-serif;font-size:0.8rem;font-weight:700;padding:8px 12px;border-radius:10px;border:1px dashed rgba(252,204,132,0.5);background:rgba(252,204,132,0.06);color:var(--gold);cursor:pointer;text-align:center;}
+.day-other-jump:hover{background:rgba(252,204,132,0.12);}
 .detail-guide-link{display:flex;width:100%;align-items:center;gap:8px;background:var(--sunset);color:#1C0B12;border:none;border-radius:10px;padding:10px 14px;font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;margin-bottom:16px;text-align:left;}
 .guide-overlay{z-index:196;}
 .guide-modal{overflow:hidden;}
@@ -958,11 +967,25 @@ function renderCalendar(){
 function prevMonth(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 function nextMonth(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
 
+/* which bundles the visitor folded away in the day view (kept while the page is open) */
+const dayGuideCollapsed={};
+/* hour an event starts, for ordering a day's list: 13 for "1 PM", 18.5 for "6:30 PM"; untimed go last */
+function startHour(ev){
+  if(ev.src&&ev.src.start!=null)return ev.src.start;
+  const m=String(ev.time||'').match(/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?/i);
+  if(!m)return 99;
+  let h=parseInt(m[1])%24;const ap=(m[3]||'').toLowerCase();
+  if(ap==='pm'&&h<12)h+=12;if(ap==='am'&&h===12)h=0;
+  return h+(m[2]?parseInt(m[2])/60:0);
+}
 function openDayModal(dateStr){
   lastDayDateStr=dateStr;
-  /* guide events first, in stage order, under one header that opens the guide */
+  /* bundles first (one block each, in the order of guides.json), then everything
+     else; inside each group by start time, untimed events last */
+  const gOrder=ev=>{const i=GUIDES.findIndex(g=>g.slug===ev.guide);return i<0?GUIDES.length:i;};
   const dayEvs=filteredEvents.filter(e=>e.date===dateStr)
-    .map((e,i)=>({e,i})).sort((a,b)=>((a.e.guide?0:1)-(b.e.guide?0:1))||((a.e.stage||0)-(b.e.stage||0))||(a.i-b.i)).map(x=>x.e);
+    .map((e,i)=>({e,i})).sort((a,b)=>((a.e.guide?0:1)-(b.e.guide?0:1))||(gOrder(a.e)-gOrder(b.e))
+      ||(startHour(a.e)-startHour(b.e))||((a.e.stage||0)-(b.e.stage||0))||(a.i-b.i)).map(x=>x.e);
   const[y,m,d]=dateStr.split('-');
   const displayDate=`${MONTHS_LONG[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
   const holiday=getHoliday(dateStr),cultural=!holiday?getCulturalHoliday(dateStr):null;
@@ -972,21 +995,40 @@ function openDayModal(dateStr){
   const body=document.getElementById('dayPopupBody');body.innerHTML='';const rowEls=[];
   if(!n){body.innerHTML=`<div class="day-empty">No events on this day.</div>`;}
   else{
-    let lastGuide=null;
+    const guideLists={},nOther=dayEvs.filter(x=>!x.guide).length;let otherHead=false;
+    /* bundles can run long, so say up front that there's more below them */
+    if(nOther&&dayEvs[0].guide){
+      const jump=document.createElement('button');jump.className='day-other-jump';
+      jump.textContent=`+ ${nOther} more event${nOther!==1?'s':''} outside the bundle${Object.keys(dayEvs.reduce((o,x)=>(x.guide&&(o[x.guide]=1),o),{})).length!==1?'s':''} ↓`;
+      jump.addEventListener('click',()=>{const h=body.querySelector('.day-other-head');if(h)h.scrollIntoView({block:'start',behavior:'smooth'});});
+      body.appendChild(jump);
+    }
     dayEvs.forEach((ev,idx)=>{
-      if(ev.guide&&ev.guide!==lastGuide){
+      if(ev.guide&&!guideLists[ev.guide]){
         const g=guideBySlug(ev.guide),k=dayEvs.filter(x=>x.guide===ev.guide).length;
+        const box=document.createElement('div');box.className='day-guide-box'+(dayGuideCollapsed[ev.guide]?' collapsed':'');
         const head=document.createElement('div');head.className='day-guide-head';
-        head.innerHTML=`<div style="flex:1;min-width:0;"><b>✦ ${esc(g?g.title:'Guide')}</b><span>${k} event${k!==1?'s':''} · map, timeline & lineups</span></div><span class="day-event-arrow" style="color:#1C0B12;">→</span>`;
+        head.innerHTML=`<div style="flex:1;min-width:0;"><b>✦ ${esc(g?g.title:'Guide')}</b><span>${k} event${k!==1?'s':''} · tap to open the map, timeline & lineups</span></div><span class="day-event-arrow" style="color:#1C0B12;">→</span>`;
         head.addEventListener('click',()=>{closeDayModal();openGuide(ev.guide,false,dateStr);});
-        body.appendChild(head);
+        const tog=document.createElement('button');tog.className='day-guide-toggle';
+        const label=()=>{tog.innerHTML=box.classList.contains('collapsed')?`▸ Show the ${k} event${k!==1?'s':''}`:`▾ Hide these ${k} event${k!==1?'s':''}`;};
+        tog.addEventListener('click',()=>{box.classList.toggle('collapsed');dayGuideCollapsed[ev.guide]=box.classList.contains('collapsed');label();});
+        label();
+        const list=document.createElement('div');list.className='day-guide-list';
+        box.append(head,tog,list);body.appendChild(box);guideLists[ev.guide]=list;
       }
-      lastGuide=ev.guide||null;
-      const row=document.createElement('div');row.className='day-event-row'+(ev.guide?' in-guide':'');row.dataset.idx=idx;
+      /* a clear break so the day's other events don't read as part of a bundle */
+      if(!ev.guide&&!otherHead&&Object.keys(guideLists).length){
+        otherHead=true;
+        const h=document.createElement('div');h.className='day-other-head';
+        h.innerHTML=`<span>More events this day</span><b>${nOther}</b>`;
+        body.appendChild(h);
+      }
+      const row=document.createElement('div');row.className='day-event-row';row.dataset.idx=idx;
       const s=TYPE_STYLE[ev.type]||{color:'#888'};
       row.innerHTML=`<span class="day-event-dot" style="background:${s.color};box-shadow:0 0 0 3px ${s.color}33;"></span><div class="day-event-info"><div class="day-event-name">${esc(ev.name)}</div><div class="day-event-time">${ev.time?esc(ev.time):'Time TBA'}${ev.location?' · 📍 '+esc(ev.location):''}</div></div><span class="day-event-arrow">→</span>`;
       row.addEventListener('click',()=>{document.getElementById('backBtn').style.display='inline-flex';document.getElementById('detailOverlay').classList.add('open');openDetail(ev);});
-      body.appendChild(row);rowEls.push(row);
+      (ev.guide?guideLists[ev.guide]:body).appendChild(row);rowEls[idx]=row;
     });
   }
   document.getElementById('dayOverlay').classList.add('open');
