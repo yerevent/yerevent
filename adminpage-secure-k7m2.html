@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="yerevent.png" type="image/png">
 <title>yerevent · admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -44,8 +44,18 @@ h1 span{color:var(--accent);}
 
 /* tabs */
 .tabs{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--surface);border-top:1px solid var(--border);z-index:50;}
-.tab{flex:1;padding:13px 4px;text-align:center;font-size:0.8rem;font-weight:600;color:var(--text-muted);cursor:pointer;border:none;background:none;font-family:'Outfit',sans-serif;}
+.tab{flex:1;min-width:0;position:relative;padding:8px 2px 9px;text-align:center;font-size:0.68rem;font-weight:600;color:var(--text-muted);cursor:pointer;border:none;background:none;font-family:'Outfit',sans-serif;line-height:1.25;}
+.tab .ic{display:block;font-size:1.05rem;line-height:1.3;}
 .tab.active{color:var(--gold);border-top:2px solid var(--accent);}
+/* the red dot on Approved: how many did not make it onto the website */
+.badge{position:absolute;top:3px;left:50%;margin-left:6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;
+  background:#e5484d;color:#fff;font-size:0.66rem;font-weight:700;line-height:18px;display:none;}
+.badge.on{display:block;}
+/* a festival: several Database events that belong to one bigger one */
+.fest{border:1px solid rgba(240,74,90,.45);background:rgba(240,74,90,.07);}
+.fest h3{font-family:'Cormorant Garamond','Playfair Display',serif;font-style:italic;font-size:1.25rem;}
+.fest-body{margin-top:10px;padding-left:10px;border-left:2px solid rgba(240,74,90,.45);}
+.fest-body .card{background:var(--surface2);}
 .view{display:none;}
 .view.active{display:block;}
 
@@ -213,12 +223,13 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 
     <!-- PENDING -->
     <div class="view" id="view-pending">
-      <p class="hint">Everything imported from Esora. <strong>Upcoming</strong> is what still needs your decision; <strong>Past</strong> keeps everything that has already happened. A red border means the description is missing — check the original post. Approving publishes to the website.</p>
+      <p class="hint" id="pendingHint"></p>
       <div class="topbtns">
-        <div class="grp">
+        <div class="grp" style="flex-wrap:wrap">
           <button class="btn ghost small on" id="penUpcomingBtn" onclick="setPendingWhen('upcoming')">Upcoming</button>
+          <button class="btn ghost small" id="penFestBtn" onclick="setPendingWhen('festivals')">✦ Festivals</button>
+          <button class="btn ghost small" id="penLineupBtn" onclick="setPendingWhen('lineups')">📋 Lineups</button>
           <button class="btn ghost small" id="penPastBtn" onclick="setPendingWhen('past')">Past</button>
-          <button class="btn ghost small" id="penApprBtn" onclick="setPendingWhen('approved')">✅ Approved</button>
         </div>
         <button class="btn ghost small" onclick="runBtn(this,()=>loadPending(),'Loading…')">↻ Refresh</button>
       </div>
@@ -247,13 +258,35 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
       <input id="srcFilter" class="srcfilter" placeholder="🔍 find an account" oninput="renderSources()" autocapitalize="none" autocorrect="off">
       <div id="srcList"><span class="spin"></span> Loading…</div>
     </div>
+
+    <!-- SAVED: parked from the Database to check or edit later -->
+    <div class="view" id="view-saved">
+      <p class="hint">Events you saved from the Database to check or edit later. They stay here, on the phone and the laptop, until you publish them, send them back, or drop them.</p>
+      <div class="topbtns">
+        <span class="count" id="savedCount"></span>
+        <button class="btn ghost small" onclick="runBtn(this,()=>loadPending(),'Loading…')">↻ Refresh</button>
+      </div>
+      <div id="savedList"><span class="spin"></span> Loading…</div>
+    </div>
+
+    <!-- APPROVED: everything you published, and whether it made it -->
+    <div class="view" id="view-approved">
+      <p class="hint">Everything you approve lands here and stays: first ⏳ publishing, then 🌐 live once the website has it. Anything that did not make it shows in red, with a Try again button — and a red dot on this tab.</p>
+      <div class="topbtns">
+        <span class="count" id="approvedCount"></span>
+        <button class="btn ghost small" onclick="runBtn(this,()=>syncApproved(true),'Checking…')">↻ Check the website</button>
+      </div>
+      <div id="approvedList"></div>
+    </div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" data-v="add" onclick="showTab('add')">➕ Add</button>
-    <button class="tab" data-v="live" onclick="showTab('live')">📅 Live</button>
-    <button class="tab" data-v="pending" onclick="showTab('pending')">🗄 Database</button>
-    <button class="tab" data-v="sources" onclick="showTab('sources')">📸 Sources</button>
+    <button class="tab active" data-v="add" onclick="showTab('add')"><span class="ic">➕</span>Add</button>
+    <button class="tab" data-v="live" onclick="showTab('live')"><span class="ic">📅</span>Live</button>
+    <button class="tab" data-v="pending" onclick="showTab('pending')"><span class="ic">🗄</span>Database</button>
+    <button class="tab" data-v="saved" onclick="showTab('saved')"><span class="ic">🔖</span>Saved</button>
+    <button class="tab" data-v="approved" onclick="showTab('approved')"><span class="ic">✅</span>Approved<span class="badge" id="apprBadge"></span></button>
+    <button class="tab" data-v="sources" onclick="showTab('sources')"><span class="ic">📸</span>Sources</button>
   </div>
 </div>
 
@@ -261,8 +294,8 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v3.4';
-const APP_DATE = '7 Oct 2026';
+const APP_VERSION = 'v3.5';
+const APP_DATE = '13 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
@@ -327,7 +360,9 @@ async function runBtn(btn,fn,label){
    because a retry there could publish the same event twice. */
 /* fromLink is deliberately NOT here: it files a row and spends a Bright Data
    credit, so a repeat would duplicate the event and pay twice. */
-const SAFE_TO_REPEAT=/^(ping|list|extract)$|^list/;
+/* approveEvent and setSaved are safe too: the backend finds the event by name
+   and day, so a second try after a lost answer finds it already done. */
+const SAFE_TO_REPEAT=/^(ping|list|extract|approveEvent|setSaved)$|^list/;
 async function api(payload, lasting){
   payload.password = localStorage.getItem(PW_KEY) || '';
   const tries = SAFE_TO_REPEAT.test(payload.action||'') ? 3 : 1;
@@ -378,6 +413,7 @@ function enterApp(){
   document.getElementById('appView').style.display='block';
   /* anything left mid-publish from a previous visit is settled straight away */
   setTimeout(()=>{if(apprList().some(a=>a.state!=='live'))syncApproved(true);},1500);
+  updateBadge();
 }
 document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 /* A saved password is forgotten ONLY when Google says it is wrong. Anything
@@ -405,7 +441,9 @@ function showTab(v){
   document.getElementById('view-'+v).classList.add('active');
   if(v==='live'&&!liveLoaded)loadLive();
   /* a list left open for a while goes stale — the sheet moves under it */
-  if(v==='pending'&&(!pendingLoaded||Date.now()-pendingLoadedAt>10*60*1000))loadPending();
+  if((v==='pending'||v==='saved')&&(!pendingLoaded||Date.now()-pendingLoadedAt>10*60*1000))loadPending();
+  if(v==='saved')renderSaved();
+  if(v==='approved'){renderApproved();syncApproved(true);}
   if(v==='sources'&&!sourcesLoaded)loadSources();
 }
 
@@ -517,16 +555,24 @@ function cardHTML(ev, kind){
     (ev.type?`<span class="tag" style="color:${c};background:${c}22">${esc(ev.type)}</span>`:'')+
     (ev.city?`<span class="tag" style="color:#e05c5c;background:#e05c5c22">${esc(ev.city)}</span>`:'')+
     (ev.price?`<span class="tag" style="color:#ff9966;background:#ff996622">${esc(ev.price)}</span>`:'')+
-    linkTag(ev)+onSiteTag(ev,kind);
+    linkTag(ev)+onSiteTag(ev,kind)+
+    (kind!=='live'&&ev.flag==='lineup'?`<span class="tag" style="color:#60a5fa;background:#60a5fa22">📋 several events — check the pictures</span>`:'')+
+    (kind!=='live'&&festName(ev)?`<span class="tag" style="color:#ff8a7a;background:#F04A5A22;text-transform:none">✦ ${esc(festName(ev))}</span>`:'');
   const meta=[fmtDate(ev.date), fmtTime(ev.time), ev.place?('📍 '+esc(ev.place)):''].filter(Boolean).join(' · ');
   const desc = descHTML(ev);
+  const approve=`<button class="btn green small" onclick="runBtn(this,()=>approveEvent(${ev.row},null),'Publishing…')">✅ Approve &amp; publish</button>
+       <button class="btn ghost small" onclick="editPending(${ev.row})">✏️ Edit</button>`;
   const btns = kind==='live'
     ? `<button class="btn ghost small" onclick="editEvent(${ev.row})">✏️ Edit</button>
        <button class="btn red small" onclick="removeEvent(${ev.row}, this)">🗑 Delete</button>`
-    : `<button class="btn green small" onclick="runBtn(this,()=>approveEvent(${ev.row},null),'Publishing…')">✅ Approve &amp; publish</button>
-       <button class="btn ghost small" onclick="editPending(${ev.row})">✏️ Edit</button>
+    : kind==='saved'
+    ? `${approve}
+       <button class="btn ghost small" onclick="saveForLater(${ev.row},false)">↩ Back to Database</button>
+       <button class="btn red small" onclick="dismissEvent(${ev.row})">🗑 Not interested</button>`
+    : `${approve}
+       <button class="btn ghost small" onclick="saveForLater(${ev.row},true)">🔖 Save for later</button>
        <button class="btn red small" onclick="dismissEvent(${ev.row})">🗑 Not interested</button>`;
-  return `<div class="card ${noDesc?'nodesc':''}" id="card-${kind}-${ev.row}">
+  return `<div class="card ${noDesc?'nodesc':''}" id="card-${kind}-${ev.row}" data-row="${ev.row}">
     <h3>${esc(ev.name)}</h3>
     <div class="meta">${meta}</div>
     <div class="tagrow">${tags}</div>
@@ -799,9 +845,9 @@ function hideSave(list){try{localStorage.setItem(HIDE_KEY,JSON.stringify(list.sl
 /* Taking a card off the screen must never wait for the network: the card goes
    straight away and the counts are patched, instead of redrawing the list. */
 function dropCard(row){
-  const card=document.getElementById('card-pending-'+row);
-  if(card){card.remove();return true;}
-  return false;
+  const cards=document.querySelectorAll('#view-pending .card[data-row="'+row+'"],#view-saved .card[data-row="'+row+'"]');
+  cards.forEach(c=>c.remove());
+  return cards.length>0;
 }
 function dismissEvent(row){
   const ev=pendingRows.find(r=>r.row===row);if(!ev)return;
@@ -809,7 +855,39 @@ function dismissEvent(row){
   list.unshift({fp:fp(ev),name:ev.name,date:fmtDate(ev.date)});
   hideSave(list);
   if(!dropCard(row))renderPending();else{pendingCounts();renderPendingFooter();}
-  status('Hidden "'+ev.name+'" — find it under "Not interested" at the bottom if you change your mind.');
+  renderSaved();
+  status('Hidden "'+ev.name+'" — find it under "Not interested" at the bottom of the Database if you change your mind.');
+}
+/* ---------- saved for later ----------
+   Parks an event you want to check or edit before deciding. The mark is kept
+   in the Database row itself, so the phone and the laptop see the same list.
+   The card moves at once; if Google says no, it moves back. */
+async function saveForLater(row,saved){
+  const ev=pendingRows.find(r=>r.row===row);if(!ev)return;
+  ev.saved=saved;
+  dropCard(row);pendingCounts();renderSaved();
+  try{
+    await api({action:'setSaved',saved,event:{name:ev.name,date:ev.date,dateStr:ev.dateStr,place:ev.place||''}});
+    status(saved?'Saved "'+ev.name+'" — it is under 🔖 Saved.':'"'+ev.name+'" is back in the Database.');
+  }catch(e){
+    ev.saved=!saved;renderPending();renderSaved();
+    status('Could not '+(saved?'save':'move')+' "'+ev.name+'": '+e.message,'err');
+  }
+}
+function savedRows(){
+  const hiddenFps=new Set(hideList().map(h=>h.fp));
+  const done=apprKeys();
+  return pendingRows.filter(ev=>ev.saved&&!hiddenFps.has(fp(ev))&&!done.has(apprKey(ev)))
+    .sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));
+}
+function renderSaved(){
+  const el=document.getElementById('savedList');
+  if(!el)return;
+  if(!pendingLoaded){el.innerHTML='<span class="spin"></span> Loading…';return;}
+  const list=savedRows();
+  document.getElementById('savedCount').textContent=list.length?list.length+' saved for later':'';
+  el.innerHTML=list.length?list.map(ev=>cardHTML(ev,'saved')).join('')
+    :'<p class="hint">Nothing saved. Press 🔖 Save for later on any event in the Database to park it here while you check it.</p>';
 }
 function restoreEvent(fpVal){
   hideSave(hideList().filter(h=>h.fp!==fpVal));
@@ -818,27 +896,76 @@ function restoreEvent(fpVal){
 let showHidden=false,showUndated=false,pendingWhen='upcoming';
 function toggleHidden(){showHidden=!showHidden;renderPendingFooter();}
 function toggleUndated(){showUndated=!showUndated;renderPending();}
+const PENDING_HINTS={
+  upcoming:'What still needs your decision. A red border means the description is missing — check the original post. Approving publishes to the website.',
+  festivals:'Events that belong to one bigger festival, fashion week or multi-day series, grouped together. They are in Upcoming too. When one deserves its own festival page, ask Claude to make a guide for it.',
+  lineups:'Posts that cover several events at once — a weekly lineup, "this week at…". The details are usually in the pictures, so open the post, then edit this listing or add the nights one by one.',
+  past:'Everything that has already happened, kept for reference.'
+};
 function setPendingWhen(w){
   pendingWhen=w;openDays=new Set();daysShown=DAYS_PAGE;
-  document.getElementById('penUpcomingBtn').classList.toggle('on',w==='upcoming');
-  document.getElementById('penPastBtn').classList.toggle('on',w==='past');
-  document.getElementById('penApprBtn').classList.toggle('on',w==='approved');
+  [['upcoming','penUpcomingBtn'],['festivals','penFestBtn'],['lineups','penLineupBtn'],['past','penPastBtn']]
+    .forEach(([k,id])=>document.getElementById(id).classList.toggle('on',w===k));
   renderPending();
-  if(w==='approved')syncApproved(true);
 }
-/* The Pending sheet keeps every event ever imported. Splitting it in two keeps
-   the review list short, and nothing is ever thrown away — the past ones stay
-   one tap away under "Past". */
+/* The Pending sheet keeps every event ever imported. Splitting it keeps the
+   review list short, and nothing is ever thrown away — the past ones stay one
+   tap away under "Past". Saved events and multi-event posts have their own
+   lists, so they are left out of the others. */
 function pendingSplit(){
   const hiddenFps=new Set(hideList().map(h=>h.fp));
   const done=apprKeys();          /* approved events live in their own list now */
   const today=toDateStr(new Date());
-  const kept=pendingRows.filter(ev=>!hiddenFps.has(fp(ev))&&!done.has(apprKey(ev)));
+  const kept=pendingRows.filter(ev=>!ev.saved&&!hiddenFps.has(fp(ev))&&!done.has(apprKey(ev)));
+  const single=kept.filter(ev=>ev.flag!=='lineup');
   return {
-    upcoming:kept.filter(ev=>ev.dateStr&&ev.endStr>=today),
-    past:kept.filter(ev=>ev.dateStr&&ev.endStr<today),
-    undated:kept.filter(ev=>!ev.dateStr)
+    upcoming:single.filter(ev=>ev.dateStr&&ev.endStr>=today),
+    past:single.filter(ev=>ev.dateStr&&ev.endStr<today),
+    undated:single.filter(ev=>!ev.dateStr),
+    lineups:kept.filter(ev=>ev.flag==='lineup'&&(!ev.dateStr||ev.endStr>=today))
   };
+}
+/* ---------- festivals: several events that belong to one bigger one ----------
+   The robot now writes the bigger event's name into a "bundle" column of the
+   Database. Older rows have none, so a name that says festival / fest / week /
+   days also counts, and so does a single listing that runs over several days. */
+function festName(ev){
+  if(ev.bundle)return ev.bundle;
+  const m=String(ev.name||'').match(/^(.*?\b(?:festival|fest|week|days)\b(?:\s+20\d\d)?)/i);
+  return m&&m[1].trim().length>=6?m[1].trim():'';
+}
+function festGroups(list){
+  const by=new Map();
+  list.forEach(ev=>{
+    const label=festName(ev)||(ev.endStr&&ev.endStr>ev.dateStr?ev.name:'');
+    if(!label)return;
+    const k=normName(label);
+    if(!by.has(k))by.set(k,{key:k,name:label,events:[]});
+    by.get(k).events.push(ev);
+  });
+  return [...by.values()].map(g=>{
+    const days=g.events.flatMap(e=>[e.dateStr,e.endStr]).filter(Boolean).sort();
+    g.from=days[0];g.to=days[days.length-1];
+    g.events.sort((a,b)=>(a.dateStr||'').localeCompare(b.dateStr||''));
+    return g;
+  }).filter(g=>g.events.length>=2||g.from!==g.to)
+    .sort((a,b)=>(a.from||'').localeCompare(b.from||''));
+}
+let openFests=new Set();
+function toggleFest(k){openFests.has(k)?openFests.delete(k):openFests.add(k);renderPending();}
+function shortDay(d){if(!d)return'';const[y,m,dd]=d.split('-').map(Number);return dd+' '+MONTHS[m-1].slice(0,3);}
+function festivalsHTML(groups){
+  if(!groups.length)return '<p class="hint">No festivals in the upcoming events right now.</p>';
+  return groups.map(g=>{
+    const open=openFests.has(g.key);
+    const when=g.from===g.to?shortDay(g.from):shortDay(g.from)+' – '+shortDay(g.to);
+    return `<div class="card fest">
+      <h3>✦ ${esc(g.name)}</h3>
+      <div class="meta">${esc(when)} · ${g.events.length} event${g.events.length===1?'':'s'}</div>
+      <div class="cardbtns"><button class="btn ghost small" onclick="toggleFest('${g.key}')">${open?'▾ Hide the events':'▸ Show the '+g.events.length+' events'}</button></div>
+      ${open?`<div class="fest-body">${g.events.map(ev=>cardHTML(ev,'pending')).join('')}</div>`:''}
+    </div>`;
+  }).join('');
 }
 /* ---------- filters: where it came from, and what kind it is ---------- */
 let typeFilter='',sourceFilter='';
@@ -865,7 +992,7 @@ function setSourceFilter(s){
 function renderSourceFilter(s){
   const el=document.getElementById('pendingSources');
   if(!el)return;
-  const rows=pendingWhen==='upcoming'?s.upcoming:s.past;
+  const rows=pendingWhen==='past'?s.past:s.upcoming;
   const counts={};
   rows.forEach(ev=>{const k=srcOf(ev)||'none';counts[k]=(counts[k]||0)+1;});
   const keys=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
@@ -878,7 +1005,7 @@ function renderTypeFilter(s){
   const el=document.getElementById('pendingTypes');
   if(!el)return;
   /* counts follow the chosen source, so "concert (12)" means 12 of those */
-  const all=pendingWhen==='upcoming'?s.upcoming:s.past;
+  const all=pendingWhen==='past'?s.past:s.upcoming;
   const rows=sourceFilter?all.filter(ev=>srcOf(ev)===(sourceFilter==='none'?'':sourceFilter)):all;
   const counts={};
   rows.forEach(ev=>{const t=String(ev.type||'').trim().toLowerCase();if(t)counts[t]=(counts[t]||0)+1;});
@@ -892,15 +1019,19 @@ function renderTypeFilter(s){
 }
 function pendingCounts(){
   const s=pendingSplit();
-  const appr=apprList();
+  s.festivals=festGroups(s.upcoming);
   document.getElementById('penUpcomingBtn').textContent='Upcoming ('+s.upcoming.length+')';
+  document.getElementById('penFestBtn').textContent='✦ Festivals ('+s.festivals.length+')';
+  document.getElementById('penLineupBtn').textContent='📋 Lineups ('+s.lineups.length+')';
   document.getElementById('penPastBtn').textContent='Past ('+s.past.length+')';
-  const waiting=appr.filter(a=>a.state!=='live').length;
-  document.getElementById('penApprBtn').textContent='✅ Approved ('+appr.length+')'+(waiting?' •':'');
-  if(pendingWhen==='approved'){
-    const live=appr.filter(a=>a.state==='live').length;
-    document.getElementById('pendingCount').textContent=
-      appr.length?(live+' of '+appr.length+' confirmed live on the website'):'Nothing approved yet';
+  document.getElementById('pendingHint').textContent=PENDING_HINTS[pendingWhen]||'';
+  updateBadge();
+  if(pendingWhen==='festivals'){
+    document.getElementById('pendingCount').textContent=s.festivals.length?s.festivals.length+' festivals coming up':'';
+    return s;
+  }
+  if(pendingWhen==='lineups'){
+    document.getElementById('pendingCount').textContent=s.lineups.length?s.lineups.length+' posts covering several events':'';
     return s;
   }
   const rows=typeFiltered(pendingWhen==='upcoming'?s.upcoming:s.past);
@@ -1084,31 +1215,36 @@ function approvedHTML(){
 }
 function forgetApproved(key){
   apprSave(apprList().filter(a=>a.key!==key));
-  renderPending();
+  renderApproved();pendingCounts();
+}
+const STUCK=['failed','stalled','missing'];
+function renderApproved(){
+  const el=document.getElementById('approvedList');
+  if(!el)return;
+  const list=apprList();
+  const live=list.filter(a=>a.state==='live').length;
+  const stuck=list.filter(a=>STUCK.includes(a.state)).length;
+  document.getElementById('approvedCount').textContent=list.length
+    ?(live+' of '+list.length+' live on the website'+(stuck?' · '+stuck+' need you':'')):'';
+  el.innerHTML=approvedHTML();
+  updateBadge();
+}
+/* the red circle on the tab: approvals that did not make it */
+function updateBadge(){
+  const b=document.getElementById('apprBadge');
+  if(!b)return;
+  const n=apprList().filter(a=>STUCK.includes(a.state)).length;
+  b.textContent=n>9?'9+':String(n);
+  b.classList.toggle('on',n>0);
 }
 /* a retry re-publishes from the database if it is still there; if it is not,
    the website check decides whether the first attempt actually worked */
 async function retryApproved(key,quiet){
   const a=apprFind(key);
   if(!a)return;
-  apprPatch(key,{state:'sending',error:''});
+  apprPatch(key,{state:'sending',error:'',at:Date.now()});
   if(!quiet)status('Trying "'+a.name+'" again…');
-  try{
-    const fresh=await api({action:'listPending'});
-    const ev={name:a.name,date:a.date,dateStr:a.dateStr,place:a.place};
-    const match=locatePending(ev,fresh.rows);
-    if(match){
-      await api({action:'approve', rows:[match.row]}, true);
-      apprPatch(key,{state:'sent',error:'',sentAt:Date.now()});
-      if(!quiet)status('Sent again — the website confirms it within ~5 min.');
-    }else{
-      apprPatch(key,{state:'sent',error:'No longer in the database; checking the website.',sentAt:Date.now()});
-    }
-    setTimeout(()=>syncApproved(true),15000);
-  }catch(e){
-    apprPatch(key,{state:'failed',error:e.message||'something went wrong'});
-    if(!quiet)status('Still failing: '+e.message,'err');
-  }
+  await approveOne({name:a.name,date:a.date,dateStr:a.dateStr,place:a.place},key,quiet);
 }
 /* ---------- trying again by itself ----------
    A retry is safe without asking: publishing removes the event from the
@@ -1167,9 +1303,9 @@ async function syncApproved(force){
     });
     apprSave(next);
     if(changed){
-      if(pendingWhen==='approved')renderPending();else pendingCounts();
+      renderApproved();pendingCounts();
       status(changed===1?'1 event confirmed live on the website ✔':changed+' events confirmed live ✔');
-    }else if(pendingWhen==='approved')renderPending();
+    }else renderApproved();
     autoRetry();          /* pick up anything that failed, without being asked */
   }catch(e){/* a failed check is not a failed publish — leave the states alone */}
   finally{_apprSyncing=false;}
@@ -1188,8 +1324,8 @@ setInterval(()=>{if(!document.hidden)syncApproved();},150000);
    is what overwrote an event back in July. */
 function editPending(row){
   const ev=pendingRows.find(r=>r.row===row);if(!ev)return;
-  document.querySelectorAll('#view-pending .form').forEach(f=>f.remove());
-  const anchor=document.getElementById('card-pending-'+row)||document.getElementById('ver-'+row);
+  document.querySelectorAll('#view-pending .form,#view-saved .form').forEach(f=>f.remove());
+  const anchor=document.querySelector('.view.active [data-row="'+row+'"]');
   if(!anchor)return;
   anchor.insertAdjacentHTML('afterend',
     formHTML(ev,'🚀 Save &amp; publish',`savePendingEdit(${row},true)`,
@@ -1202,20 +1338,15 @@ async function savePendingEdit(row,publish){
   if(!data.name){status('Give it a name first.','err');return;}
   status('Saving…');
   try{
-    const fresh=await api({action:'listPending'});
-    const match=locatePending(ev,fresh.rows);
-    if(!match){
-      status('That listing is no longer in the database — it may already be published. Refreshing.','err');
-      loadPending();return;
-    }
-    await api({action:'updateRow', sheet:'Pending', row:match.row, event:data});
-    Object.assign(ev,data,{row:match.row});
+    /* found by name and day on Google's side, like publishing */
+    await api({action:'updatePending',event:{name:ev.name,date:ev.date,dateStr:ev.dateStr},data});
+    Object.assign(ev,data);
     ev.dateStr=parseSheetDate(ev.date);
     const days=ev.dateStr?getMultiDayDates(String(ev.date||''),ev.dateStr):[];
     ev.endStr=days.length?days[days.length-1]:ev.dateStr;
-    document.querySelectorAll('#view-pending .form').forEach(f=>f.remove());
-    if(publish){approveEvent(match.row,null);}
-    else{renderPending();status('Saved to the database ✔ — still waiting for your decision');}
+    document.querySelectorAll('#view-pending .form,#view-saved .form').forEach(f=>f.remove());
+    if(publish){approveEvent(row,null);}
+    else{renderPending();renderSaved();status('Saved to the database ✔ — still waiting for your decision');}
   }catch(e){status('Save failed: '+e.message,'err');}
 }
 /* picking one version publishes it and drops the rest out of the way */
@@ -1244,7 +1375,7 @@ function versionLine(ev,key,kind){
   const pick=
     `<button class="btn green small" onclick="runBtn(this,()=>approveVersion(${ev.row},'${key}'),'Publishing…')">✅ Use this one</button>
      <button class="btn ghost small" onclick="editPending(${ev.row})">✏️ Edit</button>`;
-  return `<div class="version" id="ver-${ev.row}">
+  return `<div class="version" id="ver-${ev.row}" data-row="${ev.row}">
     <h3 style="font-size:0.92rem">${esc(ev.name)}</h3>
     <div class="meta">${bits||'<i>nothing filled in</i>'}</div>
     <div class="tagrow">${linkTag(ev)}</div>
@@ -1256,7 +1387,7 @@ function versionsCardHTML(g,kind){
   const open=openGroups.has(g.key);
   const best=g.versions[0];
   const dismiss=`<button class="btn red small" onclick="dismissGroup('${g.key}')">🗑 Not interested</button>`;
-  return `<div class="card" id="card-pending-${best.row}">
+  return `<div class="card" id="card-pending-${best.row}" data-row="${best.row}">
     <h3>${esc(g.name)}</h3>
     <div class="meta">${esc(fmtDate(best.date))}${best.place?' · 📍 '+esc(best.place):''}</div>
     <div class="tagrow"><span class="tag" style="color:#ffb84d;background:#ffb84d22">⚠ ${g.versions.length} listings, same place &amp; day</span>${onSiteTag(best,kind)}</div>
@@ -1325,10 +1456,12 @@ function renderPending(){
   window._pendingItems=[];
   _liveIx=(liveRows&&liveRows.length)?liveIndex():null;
   const s=pendingCounts();
-  if(pendingWhen==='approved'){
+  if(pendingWhen==='festivals'||pendingWhen==='lineups'){
     document.getElementById('pendingSources').innerHTML='';
     document.getElementById('pendingTypes').innerHTML='';
-    el.innerHTML=approvedHTML();
+    el.innerHTML=pendingWhen==='festivals'?festivalsHTML(s.festivals)
+      :(s.lineups.length?s.lineups.map(ev=>cardHTML(ev,'pending')).join('')
+        :'<p class="hint">No multi-event posts waiting. When the robot reads a post like "this week at…", it lands here instead of among single events.</p>');
     renderPendingFooter();
     return;
   }
@@ -1379,11 +1512,11 @@ async function loadPending(){
       return {...ev,dateStr,endStr:days.length?days[days.length-1]:dateStr};
     });
     pendingRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));
-    renderPending();
     pendingLoaded=true;pendingLoadedAt=Date.now();
+    renderPending();renderSaved();
     /* the website's own events, so already-published ones can be marked —
        fetched quietly afterwards, never holding up the list */
-    if(!liveLoaded)loadLive().then(()=>renderPending()).catch(()=>{});
+    if(!liveLoaded)loadLive().then(()=>{renderPending();renderSaved();}).catch(()=>{});
   }catch(e){el.innerHTML='';status('Could not load pending: '+e.message,'err');}
 }
 /* Approvals run one after another in the background: the card leaves the screen
@@ -1400,7 +1533,7 @@ let approveQueue=Promise.resolve(),approvePending=0;
 const APPR_KEY='yerevent_approved_v1';
 function apprKey(ev){return normName(ev.name)+'|'+(ev.dateStr||parseSheetDate(ev.date));}
 function apprList(){try{return JSON.parse(localStorage.getItem(APPR_KEY))||[];}catch(_){return[];}}
-function apprSave(list){try{localStorage.setItem(APPR_KEY,JSON.stringify(list.slice(0,300)));}catch(_){}}
+function apprSave(list){try{localStorage.setItem(APPR_KEY,JSON.stringify(list.slice(0,300)));}catch(_){}updateBadge();}
 function apprFind(key){return apprList().find(a=>a.key===key)||null;}
 function apprPut(item){
   const list=apprList().filter(a=>a.key!==item.key);
@@ -1412,7 +1545,7 @@ function apprPatch(key,patch){
   if(i<0)return;
   list[i]=Object.assign({},list[i],patch);
   apprSave(list);
-  if(pendingWhen==='approved')renderPending();else pendingCounts();
+  renderApproved();
 }
 function apprKeys(){return new Set(apprList().map(a=>a.key));}
 
@@ -1451,32 +1584,33 @@ function approveEvent(row, btn){
            state:'sending',at:Date.now(),error:''});
   pendingRows=pendingRows.filter(r=>r.row!==row);
   if(!dropCard(row))renderPending();else{pendingCounts();renderPendingFooter();}
+  renderSaved();
   approvePending++;
   status('Publishing "'+ev.name+'"… it carries on even if you close this page.');
   approveQueue=approveQueue.then(()=>approveOne(ev,key)).catch(()=>{});
 }
-async function approveOne(ev,key){
+/* One request does it all. It used to download the whole Database to find a
+   row number and then publish that number — slow on a phone, and wrong if
+   anything moved the rows in between. Now the backend finds the event by name
+   and day and publishes it in one locked step, so it is quick, it cannot hit
+   the wrong row, and repeating it is harmless: the second time it is simply
+   already live. */
+async function approveOne(ev,key,quiet){
   key=key||apprKey(ev);
   try{
-    /* Row numbers shift when imports or cleanups run, so re-locate the event
-       by name + date in the CURRENT sheet right before approving. */
-    const fresh=await api({action:'listPending'});
-    const match=locatePending(ev,fresh.rows);
-    if(!match){
-      /* Not in the database any more — usually because it was already
-         published, from here or from the phone. The website check will settle
-         it either way, so it stays in this list rather than bouncing back. */
-      apprPatch(key,{state:'sent',error:'It was no longer waiting in the database — checking the website.'});
-      return;
+    const out=await api({action:'approveEvent',event:{name:ev.name,date:ev.date,
+      dateStr:ev.dateStr||parseSheetDate(ev.date),place:ev.place||''}});
+    if(out.published||out.already){
+      apprPatch(key,{state:'live',error:'',sentAt:Date.now(),liveAt:Date.now()});
+      if(!quiet)status(out.published?'Published "'+ev.name+'" ✔':'"'+ev.name+'" was already on the website ✔');
+      liveLoaded=false;liveRows=[];
+    }else{
+      apprPatch(key,{state:'failed',error:'It is no longer in the Database and not on the website — it may have been removed from the sheet.'});
+      if(!quiet)status('Could not find "'+ev.name+'" in the Database any more.','err');
     }
-    await api({action:'approve', rows:[match.row]}, true);
-    apprPatch(key,{state:'sent',error:'',sentAt:Date.now()});
-    status('Sent "'+ev.name+'" — the website confirms it within ~5 min.');
-    liveLoaded=false;liveRows=[];
-    setTimeout(syncApproved,20000);
   }catch(e){
     apprPatch(key,{state:'failed',error:e.message||'something went wrong'});
-    status('Could not publish "'+ev.name+'": '+e.message+' — it is waiting under ✅ Approved, with a Try again button.','err');
+    if(!quiet)status('Could not publish "'+ev.name+'": '+e.message+' — it is under ✅ Approved, with a Try again button.','err');
   }finally{approvePending=Math.max(0,approvePending-1);}
 }
 
