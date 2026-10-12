@@ -116,6 +116,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-cell.cultural-holiday{background:rgba(252,204,132,0.05);border-color:rgba(252,204,132,0.2);}
 .cal-cell.cultural-holiday:not(.other-month):hover{border-color:rgba(252,204,132,0.5);}
 .holiday-label{display:block;font-size:0.52rem;font-weight:700;color:#c9526c;letter-spacing:0.2px;margin-bottom:2px;line-height:1.2;text-transform:uppercase;flex-shrink:0;}
+.comm-mark{position:absolute;top:5px;right:5px;font-size:0.62rem;line-height:1;opacity:0.8;}
+.day-popup-note{font-size:0.78rem;color:var(--gold);margin-top:6px;opacity:0.9;}
 .cultural-label{display:block;font-size:0.52rem;font-weight:700;color:#fccc84;letter-spacing:0.2px;margin-bottom:2px;line-height:1.2;text-transform:uppercase;opacity:0.7;flex-shrink:0;}
 .holiday-legend{display:flex;flex-wrap:wrap;align-items:center;gap:14px;font-size:0.72rem;color:var(--text-muted);margin-bottom:14px;}
 .holiday-legend-swatch{width:14px;height:14px;border-radius:4px;background:rgba(201,82,108,0.15);border:1px solid rgba(201,82,108,0.3);flex-shrink:0;}
@@ -566,6 +568,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
       <div>
         <div class="day-popup-date" id="dayPopupDate"></div>
         <div class="day-popup-sub" id="dayPopupSub"></div>
+        <div class="day-popup-note" id="dayPopupNote" hidden></div>
       </div>
       <button class="day-popup-close" onclick="closeDayModal()">✕ Close</button>
     </div>
@@ -936,9 +939,29 @@ function geocode(ev){
 }
 
 const AM_PUBLIC_HOLIDAYS={'01-01':"New Year's Day",'01-02':"New Year's Day",'01-06':"Christmas & Epiphany",'01-27':"Memorial Day",'01-28':"Army Day",'03-08':"International Women's Day",'04-24':"Genocide Remembrance Day",'05-01':"Labour Day",'05-09':"Victory and Peace Day",'05-28':"Republic Day",'07-05':"Constitution Day",'09-21':"Independence Day",'12-31':"New Year's Eve"};
-const AM_CULTURAL_HOLIDAYS={'01-13':"Old New Year",'02-07':"St. Sarkis Day",'02-14':"Valentine's Day",'03-01':"St. Vardanants Day",'04-05':"Easter Sunday",'04-06':"Easter Monday",'04-07':"Motherhood & Beauty Day",'06-01':"Children's Day",'10-31':"Halloween",'11-22':"St. Gregory the Illuminator",'12-25':"Christmas (Western)",'12-26':"Christmas (Western)"};
+const AM_CULTURAL_HOLIDAYS={'01-13':"Old New Year",'02-14':"Valentine's Day",'04-07':"Motherhood & Beauty Day",'06-01':"Children's Day",'10-31':"Halloween",'12-25':"Christmas (Western)",'12-26':"Christmas (Western)"};
+/* Church feasts move with Easter every year, so these are listed per year.
+   Add next year's when the Church calendar is out. */
+const AM_CULTURAL_DATED={
+  '2026-01-31':"St. Sarkis Day",'2026-02-12':"Vartanants",'2026-02-13':"Trndez",'2026-04-05':"Easter Sunday",'2026-04-06':"Easter Monday",
+  '2026-07-12':"Vardavar",'2026-08-16':"Blessing of the Grapes",'2026-10-10':"Translators' Day",
+  '2027-01-23':"St. Sarkis Day",'2027-02-04':"Vartanants",'2027-02-13':"Trndez",'2027-03-28':"Easter Sunday",'2027-03-29':"Easter Monday",
+  '2027-05-30':"Feast of Holy Etchmiadzin",'2027-07-04':"Vardavar",'2027-08-15':"Blessing of the Grapes",'2027-10-09':"Translators' Day"
+};
+/* Days Armenia remembers or marks without a day off. They get one quiet line
+   at the top of the day and a small mark in the calendar cell, so they never
+   crowd out the events. */
+const AM_COMMEMORATIVE={'02-19':"Book Giving Day — Tumanyan's birthday",'02-21':"Mother Language Day",
+  '02-28':"Remembrance of the victims of the Sumgait pogrom",'04-16':"Day of Armenian Cinema",
+  '05-08':"Defenders of the Country Day — Shushi, 1992",'05-15':"Family Day",'05-16':"Students and Youth Day",
+  '06-14':"Day of Remembrance for the Repressed",'08-11':"Navasard — the ancient Armenian New Year",
+  '09-01':"Knowledge and School Day",'09-12':"Sparapet Day",'10-05':"Teachers' Day",
+  '11-10':"Day of Local Self-Governance",'12-07':"Spitak earthquake remembrance — 1988",
+  '12-09':"Day of Condemning and Preventing Genocides"};
+const AM_COMMEMORATIVE_DATED={'2026-04-25':"Day of the Citizen",'2027-04-25':"Day of the Citizen"};
 function getHoliday(dateStr){return AM_PUBLIC_HOLIDAYS[dateStr.slice(5)]||null;}
-function getCulturalHoliday(dateStr){return AM_CULTURAL_HOLIDAYS[dateStr.slice(5)]||null;}
+function getCulturalHoliday(dateStr){return AM_CULTURAL_DATED[dateStr]||AM_CULTURAL_HOLIDAYS[dateStr.slice(5)]||null;}
+function getCommemorative(dateStr){return AM_COMMEMORATIVE_DATED[dateStr]||AM_COMMEMORATIVE[dateStr.slice(5)]||null;}
 
 function renderCalendar(){
   document.getElementById('calMonthLabel').textContent=`${MONTHS_LONG[calMonth]} ${calYear}`;
@@ -970,6 +993,8 @@ function renderCalendar(){
     const numEl=document.createElement('span');numEl.className='day-num';numEl.textContent=date.getDate();cell.appendChild(numEl);
     if(holiday){const h=document.createElement('span');h.className='holiday-label';h.textContent=holiday;cell.appendChild(h);}
     if(cultural){const c=document.createElement('span');c.className='cultural-label';c.textContent=cultural;cell.appendChild(c);}
+    const comm=!isOther&&getCommemorative(dateStr);
+    if(comm){const c=document.createElement('span');c.className='comm-mark';c.textContent='📜';c.title=comm;cell.appendChild(c);}
     const MAX_CHIPS=3,chipsWrap=document.createElement('div');chipsWrap.className='cal-chips';
     chipItems.slice(0,MAX_CHIPS).forEach(ev=>{
       const chip=document.createElement('span');chip.className='cal-event-chip';
@@ -1016,6 +1041,8 @@ function openDayModal(dateStr){
   const holiday=getHoliday(dateStr),cultural=!holiday?getCulturalHoliday(dateStr):null;
   const n=dayEvs.length,holidayName=holiday||cultural||null;
   document.getElementById('dayPopupDate').textContent=displayDate;
+  const comm=getCommemorative(dateStr),note=document.getElementById('dayPopupNote');
+  note.hidden=!comm;note.textContent=comm?'📜 '+comm:'';
   document.getElementById('dayPopupSub').textContent=holidayName?`${holidayName}${n?' · '+n+' event'+(n!==1?'s':''):''}`:n===0?'No events':`${n} event${n!==1?'s':''}`;
   const body=document.getElementById('dayPopupBody');body.innerHTML='';const rowEls=[];
   if(!n){body.innerHTML=`<div class="day-empty">No events on this day.</div>`;}
