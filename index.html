@@ -39,7 +39,15 @@
 html{scroll-behavior:smooth;}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 .hero{padding:0 0 32px;text-align:center;background:var(--bg);}
-.hero-logo{width:100%;max-width:900px;height:auto;display:block;margin:0 auto 20px;border:none;background:none;}
+.hero-logo{width:72%;max-width:520px;height:auto;display:block;margin:0 auto 14px;border:none;background:none;}
+/* the slim bar that slides in with the logo once the big one has scrolled away */
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:150;height:52px;display:flex;align-items:center;justify-content:center;
+  background:#2b1019;   /* exactly the logo picture's own background, so its edges disappear */
+  border-bottom:1px solid var(--border);transform:translateY(-100%);transition:transform .25s ease;}
+.top-bar.on{transform:none;box-shadow:0 6px 18px rgba(0,0,0,0.35);}
+.leaflet-container{isolation:isolate;}   /* map layers stay inside the map, under the top bar */
+.top-bar img{height:34px;width:auto;display:block;}
+@media (prefers-reduced-motion:reduce){.top-bar{transition:none;}}
 .hero p{font-family:'Futura','Century Gothic','Trebuchet MS',sans-serif;color:var(--gold);font-size:0.95rem;font-weight:400;max-width:480px;margin:0 auto;line-height:1.6;letter-spacing:0.3px;opacity:0.75;}
 .wrapper{max-width:1100px;margin:0 auto;padding:0 20px 80px;}
 .filters-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:24px;}
@@ -462,8 +470,9 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
 </head>
 <body>
 
+<a class="top-bar" id="topBar" href="#" aria-label="yer.event — back to the top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;"><img src="logo.png" alt="yer.event"></a>
 <div class="hero">
-  <img src="logo.png" alt="yer.event" class="hero-logo">
+  <img src="logo.png" alt="yer.event" class="hero-logo" id="heroLogo">
   <p>Discover concerts, festivals, art shows and more across Armenia — all in one place.</p>
 </div>
 
@@ -1570,6 +1579,17 @@ loadGuides().then(()=>{
   const g=new URLSearchParams(location.search).get('g');
   if(g)openGuide(g,true);
 }).finally(()=>fetchEvents());
+</script>
+<script>
+/* the top bar shows once the big logo is out of sight, and hides again when it's back */
+(function(){
+  const bar=document.getElementById('topBar'),logo=document.getElementById('heroLogo');
+  if(!bar||!logo)return;
+  const update=()=>bar.classList.toggle('on',logo.getBoundingClientRect().bottom<0);
+  addEventListener('scroll',update,{passive:true});
+  addEventListener('resize',update);
+  update();
+})();
 </script>
 </body>
 </html>
