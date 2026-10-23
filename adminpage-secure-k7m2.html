@@ -294,8 +294,8 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v3.5';
-const APP_DATE = '13 Oct 2026';
+const APP_VERSION = 'v3.6';
+const APP_DATE = '23 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
@@ -934,21 +934,56 @@ function festName(ev){
   const m=String(ev.name||'').match(/^(.*?\b(?:festival|fest|week|days)\b(?:\s+20\d\d)?)/i);
   return m&&m[1].trim().length>=6?m[1].trim():'';
 }
+/* "Yerevan 18th International Music Festival" → "international music festival",
+   the part other posts about the same festival also write */
+function festCore(label){
+  return String(label||'').split(':').pop().toLowerCase()
+    .replace(/\b(yerevan|armenia|20\d\d|\d+(st|nd|rd|th))\b/g,'')
+    .replace(/[^\p{L}\p{N} ]/gu,' ').replace(/\s+/g,' ').trim();
+}
+function plainText(s){return String(s||'').toLowerCase().replace(/[^\p{L}\p{N} ]/gu,' ').replace(/\s+/g,' ');}
 function festGroups(list){
   const by=new Map();
+  const add=(k,label,ev)=>{
+    if(!by.has(k))by.set(k,{key:k,name:label,events:[]});
+    const g=by.get(k);
+    if(!g.events.includes(ev))g.events.push(ev);
+    if(label.length>g.name.length)g.name=label;
+  };
   list.forEach(ev=>{
     const label=festName(ev)||(ev.endStr&&ev.endStr>ev.dateStr?ev.name:'');
-    if(!label)return;
-    const k=normName(label);
-    if(!by.has(k))by.set(k,{key:k,name:label,events:[]});
-    by.get(k).events.push(ev);
+    /* a bare "festival" or "week" says nothing about which one: those keep their full name */
+    const core=festCore(label);
+    if(label)add(ev.bundle||core.split(' ').length<2?normName(label):core,label,ev);
   });
-  return [...by.values()].map(g=>{
+  /* The guest concerts of a festival are usually named after the performer,
+     with the festival only in the text. So a festival's name found inside
+     another event's description pulls that event in too. Only names with
+     "festival" or "fest" and at least two words, so "Three Days" or a lone
+     "Festival" can't sweep up half the list. */
+  const texts=new Map(list.map(ev=>[ev,plainText(ev.name+' '+ev.description)]));
+  [...by.values()].forEach(g=>{
+    const core=festCore(g.name);
+    if(!/\b(festival|fest)\b/.test(core)||core.split(' ').length<2)return;
+    list.forEach(ev=>{if(texts.get(ev).includes(core))add(g.key,g.name,ev);});
+  });
+  /* Two names for one festival find the same events, and one concert often
+     has two rows under two names. So groups that share any event become one,
+     under the fuller name. */
+  const kept=[];
+  [...by.values()].sort((a,b)=>b.events.length-a.events.length).forEach(g=>{
+    const into=kept.find(k=>k.events.some(e=>g.events.includes(e)));
+    if(!into){kept.push(g);return;}
+    g.events.forEach(e=>{if(!into.events.includes(e))into.events.push(e);});
+  });
+  const groups=kept;
+  return groups.map(g=>{
     const days=g.events.flatMap(e=>[e.dateStr,e.endStr]).filter(Boolean).sort();
     g.from=days[0];g.to=days[days.length-1];
     g.events.sort((a,b)=>(a.dateStr||'').localeCompare(b.dateStr||''));
+    g.count=groupPending(g.events).length;   /* one concert listed twice counts once, same as Upcoming */
     return g;
-  }).filter(g=>g.events.length>=2||g.from!==g.to)
+  }).filter(g=>g.count>=2||g.from!==g.to)
     .sort((a,b)=>(a.from||'').localeCompare(b.from||''));
 }
 let openFests=new Set();
@@ -961,8 +996,8 @@ function festivalsHTML(groups){
     const when=g.from===g.to?shortDay(g.from):shortDay(g.from)+' – '+shortDay(g.to);
     return `<div class="card fest">
       <h3>✦ ${esc(g.name)}</h3>
-      <div class="meta">${esc(when)} · ${g.events.length} event${g.events.length===1?'':'s'}</div>
-      <div class="cardbtns"><button class="btn ghost small" onclick="toggleFest('${g.key}')">${open?'▾ Hide the events':'▸ Show the '+g.events.length+' events'}</button></div>
+      <div class="meta">${esc(when)} · ${g.count} event${g.count===1?'':'s'}${g.events.length>g.count?' ('+g.events.length+' listings)':''}</div>
+      <div class="cardbtns"><button class="btn ghost small" onclick="toggleFest('${g.key}')">${open?'▾ Hide the events':'▸ Show the events'}</button></div>
       ${open?`<div class="fest-body">${g.events.map(ev=>cardHTML(ev,'pending')).join('')}</div>`:''}
     </div>`;
   }).join('');
