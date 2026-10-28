@@ -230,9 +230,11 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
           <button class="btn ghost small" id="penFestBtn" onclick="setPendingWhen('festivals')">✦ Festivals</button>
           <button class="btn ghost small" id="penLineupBtn" onclick="setPendingWhen('lineups')">📋 Lineups</button>
           <button class="btn ghost small" id="penPastBtn" onclick="setPendingWhen('past')">Past</button>
+          <button class="btn ghost small" id="penReadsBtn" onclick="setPendingWhen('reads')">🆕 New finds</button>
         </div>
         <button class="btn ghost small" onclick="runBtn(this,()=>loadPending(),'Loading…')">↻ Refresh</button>
       </div>
+      <div class="chiprow" id="pendingSort"></div>
       <div class="chiprow" id="pendingSources"></div>
       <div class="chiprow" id="pendingTypes"></div>
       <div class="topbtns"><span class="count" id="pendingCount"></span></div>
@@ -294,8 +296,8 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v3.6';
-const APP_DATE = '23 Oct 2026';
+const APP_VERSION = 'v3.7';
+const APP_DATE = '28 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
@@ -556,6 +558,7 @@ function cardHTML(ev, kind){
     (ev.city?`<span class="tag" style="color:#e05c5c;background:#e05c5c22">${esc(ev.city)}</span>`:'')+
     (ev.price?`<span class="tag" style="color:#ff9966;background:#ff996622">${esc(ev.price)}</span>`:'')+
     linkTag(ev)+onSiteTag(ev,kind)+
+    (kind!=='live'&&ev.added?`<span class="tag" style="color:#9fd8ff;background:#60a5fa1c;text-transform:none">🆕 added ${esc(ago(ev.added))}</span>`:'')+
     (kind!=='live'&&ev.flag==='lineup'?`<span class="tag" style="color:#60a5fa;background:#60a5fa22">📋 several events — check the pictures</span>`:'')+
     (kind!=='live'&&festName(ev)?`<span class="tag" style="color:#ff8a7a;background:#F04A5A22;text-transform:none">✦ ${esc(festName(ev))}</span>`:'');
   const meta=[fmtDate(ev.date), fmtTime(ev.time), ev.place?('📍 '+esc(ev.place)):''].filter(Boolean).join(' · ');
@@ -900,11 +903,12 @@ const PENDING_HINTS={
   upcoming:'What still needs your decision. A red border means the description is missing — check the original post. Approving publishes to the website.',
   festivals:'Events that belong to one bigger festival, fashion week or multi-day series, grouped together. They are in Upcoming too. When one deserves its own festival page, ask Claude to make a guide for it.',
   lineups:'Posts that cover several events at once — a weekly lineup, "this week at…". The details are usually in the pictures, so open the post, then edit this listing or add the nights one by one.',
-  past:'Everything that has already happened, kept for reference.'
+  past:'Everything that has already happened, kept for reference.',
+  reads:'Every post the Instagram robot read, one block per scan, newest first: the same news as the Telegram message. The events it found are ready to approve right here.'
 };
 function setPendingWhen(w){
   pendingWhen=w;openDays=new Set();daysShown=DAYS_PAGE;
-  [['upcoming','penUpcomingBtn'],['festivals','penFestBtn'],['lineups','penLineupBtn'],['past','penPastBtn']]
+  [['upcoming','penUpcomingBtn'],['festivals','penFestBtn'],['lineups','penLineupBtn'],['past','penPastBtn'],['reads','penReadsBtn']]
     .forEach(([k,id])=>document.getElementById(id).classList.toggle('on',w===k));
   renderPending();
 }
@@ -1063,6 +1067,10 @@ function pendingCounts(){
   updateBadge();
   if(pendingWhen==='festivals'){
     document.getElementById('pendingCount').textContent=s.festivals.length?s.festivals.length+' festivals coming up':'';
+    return s;
+  }
+  if(pendingWhen==='reads'){
+    document.getElementById('pendingCount').textContent=readsCountText();
     return s;
   }
   if(pendingWhen==='lineups'){
@@ -1486,11 +1494,158 @@ function daysHTML(items,kind){
   }
   return html;
 }
+/* ---------- newest added first ----------
+   Shows the Database in the order things arrived, so the robot's latest finds
+   are at the top. Rows from now on carry the moment they were added; older
+   rows have no time, but the sheet only ever adds at the bottom, so their row
+   number says the same thing. */
+let sortNewest=false,newestShown=60;
+function setSortNewest(on){sortNewest=on;newestShown=60;renderPending();}
+function sortChipsHTML(){
+  return `<button class="chip ${sortNewest?'':'on'}" onclick="setSortNewest(false)">📅 By event date</button>`+
+         `<button class="chip ${sortNewest?'on':''}" onclick="setSortNewest(true)">🆕 Newest added first</button>`;
+}
+function addedTime(ev){const t=ev.added?Date.parse(ev.added):NaN;return isNaN(t)?0:t;}
+function ago(iso){
+  const t=Date.parse(iso);if(isNaN(t))return '';
+  const m=Math.round((Date.now()-t)/60000);
+  if(m<1)return 'just now';if(m<60)return m+' min ago';
+  const h=Math.round(m/60);if(h<24)return h+'h ago';
+  const d=Math.round(h/24);return d===1?'yesterday':d+' days ago';
+}
+function addedDayLabel(t){
+  if(!t)return 'Added earlier';
+  const day=toDateStr(new Date(t)),today=toDateStr(new Date()),yest=toDateStr(new Date(Date.now()-864e5));
+  if(day===today)return 'Added today';if(day===yest)return 'Added yesterday';
+  const d=new Date(t);return 'Added '+d.getDate()+' '+MONTHS[d.getMonth()];
+}
+function newestHTML(rows){
+  const sorted=rows.slice().sort((a,b)=>(addedTime(b)-addedTime(a))||(b.row-a.row));
+  const shown=sorted.slice(0,newestShown);
+  let html='',last='';
+  shown.forEach(ev=>{
+    const lab=addedDayLabel(addedTime(ev));
+    if(lab!==last){last=lab;html+=`<div class="month-heading">${esc(lab)}</div>`;}
+    html+=cardHTML(ev,'pending');
+  });
+  if(sorted.length>shown.length)
+    html+=`<div style="text-align:center;margin:16px 0"><button class="btn ghost small" onclick="newestShown+=60;renderPending()">Show more (${sorted.length-shown.length} left)</button></div>`;
+  return html;
+}
+
+/* ---------- new finds: what each robot scan read ----------
+   The robot logs every post it reads in the "IG Posts" tab, with what became
+   of it. One block per scan, newest first, like the Telegram message: how
+   many posts were read and the events found, each ready to approve. The rest
+   of the posts, and why they were skipped, are one tap away. */
+let readsRows=[],readsLoaded=false,readsLoading=false,readsAt=0,openReads=new Set(),readsShown=8;
+const READ_STATUS={
+  'added to pending':['✅','new event','#75FF73'],
+  'already listed':['↺','already in the Database','#fccc84'],
+  'duplicate':['⧉','same place and day as one already in','#fccc84'],
+  'past':['⌛','already happened','rgba(252,204,132,.55)'],
+  'not an event':['—','not an event','rgba(252,204,132,.55)'],
+  'no caption':['∅','no caption to read','rgba(252,204,132,.55)'],
+  'old post':['…','older than a week','rgba(252,204,132,.55)'],
+  'new':['⏳','waiting to be read','#60a5fa'],
+  'error':['⚠','could not be read','#ff6b6b']
+};
+function readStatus(r){return READ_STATUS[String(r.status||'').trim().toLowerCase()]||['·',r.status||'','rgba(252,204,132,.55)'];}
+function igCode(u){const m=String(u||'').match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([\w-]+)/);return m?m[1]:'';}
+async function loadReads(force){
+  if(readsLoading)return;
+  if(!force&&readsLoaded&&Date.now()-readsAt<5*60000)return;
+  readsLoading=true;
+  if(pendingWhen==='reads')renderPending();
+  try{
+    const out=await api({action:'listReads',limit:600});
+    readsRows=out.rows||[];readsLoaded=true;readsAt=Date.now();
+    if(!openReads.size&&readsRows.length)openReads.add(readsRows[0].at);
+  }catch(e){status('Could not load the robot\'s reads: '+e.message,'err');}
+  finally{readsLoading=false;if(pendingWhen==='reads')renderPending();}
+}
+function readsBatches(){
+  const by=new Map();
+  readsRows.forEach(r=>{if(!by.has(r.at))by.set(r.at,[]);by.get(r.at).push(r);});
+  return [...by.entries()].map(([at,posts])=>({at,posts,found:posts.filter(p=>/added to pending/i.test(p.status))}))
+    .sort((a,b)=>(Date.parse(b.at)||0)-(Date.parse(a.at)||0));
+}
+function readsCountText(){
+  if(!readsLoaded)return '';
+  const b=readsBatches();
+  return b.length+' scans · '+b.reduce((n,x)=>n+x.found.length,0)+' events found in '+readsRows.length+' posts';
+}
+function toggleRead(at){openReads.has(at)?openReads.delete(at):openReads.add(at);renderPending();}
+function toggleReadPosts(at){const k='posts|'+at;openReads.has(k)?openReads.delete(k):openReads.add(k);renderPending();}
+function scanLabel(at){
+  const d=new Date(at);if(isNaN(d))return at;
+  const day=toDateStr(d),today=toDateStr(new Date()),yest=toDateStr(new Date(Date.now()-864e5));
+  const when=day===today?'Today':day===yest?'Yesterday':['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3);
+  return when+', '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+function readsHTML(){
+  if(!readsLoaded)return readsLoading?'<span class="spin"></span> Loading what the robot read…':'';
+  const batches=readsBatches();
+  if(!batches.length)return '<p class="hint">The robot has not read anything yet.</p>';
+  /* the Database rows these posts became, found by the post's link */
+  const byCode=new Map();
+  pendingRows.forEach(ev=>{const c=igCode(ev.link);if(c&&!byCode.has(c))byCode.set(c,ev);});
+  const hiddenFps=new Set(hideList().map(h=>h.fp)),done=apprKeys();
+  let html='';
+  batches.slice(0,readsShown).forEach(b=>{
+    const open=openReads.has(b.at),postsOpen=openReads.has('posts|'+b.at);
+    const waiting=b.posts.filter(p=>/^new$/i.test(String(p.status).trim())).length;
+    html+=`<div class="day ${open?'open':''}">
+      <button class="day-head" onclick="toggleRead('${esc(b.at)}')">
+        <span class="day-name">🆕 ${esc(scanLabel(b.at))}</span>
+        <span class="day-count">${b.found.length} new event${b.found.length===1?'':'s'} · ${b.posts.length} posts${waiting?' · '+waiting+' still reading':''} ${open?'▾':'▸'}</span>
+      </button>`;
+    if(open){
+      html+='<div class="day-body">';
+      if(!b.found.length)html+='<p class="hint">No new events in this scan.</p>';
+      b.found.forEach(p=>{
+        const ev=byCode.get(igCode(p.url));
+        if(ev&&!hiddenFps.has(fp(ev))&&!done.has(apprKey(ev)))html+=cardHTML(ev,'pending');
+        else{
+          const why=!ev?'no longer in the Database':done.has(apprKey(ev))?'approved ✔':hiddenFps.has(fp(ev))?'marked not interested':'';
+          html+=`<div class="card" style="opacity:.6"><h3>${esc(ev?ev.name:(p.note||'Event'))}</h3><div class="meta">@${esc(p.handle)} · ${esc(why)}</div>
+            <div class="cardbtns"><a class="btn ghost small" href="${esc(p.url)}" target="_blank" rel="noopener">the post ↗</a></div></div>`;
+        }
+      });
+      html+=`<div class="cardbtns" style="margin:4px 0 10px"><button class="btn ghost small" onclick="toggleReadPosts('${esc(b.at)}')">${postsOpen?'▾ Hide':'▸ Show'} all ${b.posts.length} posts read</button></div>`;
+      if(postsOpen){
+        html+=b.posts.map(p=>{
+          const [ic,label,col]=readStatus(p);
+          return `<div class="src"><div class="who">
+            <div class="handle"><a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">@${esc(p.handle)} ↗</a></div>
+            <div class="stat"><span style="color:${col};font-weight:600">${ic} ${esc(label)}</span>${p.note?' · '+esc(p.note):''}</div>
+            ${p.caption?`<div class="stat" style="margin-top:3px">${esc(p.caption.slice(0,120))}${p.caption.length>120?'…':''}</div>`:''}
+          </div></div>`;
+        }).join('');
+      }
+      html+='</div>';
+    }
+    html+='</div>';
+  });
+  if(batches.length>readsShown)
+    html+=`<div style="text-align:center;margin:16px 0"><button class="btn ghost small" onclick="readsShown+=8;renderPending()">Older scans (${batches.length-readsShown} more)</button></div>`;
+  return html;
+}
+
 function renderPending(){
   const el=document.getElementById('pendingList');
   window._pendingItems=[];
   _liveIx=(liveRows&&liveRows.length)?liveIndex():null;
   const s=pendingCounts();
+  document.getElementById('pendingSort').innerHTML=(pendingWhen==='upcoming'||pendingWhen==='past')?sortChipsHTML():'';
+  if(pendingWhen==='reads'){
+    document.getElementById('pendingSources').innerHTML='';
+    document.getElementById('pendingTypes').innerHTML='';
+    el.innerHTML=readsHTML();
+    renderPendingFooter();
+    if(!readsLoaded&&!readsLoading)loadReads();
+    return;
+  }
   if(pendingWhen==='festivals'||pendingWhen==='lineups'){
     document.getElementById('pendingSources').innerHTML='';
     document.getElementById('pendingTypes').innerHTML='';
@@ -1503,6 +1658,12 @@ function renderPending(){
   renderSourceFilter(s);
   renderTypeFilter(s);
   let html='';
+  if(sortNewest){
+    const rows=typeFiltered(pendingWhen==='past'?s.past:s.upcoming.concat(s.undated));
+    el.innerHTML=rows.length?newestHTML(rows):'<p class="hint">Nothing here for this choice.</p>';
+    renderPendingFooter();
+    return;
+  }
   if(pendingWhen==='past'){
     const items=groupPending(typeFiltered(s.past));
     html=items.length?daysHTML(items,'past'):'<p class="hint">Nothing here for this type.</p>';
@@ -1549,6 +1710,7 @@ async function loadPending(){
     pendingRows.sort((a,b)=>(a.dateStr||'9999').localeCompare(b.dateStr||'9999'));
     pendingLoaded=true;pendingLoadedAt=Date.now();
     renderPending();renderSaved();
+    if(pendingWhen==='reads')loadReads(true);   /* ↻ Refresh in New finds reloads the scans too */
     /* the website's own events, so already-published ones can be marked —
        fetched quietly afterwards, never holding up the list */
     if(!liveLoaded)loadLive().then(()=>{renderPending();renderSaved();}).catch(()=>{});
