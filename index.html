@@ -78,10 +78,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .pill[data-city="Near Yerevan"].active{background:#db2777;}
 .pill[data-city="Other"].active      {background:#6b7280;}
 .pill.all-pill.active{background:var(--accent);}
-.pill[data-price="free"].active     {background:#34d399;color:#1a1a1a!important;}
-.pill[data-price="under5k"].active  {background:#86efac;color:#1a1a1a!important;}
-.pill[data-price="5to10k"].active   {background:#fbbf24;color:#1a1a1a!important;}
-.pill[data-price="over10k"].active  {background:#f97316;color:#1a1a1a!important;}
 .filter-clear{font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;padding:0;margin-top:12px;text-decoration:underline;display:block;}
 .filter-clear:hover{color:var(--accent);}
 .sync-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:7px 14px;margin-bottom:16px;font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;gap:8px;}
@@ -513,16 +509,6 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
       </div>
     </div>
     <button class="filter-clear" onclick="clearFilters()">Clear filters</button>
-    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
-      <div class="filter-group-label">Price</div>
-      <div class="filter-pills" style="margin-top:8px;">
-        <button class="pill all-pill active" data-group="price" data-value="all">All prices</button>
-        <button class="pill" data-group="price" data-price="free"    data-value="free">🎁 Free</button>
-        <button class="pill" data-group="price" data-price="under5k" data-value="under5k">Under 5,000 AMD</button>
-        <button class="pill" data-group="price" data-price="5to10k"  data-value="5to10k">5,000–10,000 AMD</button>
-        <button class="pill" data-group="price" data-price="over10k" data-value="over10k">10,000+ AMD</button>
-      </div>
-    </div>
   </div>
 
   <div class="sync-bar" id="syncBar">
@@ -664,7 +650,7 @@ let dayMap=null,dayMapMarkers=[],dayMapMarkerId=0;
 let detailMap=null,detailMapMarker=null;
 const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS_LONG=['January','February','March','April','May','June','July','August','September','October','November','December'];
-let allEvents=[],filteredEvents=[],activeFilters={type:[],city:[],price:[]};
+let allEvents=[],filteredEvents=[],activeFilters={type:[],city:[]};
 const now=new Date();
 let calYear=now.getFullYear(),calMonth=now.getMonth();
 
@@ -883,24 +869,16 @@ document.querySelectorAll('.pill').forEach(pill=>{
   });
 });
 function clearFilters(){
-  activeFilters={type:[],city:[],price:[]};
+  activeFilters={type:[],city:[]};
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.pill.all-pill').forEach(p=>p.classList.add('active'));
   applyFilters();
-}
-function getPriceBucket(priceStr){
-  if(!priceStr)return null;const s=String(priceStr).toLowerCase().trim();
-  if(s==='free'||s==='0'||s==='0 amd')return'free';
-  const nums=s.match(/\d[\d,]*/g);if(!nums)return null;
-  const val=Math.min(...nums.map(n=>parseInt(n.replace(/,/g,''))));
-  if(isNaN(val)||val===0)return'free';if(val<5000)return'under5k';if(val<=10000)return'5to10k';return'over10k';
 }
 function applyFilters(){
   filteredEvents=allEvents.filter(ev=>{
     const typeOk=activeFilters.type.length===0||activeFilters.type.includes(ev.type);
     const cityOk=activeFilters.city.length===0||activeFilters.city.includes(ev.city);
-    const priceOk=activeFilters.price.length===0||activeFilters.price.includes(getPriceBucket(ev.price));
-    return typeOk&&cityOk&&priceOk;
+    return typeOk&&cityOk;
   });
   const n=filteredEvents.length;
   document.getElementById('resultCount').textContent=`${n} event${n!==1?'s':''} found`;
