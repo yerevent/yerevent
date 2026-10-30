@@ -296,8 +296,8 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v3.7';
-const APP_DATE = '28 Oct 2026';
+const APP_VERSION = 'v3.8';
+const APP_DATE = '30 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
@@ -1538,7 +1538,7 @@ function newestHTML(rows){
    of it. One block per scan, newest first, like the Telegram message: how
    many posts were read and the events found, each ready to approve. The rest
    of the posts, and why they were skipped, are one tap away. */
-let readsRows=[],readsLoaded=false,readsLoading=false,readsAt=0,openReads=new Set(),readsShown=8;
+let readsRows=[],readsLoaded=false,readsLoading=false,readsAt=0,openReads=new Set(),readsShown=8,readsAskedLive=false;
 const READ_STATUS={
   'added to pending':['✅','new event','#75FF73'],
   'already listed':['↺','already in the Database','#fccc84'],
@@ -1591,6 +1591,8 @@ function readsHTML(){
   const byCode=new Map();
   pendingRows.forEach(ev=>{const c=igCode(ev.link);if(c&&!byCode.has(c))byCode.set(c,ev);});
   const hiddenFps=new Set(hideList().map(h=>h.fp)),done=apprKeys();
+  /* and the ones already published, so they say so instead of "gone" */
+  const liveCodes=new Set((liveRows||[]).map(ev=>igCode(ev.link)).filter(Boolean));
   let html='';
   batches.slice(0,readsShown).forEach(b=>{
     const open=openReads.has(b.at),postsOpen=openReads.has('posts|'+b.at);
@@ -1602,12 +1604,14 @@ function readsHTML(){
       </button>`;
     if(open){
       html+='<div class="day-body">';
+      if(!liveLoaded&&!readsAskedLive){readsAskedLive=true;loadLive().then(()=>{if(pendingWhen==='reads')renderPending();}).catch(()=>{});}
       if(!b.found.length)html+='<p class="hint">No new events in this scan.</p>';
       b.found.forEach(p=>{
         const ev=byCode.get(igCode(p.url));
         if(ev&&!hiddenFps.has(fp(ev))&&!done.has(apprKey(ev)))html+=cardHTML(ev,'pending');
         else{
-          const why=!ev?'no longer in the Database':done.has(apprKey(ev))?'approved ✔':hiddenFps.has(fp(ev))?'marked not interested':'';
+          const why=liveCodes.has(igCode(p.url))||(ev&&done.has(apprKey(ev)))?'on the website ✔'
+            :ev&&hiddenFps.has(fp(ev))?'marked not interested':'removed from the Database';
           html+=`<div class="card" style="opacity:.6"><h3>${esc(ev?ev.name:(p.note||'Event'))}</h3><div class="meta">@${esc(p.handle)} · ${esc(why)}</div>
             <div class="cardbtns"><a class="btn ghost small" href="${esc(p.url)}" target="_blank" rel="noopener">the post ↗</a></div></div>`;
         }
