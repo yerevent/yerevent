@@ -115,10 +115,10 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .cal-cell:not(.other-month):hover{border-color:rgba(201,82,108,0.55);background:#1a0a12;box-shadow:0 0 0 2px rgba(201,82,108,0.15);}
 .cal-cell.weekend{background:#120810;}
 .cal-cell.weekend:not(.other-month):hover{background:#1a0d16;}
-.cal-cell.public-holiday{background:rgba(201,82,108,0.08);border-color:rgba(201,82,108,0.25);}
+/* public holidays are the only days with a coloured border, and a quiet one */
+.cal-cell.public-holiday{background:rgba(201,82,108,0.06);border-color:rgba(201,82,108,0.32);}
 .cal-cell.public-holiday:not(.other-month):hover{border-color:rgba(201,82,108,0.55);}
-.cal-cell.cultural-holiday{background:rgba(252,204,132,0.05);border-color:rgba(252,204,132,0.2);}
-.cal-cell.cultural-holiday:not(.other-month):hover{border-color:rgba(252,204,132,0.5);}
+.cal-cell.cultural-holiday{background:rgba(252,204,132,0.04);}
 .holiday-label{display:block;font-size:0.52rem;font-weight:700;color:#c9526c;letter-spacing:0.2px;margin-bottom:2px;line-height:1.2;text-transform:uppercase;flex-shrink:0;}
 .comm-mark{position:absolute;top:5px;right:5px;font-size:0.62rem;line-height:1;opacity:0.8;}
 .day-popup-note{font-size:0.78rem;color:var(--gold);margin-top:6px;opacity:0.9;}
@@ -128,8 +128,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .holiday-legend-swatch.cultural{background:rgba(252,204,132,0.12);border:1px solid rgba(252,204,132,0.3);}
 .legend-item{display:flex;align-items:center;gap:6px;}
 .cal-cell.other-month{opacity:0.2;cursor:default;}
-.cal-cell.today{border-color:var(--accent);}
-.cal-cell.today .day-num{color:var(--gold);font-weight:700;}
+/* today: a circle around the date, not a border */
+.cal-cell.today .day-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+  margin:-3px 0 0 -4px;border-radius:50%;border:1.5px solid var(--gold);color:var(--gold);font-weight:700;}
 .day-num{font-size:0.75rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;flex-shrink:0;}
 .cal-chips{display:flex;flex-direction:column;gap:2px;flex:1;min-height:0;overflow:hidden;}
 .cal-event-chip{display:block;font-size:0.6rem;font-weight:600;padding:2px 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid transparent;pointer-events:none;flex-shrink:0;line-height:1.4;}
@@ -152,8 +153,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
   0%,100%{box-shadow:0 0 0 0 rgba(201,82,108,0.4);}
   50%{box-shadow:0 0 0 3px rgba(201,82,108,0.15);}
 }
-.cal-cell.has-more{border-color:rgba(201,82,108,0.5);box-shadow:0 0 0 1px rgba(201,82,108,0.2) inset;}
-.cal-cell.has-more:not(.other-month):hover{border-color:var(--accent);box-shadow:0 0 0 2px rgba(201,82,108,0.25) inset;}
 .cal-tap-hint{font-size:0.52rem;color:var(--text-muted);opacity:0;transition:opacity 0.15s;pointer-events:none;text-align:right;flex-shrink:0;margin-top:2px;}
 .cal-cell:not(.other-month):hover .cal-tap-hint{opacity:1;}
 .sync-bar{margin-top:0;margin-bottom:16px;}
@@ -425,6 +424,7 @@ footer{background:#1f0d15;color:rgba(252,204,132,0.45);margin-top:0;font-family:
   .cal-cell{padding:5px 3px 3px;border-radius:6px;}
   .cal-chips{gap:1px;}
   .day-num{font-size:0.68rem;margin-bottom:2px;}
+  .cal-cell.today .day-num{width:19px;height:19px;margin:-2px 0 0 -2px;}
   .cal-more{font-size:0.58rem;padding:2px 0;border-radius:3px;}
 
   /* Filters */
