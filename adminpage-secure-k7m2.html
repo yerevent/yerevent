@@ -244,7 +244,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 
     <!-- SOURCES: the Instagram accounts the robot watches -->
     <div class="view" id="view-sources">
-      <p class="hint">The Instagram accounts the import robot reads every morning. Pausing one keeps it on the list but stops it being read; removing takes it off entirely.</p>
+      <p class="hint">The Instagram accounts the import robot reads every morning. Pausing one keeps it on the list but stops it being read; removing takes it off entirely. ⚙ sets details that are always the same for an account — its address, or "Free".</p>
       <div class="addsrc">
         <input id="srcInput" placeholder="instagram account, e.g. malkhasclub" autocapitalize="none" autocorrect="off" spellcheck="false">
         <button class="btn small" onclick="runBtn(this,()=>addSource(),'Adding…')">➕ Add</button>
@@ -296,7 +296,7 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v3.8';
+const APP_VERSION = 'v3.9';
 const APP_DATE = '30 Oct 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
@@ -1849,15 +1849,59 @@ function renderSources(){
     if(/error/i.test(s.lastStatus))bits.push('<span class="bad">couldn\'t be read</span>');
     if(!s.posts)bits.push('nothing yet');
     if(s.lastSeen)bits.push('last '+esc(s.lastSeen));
+    const rules=rulesText(s.rules);
     return `<div class="src ${s.active?'':'off'}" id="src-${s.row}">
       <div class="who">
         <div class="handle">@${esc(s.handle)}</div>
         <div class="stat">${bits.join(' · ')}</div>
+        ${rules?`<div class="stat" style="color:var(--gold)">⚙ ${esc(rules)}</div>`:''}
       </div>
+      <button class="btn ghost small" onclick="editRules('${esc(s.handle)}')" title="Details fixed for every post from this account">⚙${rules?'':' Rules'}</button>
       <button class="btn ghost small" onclick="runBtn(this,()=>toggleSource(${s.row},${s.active?'false':'true'}),'…')">${s.active?'⏸ Pause':'▶ Watch'}</button>
       <button class="btn red small" onclick="removeSource(${s.row},'${esc(s.handle)}',this)">🗑</button>
     </div>`;
   }).join('');
+}
+/* ---------- rules per account ----------
+   A detail fixed for every event read from one account, whatever its caption
+   says: the venue's real address, "Free" for a place that never mentions it.
+   Empty means no rule — the robot keeps what it reads. Rules apply to posts
+   read from now on, by the morning scan and to links you send. */
+const RULE_LABEL={place:'Venue',city:'City',price:'Price',type:'Type'};
+function rulesText(r){
+  if(!r)return '';
+  return Object.keys(RULE_LABEL).filter(k=>r[k]).map(k=>RULE_LABEL[k]+': '+r[k]).join(' · ');
+}
+function editRules(handle){
+  document.querySelectorAll('#srcList .form').forEach(f=>f.remove());
+  const s=srcRows.find(x=>x.handle===handle);if(!s)return;
+  const r=s.rules||{};
+  const opts=(list,sel)=>'<option value="">— as the post says —</option>'+
+    list.map(v=>`<option ${String(sel||'').toLowerCase()===v.toLowerCase()?'selected':''}>${v}</option>`).join('');
+  document.getElementById('src-'+s.row).insertAdjacentHTML('afterend',`<div class="form" data-handle="${esc(handle)}">
+    <p class="hint" style="margin:0 0 4px">Fixed for <b>every</b> event read from @${esc(handle)} from now on. Leave a box empty to keep what the post says.</p>
+    <label>Venue / address</label><input id="r-place" value="${esc(r.place||'')}" placeholder="e.g. HOW, 5 Tumanyan St">
+    <div class="row2">
+      <div><label>City</label><select id="r-city">${opts(CITIES,r.city)}</select></div>
+      <div><label>Type</label><select id="r-type">${opts(TYPES,r.type)}</select></div>
+    </div>
+    <label>Price</label><input id="r-price" value="${esc(r.price||'')}" placeholder="e.g. Free">
+    <div class="cardbtns">
+      <button class="btn" onclick="runBtn(this,()=>saveRules('${esc(handle)}'),'Saving…')">💾 Save rules</button>
+      <button class="btn ghost" onclick="this.closest('.form').remove()">Cancel</button>
+    </div>
+  </div>`);
+}
+async function saveRules(handle){
+  const v=id=>(document.getElementById(id).value||'').trim();
+  const rules={place:v('r-place'),city:v('r-city'),price:v('r-price'),type:v('r-type')};
+  try{
+    const out=await api({action:'setSourceRules',handle,rules});
+    const s=srcRows.find(x=>x.handle===handle);
+    if(s)s.rules=Object.keys(out.rules||{}).length?out.rules:null;
+    renderSources();
+    status(s&&s.rules?'Rules saved for @'+handle+' — they apply from the next posts read.':'Rules cleared for @'+handle+'.');
+  }catch(e){status('Could not save the rules: '+e.message,'err');}
 }
 /* Ask Bright Data to read every watched account now rather than waiting for
    the 7am run. It costs records, so it says so and asks first; the backend
