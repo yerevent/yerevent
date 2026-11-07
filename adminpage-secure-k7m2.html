@@ -296,8 +296,8 @@ textarea{width:100%;min-height:170px;padding:14px;border-radius:var(--radius);bo
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v3.9';
-const APP_DATE = '30 Oct 2026';
+const APP_VERSION = 'v3.10';
+const APP_DATE = '7 Nov 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
@@ -907,7 +907,7 @@ const PENDING_HINTS={
   reads:'Every post the Instagram robot read, one block per scan, newest first: the same news as the Telegram message. The events it found are ready to approve right here.'
 };
 function setPendingWhen(w){
-  pendingWhen=w;openDays=new Set();daysShown=DAYS_PAGE;
+  pendingWhen=w;resetDays();
   [['upcoming','penUpcomingBtn'],['festivals','penFestBtn'],['lineups','penLineupBtn'],['past','penPastBtn'],['reads','penReadsBtn']]
     .forEach(([k,id])=>document.getElementById(id).classList.toggle('on',w===k));
   renderPending();
@@ -1007,27 +1007,22 @@ function festivalsHTML(groups){
   }).join('');
 }
 /* ---------- filters: where it came from, and what kind it is ---------- */
-let typeFilter='',sourceFilter='';
+/* Several of each can be on at once: "concert" and "nightlife" shows both,
+   and choosing a source as well narrows that down to the chosen sources.
+   "All" / "Everything" turns that group's choices off. */
+let typeSel=new Set(),srcSel=new Set();
 /* what put the row in the database: the import robot, Esora, or older rows
    from before anything was labelled */
 function srcOf(ev){return String(ev.source||'').trim().toLowerCase();}
 const SRC_LABEL={links:'🔗 My links',instagram:'📸 Instagram',esora:'Esora','':'Older rows'};
+function srcFiltered(list){return srcSel.size?list.filter(ev=>srcSel.has(srcOf(ev)||'none')):list;}
 function typeFiltered(list){
-  let out=list;
-  if(sourceFilter)out=out.filter(ev=>srcOf(ev)===(sourceFilter==='none'?'':sourceFilter));
-  if(typeFilter)out=out.filter(ev=>String(ev.type||'').trim().toLowerCase()===typeFilter);
-  return out;
+  const out=srcFiltered(list);
+  return typeSel.size?out.filter(ev=>typeSel.has(String(ev.type||'').trim().toLowerCase())):out;
 }
-function setTypeFilter(t){
-  typeFilter=(t===typeFilter)?'':t;
-  openDays=new Set();daysShown=DAYS_PAGE;
-  renderPending();
-}
-function setSourceFilter(s){
-  sourceFilter=(s===sourceFilter)?'':s;
-  openDays=new Set();daysShown=DAYS_PAGE;
-  renderPending();
-}
+function toggleIn(set,v){if(!v)set.clear();else if(set.has(v))set.delete(v);else set.add(v);}
+function setTypeFilter(t){toggleIn(typeSel,t);resetDays();renderPending();}
+function setSourceFilter(k){toggleIn(srcSel,k);resetDays();renderPending();}
 function renderSourceFilter(s){
   const el=document.getElementById('pendingSources');
   if(!el)return;
@@ -1035,25 +1030,24 @@ function renderSourceFilter(s){
   const counts={};
   rows.forEach(ev=>{const k=srcOf(ev)||'none';counts[k]=(counts[k]||0)+1;});
   const keys=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
-  if(keys.length<2){el.innerHTML='';return;}   /* one source only: no point */
+  if(keys.length<2){el.innerHTML='';srcSel.clear();return;}   /* one source only: no point */
   el.innerHTML=
-    `<button class="chip ${sourceFilter?'':'on'}" onclick="setSourceFilter('')">Everything (${rows.length})</button>`+
-    keys.map(k=>`<button class="chip ${sourceFilter===k?'on':''}" onclick="setSourceFilter('${k}')">${esc(SRC_LABEL[k==='none'?'':k]||k)} (${counts[k]})</button>`).join('');
+    `<button class="chip ${srcSel.size?'':'on'}" onclick="setSourceFilter('')">Everything (${rows.length})</button>`+
+    keys.map(k=>`<button class="chip ${srcSel.has(k)?'on':''}" onclick="setSourceFilter('${k}')">${esc(SRC_LABEL[k==='none'?'':k]||k)} (${counts[k]})</button>`).join('');
 }
 function renderTypeFilter(s){
   const el=document.getElementById('pendingTypes');
   if(!el)return;
-  /* counts follow the chosen source, so "concert (12)" means 12 of those */
-  const all=pendingWhen==='past'?s.past:s.upcoming;
-  const rows=sourceFilter?all.filter(ev=>srcOf(ev)===(sourceFilter==='none'?'':sourceFilter)):all;
+  /* counts follow the chosen sources, so "concert (12)" means 12 of those */
+  const rows=srcFiltered(pendingWhen==='past'?s.past:s.upcoming);
   const counts={};
   rows.forEach(ev=>{const t=String(ev.type||'').trim().toLowerCase();if(t)counts[t]=(counts[t]||0)+1;});
-  const present=TYPES.filter(t=>counts[t]).sort((a,b)=>counts[b]-counts[a]);
+  const present=TYPES.filter(t=>counts[t]||typeSel.has(t)).sort((a,b)=>(counts[b]||0)-(counts[a]||0));
   el.innerHTML=
-    `<button class="chip ${typeFilter?'':'on'}" onclick="setTypeFilter('')">All (${rows.length})</button>`+
+    `<button class="chip ${typeSel.size?'':'on'}" onclick="setTypeFilter('')">All (${rows.length})</button>`+
     present.map(t=>{
-      const c=TYPE_COLOR[t]||'#888';
-      return `<button class="chip ${typeFilter===t?'on':''}" style="${typeFilter===t?`background:${c};border-color:${c};color:#1f0d15`:`color:${c};border-color:${c}66`}" onclick="setTypeFilter('${t}')">${esc(t)} (${counts[t]})</button>`;
+      const c=TYPE_COLOR[t]||'#888',on=typeSel.has(t);
+      return `<button class="chip ${on?'on':''}" style="${on?`background:${c};border-color:${c};color:#1f0d15`:`color:${c};border-color:${c}66`}" onclick="setTypeFilter('${t}')">${esc(t)} (${counts[t]||0})</button>`;
     }).join('');
 }
 function pendingCounts(){
@@ -1079,7 +1073,7 @@ function pendingCounts(){
   }
   const rows=typeFiltered(pendingWhen==='upcoming'?s.upcoming:s.past);
   const cards=groupPending(rows).length;
-  const what=typeFilter?typeFilter+' events':'events';
+  const what=typeSel.size?[...typeSel].join(' + ')+' events':'events';
   document.getElementById('pendingCount').textContent = pendingWhen==='upcoming'
     ? cards+' '+what+' to review'+(cards<rows.length?' ('+rows.length+' listings, repeats grouped)':'')
     : cards+' '+what+' already happened — kept for reference';
@@ -1450,7 +1444,9 @@ function itemCardHTML(it,kind){
    Hundreds of cards in one scroll is unreadable. The list is now a row of
    days; opening one shows that day's events and nothing else. */
 const DAYS_PAGE=30;
-let openDays=new Set(),daysShown=0;
+let openDays=new Set(),daysShown=0,daysAutoOpened=false;
+/* a fresh list (another view, other filters) opens its first day again */
+function resetDays(){openDays=new Set();daysAutoOpened=false;daysShown=DAYS_PAGE;}
 function toggleDay(d){openDays.has(d)?openDays.delete(d):openDays.add(d);renderPending();}
 function showMoreDays(){daysShown+=DAYS_PAGE;renderPending();}
 function dayLabel(dateStr){
@@ -1470,7 +1466,9 @@ function daysHTML(items,kind){
   if(kind==='past')days.reverse();
   if(!daysShown)daysShown=DAYS_PAGE;
   /* the soonest day starts open, so the tab is never a wall of closed rows */
-  if(!openDays.size&&days.length)openDays.add(days[0]);
+  /* only once per list: it used to reopen whenever no day was open, so
+     closing today, the one open day, sprang it straight back open */
+  if(!daysAutoOpened&&days.length){openDays.add(days[0]);daysAutoOpened=true;}
   const shown=days.slice(0,daysShown);
   let html='',lastMonth='';
   shown.forEach(d=>{
@@ -1674,7 +1672,7 @@ function renderPending(){
   }else{
     const items=groupPending(typeFiltered(s.upcoming));
     html=items.length?daysHTML(items,'pending')
-       :`<p class="hint">Nothing upcoming ${typeFilter?'of this type':'to review'} 🎉</p>`;
+       :`<p class="hint">Nothing upcoming ${typeSel.size||srcSel.size?'for these filters':'to review'} 🎉</p>`;
     const undated=typeFiltered(s.undated);
     if(undated.length){
       html+=`<div class="month-heading" style="cursor:pointer" onclick="toggleUndated()">📅 Date unclear (${undated.length}) ${showUndated?'▾':'▸'}</div>`;
