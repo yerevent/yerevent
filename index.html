@@ -57,6 +57,28 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .filter-pills{display:flex;flex-wrap:wrap;gap:5px;}
 .pill{font-size:0.73rem;font-weight:500;padding:5px 12px;border-radius:100px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text-soft);font-family:'Outfit',sans-serif;transition:all 0.15s;white-space:nowrap;user-select:none;}
 .pill:hover{border-color:var(--accent);color:var(--accent);}
+/* each filter wears the colour its events have in the calendar, so it's clear what's what */
+.pill[data-type="festival"]{--c:#ff6b6b;--bg:rgba(255,107,107,0.15);--bd:rgba(255,107,107,0.25);}
+.pill[data-type="concert"]{--c:#75FF73;--bg:rgba(117,255,115,0.15);--bd:rgba(117,255,115,0.25);}
+.pill[data-type="nightlife"]{--c:#f472b6;--bg:rgba(244,114,182,0.15);--bd:rgba(244,114,182,0.25);}
+.pill[data-type="social"]{--c:#fb923c;--bg:rgba(251,146,60,0.15);--bd:rgba(251,146,60,0.25);}
+.pill[data-type="dining"]{--c:#facc15;--bg:rgba(250,204,21,0.15);--bd:rgba(250,204,21,0.25);}
+.pill[data-type="educational"]{--c:#60a5fa;--bg:rgba(96,165,250,0.15);--bd:rgba(96,165,250,0.25);}
+.pill[data-type="art"]{--c:#a78bfa;--bg:rgba(167,139,250,0.15);--bd:rgba(167,139,250,0.25);}
+.pill[data-type="film"]{--c:#2dd4bf;--bg:rgba(45,212,191,0.15);--bd:rgba(45,212,191,0.25);}
+.pill[data-type="sports"]{--c:#38bdf8;--bg:rgba(56,189,248,0.15);--bd:rgba(56,189,248,0.25);}
+.pill[data-type="activities"]{--c:#d9f99d;--bg:rgba(217,249,157,0.15);--bd:rgba(217,249,157,0.25);}
+.pill[data-type="expo"]{--c:#c084fc;--bg:rgba(192,132,252,0.15);--bd:rgba(192,132,252,0.25);}
+.pill[data-type="market"]{--c:#fda4af;--bg:rgba(253,164,175,0.15);--bd:rgba(253,164,175,0.25);}
+.pill[data-city="Yerevan"]{--c:#e05c5c;--bg:rgba(224,92,92,0.15);--bd:rgba(224,92,92,0.3);}
+.pill[data-city="Gyumri"]{--c:#d97706;--bg:rgba(217,119,6,0.15);--bd:rgba(217,119,6,0.3);}
+.pill[data-city="Vanadzor"]{--c:#16a34a;--bg:rgba(22,163,74,0.15);--bd:rgba(22,163,74,0.3);}
+.pill[data-city="Meghri"]{--c:#0891b2;--bg:rgba(8,145,178,0.15);--bd:rgba(8,145,178,0.3);}
+.pill[data-city="Kapan"]{--c:#7c3aed;--bg:rgba(124,58,237,0.15);--bd:rgba(124,58,237,0.3);}
+.pill[data-city="Near Yerevan"]{--c:#db2777;--bg:rgba(219,39,119,0.15);--bd:rgba(219,39,119,0.3);}
+.pill[data-city="Other"]{--c:#6b7280;--bg:rgba(107,114,128,0.15);--bd:rgba(107,114,128,0.3);}
+.pill[data-type],.pill[data-city]{color:var(--c);background:var(--bg);border-color:var(--bd);}
+.pill[data-type]:hover,.pill[data-city]:hover{color:var(--c);border-color:var(--c);}
 .pill.active{color:#fff!important;border-color:transparent;}
 .pill[data-type="festival"].active   {background:#ff6b6b;}
 .pill[data-type="concert"].active    {background:#75FF73;color:#1a1a1a!important;}
