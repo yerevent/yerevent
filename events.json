@@ -1,5 +1,35 @@
 [
  {
+  "name": "SEVAGIR Concert",
+  "Date": "2026-11-12T20:00:00.000Z",
+  "Time": "8:30 PM",
+  "City": "Yerevan",
+  "Place": "Tonelab, Koryun 19a",
+  "Type": "concert",
+  "Price": "6000–8000 AMD",
+  "Link": "https://www.instagram.com/p/Demfj4DtX0s/",
+  "Description": "SEVAGIR is back at Tonelab after spending some time in the studio working on their upcoming album and writing new songs!\n\nIn just four years, the band has built a substantial fan base, released an album and several singles, and gained wide exposure by participating in the Eurovision national selection. The band was nominated for the best rock band by the Armenian Music Academy 2025-26.\n\nSevagir has its roots in alternative rock, yet its musical palette goes far beyond that. Their songs are rich with progressive elements and, at times, almost metal in sound, while still offering familiar moments for fans of indie, alternative, and even rap. The poetry of Sevagir's songs takes listeners through a wide emotional spectrum from dark despair to an inexhaustible love of life.\n\nDate: November 13, Friday\nLocation: Koryun 19a, Tonelab\nDoors: 8 PM\nStart: 8:30 PM\n\nTickets online:\nUntil October 24 - 6000 AMD\nUntil November 12 - 7000 AMD\nNovember 13 and at doors - 8000 AMD",
+  "Status": "✅ Live",
+  "Completeness": "✅ Complete",
+  "source": "",
+  "": ""
+ },
+ {
+  "name": "The Best of ABBA | Armenian National Philharmonic Orchestra",
+  "Date": "2026-11-11T20:00:00.000Z",
+  "Time": "19:00",
+  "City": "Yerevan",
+  "Place": "Aram Khachaturian Concert Hall",
+  "Type": "concert",
+  "Price": "5000–25000 AMD",
+  "Link": "",
+  "Description": "The Armenian National Philharmonic Orchestra presents the legendary hits of ABBA in a new symphonic arrangement.\n\nMusic that unites generations and hits that have retained their power and charm for decades. Throughout the evening, the group's most beloved songs will be performed in a large-scale, impressive format.\n\nTickets are available online at khachaturianhall.am or at the Aram Khachaturian Concert Hall box office.",
+  "Status": "✅ Live",
+  "Completeness": "⚠️ Missing: Link",
+  "source": "",
+  "": ""
+ },
+ {
   "name": "Anacondaz - Pauzern Carnival",
   "Date": "January 3, 2027",
   "Time": "6:30 PM",
