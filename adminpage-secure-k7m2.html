@@ -295,11 +295,11 @@ a{color:var(--gold);}
       <div id="pendingFooter"></div>
     </div>
 
-    <!-- SOURCES: the Instagram accounts the robot watches -->
+    <!-- SOURCES: the Instagram accounts and Facebook pages the robot watches -->
     <div class="view" id="view-sources">
-      <p class="hint">The Instagram accounts the import robot reads every morning. Pausing one keeps it on the list but stops it being read; removing takes it off entirely. ⚙ sets details that are always the same for an account — its address, or "Free".</p>
+      <p class="hint">The Instagram accounts and Facebook pages the import robot reads every morning. Pausing one keeps it on the list but stops it being read; removing takes it off entirely. ⚙ sets details that are always the same for an account — its address, or "Free".</p>
       <div class="addsrc">
-        <input id="srcInput" placeholder="instagram account, e.g. malkhasclub" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <input id="srcInput" placeholder="instagram account, or a Facebook page link" autocapitalize="none" autocorrect="off" spellcheck="false">
         <button class="btn small" onclick="runBtn(this,()=>addSource(),'Adding…')">➕ Add</button>
       </div>
       <div class="topbtns">
@@ -1077,7 +1077,7 @@ let typeSel=new Set(),srcSel=new Set(),citySel=new Set();
 /* what put the row in the database: the import robot, Esora, or older rows
    from before anything was labelled */
 function srcOf(ev){return String(ev.source||'').trim().toLowerCase();}
-const SRC_LABEL={links:'🔗 My links',instagram:'📸 Instagram',esora:'Esora','':'Older rows'};
+const SRC_LABEL={links:'🔗 My links',instagram:'📸 Instagram',facebook:'📘 Facebook',esora:'Esora','':'Older rows'};
 function srcFiltered(list){return srcSel.size?list.filter(ev=>srcSel.has(srcOf(ev)||'none')):list;}
 /* the town, with the website's town colours */
 const CITY_ORDER=['Yerevan','Near Yerevan','Gyumri','Vanadzor','Kapan','Meghri','Other'];
@@ -1928,6 +1928,15 @@ async function loadSources(){
     renderSources();
   }catch(e){el.innerHTML='';status('Could not load the accounts: '+e.message,'err');}
 }
+/* Facebook pages are kept as fb:<page>; they show by name, with a link */
+function isFb(h){return /^fb:/.test(String(h||''));}
+function fbUrl(h){const p=String(h).slice(3);return /^\d+$/.test(p)?'https://www.facebook.com/profile.php?id='+p:'https://www.facebook.com/'+p;}
+function srcName(s){
+  if(!isFb(s.handle))return '@'+esc(s.handle);
+  const name=String(s.notes||'').replace(/^Facebook\s*-\s*/i,'')||s.handle.slice(3);
+  return `📘 <a href="${esc(fbUrl(s.handle))}" target="_blank" rel="noopener" style="color:inherit">${esc(name)}</a>`;
+}
+function srcShort(h){return isFb(h)?'that Facebook page':'@'+h;}
 function renderSources(){
   const el=document.getElementById('srcList');
   const q=(document.getElementById('srcFilter').value||'').trim().toLowerCase();
@@ -1936,7 +1945,7 @@ function renderSources(){
   document.getElementById('srcCount').textContent=
     srcRows.length+' accounts · '+on+' being read · '+posting+' have posted';
   const list=srcRows
-    .filter(s=>!q||s.handle.includes(q))
+    .filter(s=>!q||s.handle.includes(q)||String(s.notes||'').toLowerCase().includes(q))
     .slice()
     .sort((a,b)=>(b.active-a.active)||(b.events-a.events)||(b.posts-a.posts)||a.handle.localeCompare(b.handle));
   if(!list.length){el.innerHTML='<p class="hint">Nothing matches.</p>';return;}
@@ -1950,7 +1959,7 @@ function renderSources(){
     const rules=rulesText(s.rules);
     return `<div class="src ${s.active?'':'off'}" id="src-${s.row}">
       <div class="who">
-        <div class="handle">@${esc(s.handle)}</div>
+        <div class="handle">${srcName(s)}</div>
         <div class="stat">${bits.join(' · ')}</div>
         ${rules?`<div class="stat" style="color:var(--gold)">⚙ ${esc(rules)}</div>`:''}
       </div>
@@ -2023,13 +2032,13 @@ async function scanNow(){
 async function addSource(){
   const input=document.getElementById('srcInput');
   const handle=(input.value||'').trim();
-  if(!handle){status('Type an Instagram account name first.','err');return;}
+  if(!handle){status('Type an Instagram account name or paste a Facebook page link first.','err');return;}
   try{
     const out=await api({action:'addSource', handle});
     input.value='';
     status(out.added&&out.added.already
-      ? '@'+out.added.handle+' was already on the list.'
-      : 'Added @'+((out.added&&out.added.handle)||handle)+' — it will be read tomorrow morning.');
+      ? srcShort(out.added.handle)+' was already on the list.'
+      : 'Added '+srcShort((out.added&&out.added.handle)||handle)+' — it will be read tomorrow morning.');
     await loadSources();
   }catch(e){status('Could not add it: '+e.message,'err');}
 }
@@ -2043,11 +2052,11 @@ async function toggleSource(row,active){
   }catch(e){status('Could not change it: '+e.message,'err');loadSources();}
 }
 async function removeSource(row,handle,btn){
-  if(!confirm('Remove @'+handle+' from the list? Events already found are not affected.'))return;
+  if(!confirm('Remove '+srcShort(handle)+' from the list? Events already found are not affected.'))return;
   btn.disabled=true;
   try{
     await api({action:'removeSource', row});
-    status('Removed @'+handle+'.');
+    status('Removed '+srcShort(handle)+'.');
     await loadSources();
   }catch(e){btn.disabled=false;status('Could not remove it: '+e.message,'err');}
 }
