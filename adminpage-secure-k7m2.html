@@ -288,6 +288,7 @@ a{color:var(--gold);}
       </div>
       <div class="chiprow" id="pendingSort"></div>
       <div class="chiprow" id="pendingSources"></div>
+      <div class="chiprow" id="pendingCities"></div>
       <div class="chiprow" id="pendingTypes"></div>
       <div class="topbtns"><span class="count" id="pendingCount"></span></div>
       <div id="pendingList"><span class="spin"></span> Loading…</div>
@@ -350,8 +351,8 @@ a{color:var(--gold);}
 const API_URL = 'https://script.google.com/macros/s/AKfycbyCsVTwsBMazq5vn5ZOzE4BEmW2QdiGbyjUtIXPgrmevkUGd-fN1etI2GHeGC0cf3UvsA/exec';
 const PW_KEY = 'yerevent_admin_pw';
 /* Bump both of these on every edit, so the page always says which version it is. */
-const APP_VERSION = 'v4.0';
-const APP_DATE = '7 Nov 2026';
+const APP_VERSION = 'v4.1';
+const APP_DATE = '12 Nov 2026';
 const TYPES = ['festival','concert','nightlife','social','dining','educational','art','film','sports','activities','expo','market'];
 const CITIES = ['Yerevan','Gyumri','Vanadzor','Meghri','Kapan','Near Yerevan','Other'];
 const TYPE_COLOR = {festival:'#ff6b6b',concert:'#75FF73',nightlife:'#f472b6',social:'#fb923c',dining:'#facc15',educational:'#60a5fa',art:'#a78bfa',film:'#2dd4bf',sports:'#38bdf8',activities:'#d9f99d',expo:'#c084fc',market:'#fda4af'};
@@ -1072,19 +1073,41 @@ function festivalsHTML(groups){
 /* Several of each can be on at once: "concert" and "nightlife" shows both,
    and choosing a source as well narrows that down to the chosen sources.
    "All" / "Everything" turns that group's choices off. */
-let typeSel=new Set(),srcSel=new Set();
+let typeSel=new Set(),srcSel=new Set(),citySel=new Set();
 /* what put the row in the database: the import robot, Esora, or older rows
    from before anything was labelled */
 function srcOf(ev){return String(ev.source||'').trim().toLowerCase();}
 const SRC_LABEL={links:'🔗 My links',instagram:'📸 Instagram',esora:'Esora','':'Older rows'};
 function srcFiltered(list){return srcSel.size?list.filter(ev=>srcSel.has(srcOf(ev)||'none')):list;}
+/* the town, with the website's town colours */
+const CITY_ORDER=['Yerevan','Near Yerevan','Gyumri','Vanadzor','Kapan','Meghri','Other'];
+const CITY_COLOR={'Yerevan':'#e05c5c','Gyumri':'#d97706','Vanadzor':'#16a34a','Meghri':'#0891b2','Kapan':'#7c3aed','Near Yerevan':'#db2777','Other':'#6b7280'};
+function cityOf(ev){return String(ev.city||'').trim()||'none';}
+function cityFiltered(list){const out=srcFiltered(list);return citySel.size?out.filter(ev=>citySel.has(cityOf(ev))):out;}
+function cityStyle(c,on){const k=CITY_COLOR[c]||'#8b93a7';
+  return on?`background:${k};border-color:${k};color:#fff`:`color:${k};background:${k}26;border:1px solid ${k}40`;}
 function typeFiltered(list){
-  const out=srcFiltered(list);
+  const out=cityFiltered(list);
   return typeSel.size?out.filter(ev=>typeSel.has(String(ev.type||'').trim().toLowerCase())):out;
 }
 function toggleIn(set,v){if(!v)set.clear();else if(set.has(v))set.delete(v);else set.add(v);}
 function setTypeFilter(t){toggleIn(typeSel,t);resetDays();renderPending();}
 function setSourceFilter(k){toggleIn(srcSel,k);resetDays();renderPending();}
+function setCityFilter(c){toggleIn(citySel,c);resetDays();renderPending();}
+function renderCityFilter(s){
+  const el=document.getElementById('pendingCities');
+  if(!el)return;
+  /* counts follow the chosen sources */
+  const rows=srcFiltered(pendingWhen==='past'?s.past:s.upcoming);
+  const counts={};
+  rows.forEach(ev=>{const c=cityOf(ev);counts[c]=(counts[c]||0)+1;});
+  const keys=Object.keys(counts).concat([...citySel].filter(c=>!counts[c]))
+    .sort((a,b)=>{const ia=CITY_ORDER.indexOf(a),ib=CITY_ORDER.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b);});
+  el.innerHTML=
+    `<button class="chip ${citySel.size?'':'on'}" onclick="setCityFilter('')">📍 All towns (${rows.length})</button>`+
+    keys.map(c=>{const on=citySel.has(c);
+      return `<button class="chip ${on?'on':''}" style="${cityStyle(c,on)}" onclick="setCityFilter('${esc(c).replace(/'/g,"\\'")}')">${c==='none'?'No town':esc(c)} (${counts[c]||0})</button>`;}).join('');
+}
 function renderSourceFilter(s){
   const el=document.getElementById('pendingSources');
   if(!el)return;
@@ -1100,8 +1123,8 @@ function renderSourceFilter(s){
 function renderTypeFilter(s){
   const el=document.getElementById('pendingTypes');
   if(!el)return;
-  /* counts follow the chosen sources, so "concert (12)" means 12 of those */
-  const rows=srcFiltered(pendingWhen==='past'?s.past:s.upcoming);
+  /* counts follow the chosen sources and towns, so "concert (12)" means 12 of those */
+  const rows=cityFiltered(pendingWhen==='past'?s.past:s.upcoming);
   const counts={};
   rows.forEach(ev=>{const t=String(ev.type||'').trim().toLowerCase();if(t)counts[t]=(counts[t]||0)+1;});
   const present=TYPES.filter(t=>counts[t]||typeSel.has(t)).sort((a,b)=>(counts[b]||0)-(counts[a]||0));
@@ -1147,7 +1170,7 @@ function pendingCounts(){
   }
   const rows=typeFiltered(pendingWhen==='upcoming'?s.upcoming:s.past);
   const cards=groupPending(rows).length;
-  const what=typeSel.size?[...typeSel].join(' + ')+' events':'events';
+  const what=(typeSel.size?[...typeSel].join(' + ')+' events':'events')+(citySel.size?' in '+[...citySel].map(c=>c==='none'?'no town':c).join(' + '):'');
   document.getElementById('pendingCount').textContent = pendingWhen==='upcoming'
     ? cards+' '+what+' to review'+(cards<rows.length?' ('+rows.length+' listings, repeats grouped)':'')
     : cards+' '+what+' already happened — kept for reference';
@@ -1716,6 +1739,7 @@ function renderPending(){
   document.getElementById('pendingSort').innerHTML=(pendingWhen==='upcoming'||pendingWhen==='past')?sortChipsHTML():'';
   if(pendingWhen==='reads'){
     document.getElementById('pendingSources').innerHTML='';
+    document.getElementById('pendingCities').innerHTML='';
     document.getElementById('pendingTypes').innerHTML='';
     el.innerHTML=readsHTML();
     renderPendingFooter();
@@ -1724,6 +1748,7 @@ function renderPending(){
   }
   if(pendingWhen==='festivals'||pendingWhen==='lineups'){
     document.getElementById('pendingSources').innerHTML='';
+    document.getElementById('pendingCities').innerHTML='';
     document.getElementById('pendingTypes').innerHTML='';
     el.innerHTML=pendingWhen==='festivals'?festivalsHTML(s.festivals)
       :(s.lineups.length?s.lineups.map(ev=>cardHTML(ev,'pending')).join('')
@@ -1732,6 +1757,7 @@ function renderPending(){
     return;
   }
   renderSourceFilter(s);
+  renderCityFilter(s);
   renderTypeFilter(s);
   let html='';
   if(sortNewest){
@@ -1746,7 +1772,7 @@ function renderPending(){
   }else{
     const items=groupPending(typeFiltered(s.upcoming));
     html=items.length?daysHTML(items,'pending')
-       :`<p class="hint">Nothing upcoming ${typeSel.size||srcSel.size?'for these filters':'to review'} 🎉</p>`;
+       :`<p class="hint">Nothing upcoming ${typeSel.size||srcSel.size||citySel.size?'for these filters':'to review'} 🎉</p>`;
     const undated=typeFiltered(s.undated);
     if(undated.length){
       html+=`<div class="month-heading" style="cursor:pointer" onclick="toggleUndated()">📅 Date unclear (${undated.length}) ${showUndated?'▾':'▸'}</div>`;
